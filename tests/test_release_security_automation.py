@@ -176,6 +176,66 @@ secret = "placeholder-value"
             with self.assertRaises(release_check.CheckFailure):
                 release_check.validate_doctor_report(path, ROOT, 20)
 
+    def test_doctor_v2_validation_matches_capability_scoped_blockers(self):
+        def check(identifier, status, stage):
+            return {
+                "id": identifier,
+                "status": status,
+                "message": identifier,
+                "stage": stage,
+                "evidence": None,
+                "human_action": None,
+                "remediation": None,
+            }
+
+        reports = [
+            ({
+                "schema": "ipad-agent.doctor/v2",
+                "state": "needs_agent_action",
+                "ready": False,
+                "exit_code": 20,
+                "selected": {},
+                "checks": [
+                    check("host.python", "fail", "host"),
+                    check("airdrop.policy", "fail", "host"),
+                ],
+                "next": ["host.python"],
+            }, 20),
+            ({
+                "schema": "ipad-agent.doctor/v2",
+                "state": "ready",
+                "ready": True,
+                "exit_code": 0,
+                "selected": {},
+                "checks": [check("airdrop.policy", "fail", "host")],
+                "next": [],
+            }, 0),
+            ({
+                "schema": "ipad-agent.doctor/v2",
+                "state": "action_required",
+                "ready": False,
+                "exit_code": 10,
+                "selected": {},
+                "checks": [
+                    check("device.unlocked", "action_required", "device"),
+                    check("wda.build", "fail", "wda"),
+                ],
+                "next": ["device.unlocked"],
+            }, 10),
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "doctor.json"
+            for report, process_exit in reports:
+                path.write_text(json.dumps(report), encoding="utf-8")
+                release_check.validate_doctor_report(path, ROOT, process_exit)
+
+            report, process_exit = reports[0]
+            report = json.loads(json.dumps(report))
+            report["next"] = ["host.python", "airdrop.policy"]
+            path.write_text(json.dumps(report), encoding="utf-8")
+            with self.assertRaises(release_check.CheckFailure):
+                release_check.validate_doctor_report(path, ROOT, process_exit)
+
     def test_ci_is_macos_repository_native_and_offline_by_default(self):
         workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
         self.assertIn("runs-on: macos-latest", workflow)

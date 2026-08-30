@@ -787,6 +787,28 @@ def check_release(root: Path) -> list[str]:
     return sorted(set(issues))
 
 
+_OPTIONAL_DOCTOR_CHECKS = {"host.swift", "airdrop.policy", "airdrop.helper"}
+
+
+def _doctor_blocking_checks(report: dict[str, Any]) -> list[dict[str, Any]]:
+    non_ready = [
+        item for item in report["checks"]
+        if item["status"] in {"fail", "action_required", "unknown"}
+    ]
+    if report.get("schema") != "ipad-agent.doctor/v2":
+        return non_ready
+    blocking = [item for item in non_ready if item["id"] not in _OPTIONAL_DOCTOR_CHECKS]
+    statuses = {item["id"]: item["status"] for item in report["checks"]}
+    human_gate = (
+        statuses.get("device.unlocked") == "action_required"
+        or statuses.get("device.developer_mode") == "action_required"
+        or statuses.get("signing.identity") == "action_required"
+    )
+    if human_gate:
+        blocking = [item for item in blocking if item["stage"] not in {"wda", "verify"}]
+    return blocking
+
+
 def validate_doctor_report(path: Path, root: Path, process_exit: int | None) -> None:
     report = _strict_json(path)
     if not isinstance(report, dict):
@@ -807,17 +829,17 @@ def validate_doctor_report(path: Path, root: Path, process_exit: int | None) -> 
         raise CheckFailure(f"doctor reported undocumented readiness exit {exit_code}")
     if process_exit is not None and process_exit != exit_code:
         raise CheckFailure(f"doctor process exit {process_exit} does not match JSON exit_code {exit_code}")
-    bad = [item for item in report["checks"] if item["status"] in {"fail", "action_required", "unknown"}]
-    if report["ready"] != (exit_code == 0 and not bad):
+    blocking = _doctor_blocking_checks(report)
+    if report["ready"] != (exit_code == 0 and not blocking):
         raise CheckFailure("doctor ready/exit/check status fields are inconsistent")
-    if report["next"] != [item["id"] for item in bad]:
-        raise CheckFailure("doctor next must list non-ready checks in report order")
+    if report["next"] != [item["id"] for item in blocking]:
+        raise CheckFailure("doctor next must list blocking checks in report order")
     if report["schema"] == "ipad-agent.doctor/v2":
-        if not bad:
+        if not blocking:
             expected_state, expected_exit = "ready", 0
-        elif any(item["status"] == "fail" for item in bad):
+        elif any(item["status"] == "fail" for item in blocking):
             expected_state, expected_exit = "needs_agent_action", 20
-        elif any(item["status"] == "unknown" for item in bad):
+        elif any(item["status"] == "unknown" for item in blocking):
             expected_state, expected_exit = "blocked", 30
         else:
             expected_state, expected_exit = "action_required", 10
