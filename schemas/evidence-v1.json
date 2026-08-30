@@ -1,0 +1,166 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ipad-agent.local/schemas/evidence-v1.json",
+  "title": "iPad Agent private lab evidence v1",
+  "type": "object",
+  "required": [
+    "$schema", "schema", "version", "evidence_id", "integration_id", "scenario_id",
+    "mode", "started_at", "finished_at", "host", "device", "plan", "binding",
+    "authorization", "safety_gate", "outcomes", "metrics", "redaction", "complete"
+  ],
+  "properties": {
+    "$schema": {"const": "schemas/evidence-v1.json"},
+    "schema": {"const": "ipad-agent.lab-evidence/v1"},
+    "version": {"const": 1},
+    "evidence_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "integration_id": {"$ref": "#/$defs/id"},
+    "scenario_id": {"$ref": "#/$defs/id"},
+    "mode": {"enum": ["fake", "physical", "discovery", "benchmark"]},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "host": {"type": "object"},
+    "device": {"type": "object"},
+    "plan": {
+      "type": "object",
+      "required": [
+        "integration_id", "scenario_id", "bundle_id", "max_attempts", "safety_ceiling",
+        "steps", "metadata", "parameters", "manifest_digest", "plan_digest"
+      ],
+      "properties": {
+        "integration_id": {"$ref": "#/$defs/id"},
+        "scenario_id": {"$ref": "#/$defs/id"},
+        "bundle_id": {"type": "string", "minLength": 1},
+        "max_attempts": {"type": "integer", "minimum": 1},
+        "safety_ceiling": {"$ref": "#/$defs/labSafety"},
+        "steps": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/plannedStep"}},
+        "metadata": {"type": "object"},
+        "parameters": {"type": "object"},
+        "manifest_digest": {"$ref": "#/$defs/digest"},
+        "plan_digest": {"$ref": "#/$defs/digest"}
+      },
+      "additionalProperties": false
+    },
+    "binding": {
+      "type": "object",
+      "required": [
+        "integration_id", "scenario_id", "manifest_digest", "plan_digest", "parameters",
+        "parameters_digest", "environment_digest"
+      ],
+      "properties": {
+        "integration_id": {"$ref": "#/$defs/id"},
+        "scenario_id": {"$ref": "#/$defs/id"},
+        "manifest_digest": {"$ref": "#/$defs/digest"},
+        "plan_digest": {"$ref": "#/$defs/digest"},
+        "parameters": {"type": "object"},
+        "parameters_digest": {"$ref": "#/$defs/digest"},
+        "environment_digest": {"$ref": "#/$defs/digest"}
+      },
+      "additionalProperties": false
+    },
+    "authorization": {
+      "type": ["object", "null"],
+      "required": [
+        "actor", "request", "integration_id", "manifest_digest", "plan_digest",
+        "scenario_id", "parameters", "safety_ceiling", "confirmations", "authorized_at", "expires_at",
+        "run_count", "benchmark_parameters", "benchmark_control_plan"
+      ],
+      "properties": {
+        "actor": {"type": "string", "minLength": 1},
+        "request": {"type": "string", "minLength": 1},
+        "integration_id": {"$ref": "#/$defs/id"},
+        "manifest_digest": {"$ref": "#/$defs/digest"},
+        "plan_digest": {"$ref": "#/$defs/digest"},
+        "scenario_id": {"$ref": "#/$defs/id"},
+        "parameters": {"type": "object"},
+        "safety_ceiling": {"$ref": "#/$defs/labSafety"},
+        "confirmations": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+        "authorized_at": {"type": "string", "format": "date-time"},
+        "expires_at": {"type": "string", "format": "date-time"},
+        "run_count": {"type": "integer", "minimum": 1},
+        "benchmark_parameters": {
+          "type": ["object", "null"],
+          "required": ["warmups", "runs"],
+          "properties": {
+            "warmups": {"type": "integer", "minimum": 0, "maximum": 20},
+            "runs": {"type": "integer", "minimum": 1, "maximum": 20}
+          },
+          "additionalProperties": false
+        },
+        "benchmark_control_plan": {
+          "type": ["object", "null"],
+          "required": ["baseline", "reset", "cleanup", "control_plan_digest"],
+          "properties": {
+            "baseline": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/plannedStep"}},
+            "reset": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/plannedStep"}},
+            "cleanup": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/plannedStep"}},
+            "control_plan_digest": {"$ref": "#/$defs/digest"}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "safety_gate": {
+      "type": "object",
+      "required": [
+        "passed", "ceiling", "maximum_lab_ceiling", "step_count", "prohibition_count",
+        "prohibitions_digest", "plan_digest", "persistent_or_protected",
+        "instruction_operation_invariants"
+      ],
+      "properties": {
+        "passed": {"const": true},
+        "ceiling": {"$ref": "#/$defs/labSafety"},
+        "maximum_lab_ceiling": {"const": "transient"},
+        "step_count": {"type": "integer", "minimum": 1},
+        "prohibition_count": {"type": "integer", "minimum": 0},
+        "prohibitions_digest": {"$ref": "#/$defs/digest"},
+        "plan_digest": {"$ref": "#/$defs/digest"},
+        "persistent_or_protected": {"const": false},
+        "instruction_operation_invariants": {"const": true}
+      },
+      "additionalProperties": false
+    },
+    "outcomes": {"type": "array", "items": {"type": "object"}},
+    "metrics": {"type": "object"},
+    "redaction": {
+      "type": "object",
+      "required": ["state", "commit"],
+      "properties": {
+        "state": {"const": "raw-private"},
+        "commit": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "complete": {"type": "boolean"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "labSafety": {"enum": ["observe", "navigate", "transient"]},
+    "plannedStep": {
+      "type": "object",
+      "required": ["action_id", "index", "operation", "instruction", "selector"],
+      "properties": {
+        "action_id": {"type": "string", "minLength": 1},
+        "index": {"type": "integer", "minimum": 0},
+        "operation": {
+          "type": "object",
+          "required": ["operation_id", "name", "safety_class", "retry_class", "authority", "metadata"],
+          "properties": {
+            "operation_id": {"type": "string", "minLength": 1},
+            "name": {"type": "string", "minLength": 1},
+            "safety_class": {"$ref": "#/$defs/labSafety"},
+            "retry_class": {"enum": ["safe_repeat", "inspect_then_decide"]},
+            "authority": {"const": null},
+            "metadata": {"type": "object"}
+          },
+          "additionalProperties": false
+        },
+        "instruction": {"type": "object"},
+        "selector": {"type": ["object", "null"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,214 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "safari",
+  "name": "Safari",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.mobilesafari"
+  ],
+  "aliases": [
+    "safari",
+    "apple safari"
+  ],
+  "capabilities": [
+    "launch",
+    "open-url",
+    "inspect-toolbar"
+  ],
+  "selectors": {
+    "observed-address-control": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Address' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "observed-tabs-control": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND name == 'TabOverviewButton' AND label == 'Tabs' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "observed-toolbar-new-tab-control": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND name == 'NewTabButton' AND label == 'New tab' AND visible == 1 AND accessible == 1",
+      "cache": false
+    }
+  },
+  "actions": {
+    "activate": {
+      "description": "Bring built-in Safari to the foreground without delivering a URL, changing the selected tab, or starting WebDriverAgent.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-url": {
+      "description": "Deliver one explicit HTTP or HTTPS URL through CoreDevice; Safari owns whether the normal current tab is reused or another normal tab appears.",
+      "capability": "open-url",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "{url}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "inspect-toolbar": {
+      "description": "Inspect only the Address, Tabs, and New tab buttons retained from two unchanged observations of one regular-width Safari toolbar state; stop on any missing or non-unique match.",
+      "capability": "inspect-toolbar",
+      "steps": [
+        {
+          "operation": "inspect",
+          "selector": "observed-address-control"
+        },
+        {
+          "operation": "inspect",
+          "selector": "observed-tabs-control"
+        },
+        {
+          "operation": "inspect",
+          "selector": "observed-toolbar-new-tab-control"
+        }
+      ],
+      "safety": "observe",
+      "retry": "safe_repeat"
+    }
+  },
+  "scenarios": {
+    "foreground-only": {
+      "description": "Foreground Safari only, preserving the current normal tab and allowing an existing Now page to acknowledge without URL delivery.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "show-web-page": {
+      "description": "Foreground Safari and deliver one caller-supplied explicit HTTP or HTTPS URL exactly once.",
+      "capabilities": [
+        "launch",
+        "open-url"
+      ],
+      "actions": [
+        "activate",
+        "open-url"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "display-now-page": {
+      "description": "Foreground Safari without a URL so the durable Now page gets the first bounded readiness opportunity.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "recover-now-page": {
+      "description": "After readiness failed and only under the display router, foreground Safari and deliver the fixed local HTTP Now URL at most once.",
+      "capabilities": [
+        "launch",
+        "open-url"
+      ],
+      "actions": [
+        "activate",
+        "open-url"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "inspect-toolbar-bounded": {
+      "description": "Foreground Safari and inspect only the three controls observed in the unchanged regular-width toolbar state, without page or tab mutation.",
+      "capabilities": [
+        "launch",
+        "inspect-toolbar"
+      ],
+      "actions": [
+        "activate",
+        "inspect-toolbar"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "safety": {
+    "classification": "optional-browser-navigation-with-persistent-tab-state",
+    "mutates_user_data": true,
+    "requires_confirmation": [],
+    "prohibited": [
+      "closing any tab without separately recorded task ownership and exact current-tab identity",
+      "count-based cleanup, Close All, bulk cleanup, or closing tabs until a count matches",
+      "closing, selecting, reordering, grouping, or reading the content of any unowned or pre-existing tab",
+      "closing or repurposing the durable Now tab",
+      "entering, inspecting, selecting, creating, or closing private tabs, or crossing normal and private tab modes",
+      "continuing URL delivery or starting WebDriverAgent after CoreDevice reports the iPad locked",
+      "bypassing a local HTTP, connection-privacy, certificate, or Local Network interstitial or prompt",
+      "using a tentative selector after zero or multiple matches, or falling back to XPath or coordinates",
+      "reading history, bookmarks, downloads, saved passwords, autofill, wallet, page content, tab titles, or thumbnails outside the explicit task nonce",
+      "changing Safari, privacy, search, extension, account, tab-retention, or default-browser settings",
+      "submitting forms, downloading files, payments, account changes, destructive operations, or protected confirmations"
+    ],
+    "uncertain_outcome": "Safari may have loaded the URL, changed history, selected another tab, or created a tab before a response was lost. CoreDevice acceptance is dispatch evidence only; inspect only the visible task nonce and ownership chain, and never replay delivery automatically."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate",
+      "inspect-toolbar"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer",
+      "Appium/XCUITest only for the single selector-discovery burst and bounded selector actions",
+      "task-owned private-LAN HTTP display server for Now recovery"
+    ],
+    "device": [
+      "paired physical iPad with built-in Safari",
+      "unlocked iPad for every UI action",
+      "regular-width Safari toolbar state only for bounded observation",
+      "Developer Mode only for selector discovery and selector actions"
+    ],
+    "permissions": [
+      "Trust This Computer",
+      "locally signed WebDriverAgent only for selector discovery and selector actions",
+      "existing Local Network access for the Now page; any prompt is a stop condition"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "17.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "explicit HTTP or HTTPS URLs supplied by the caller",
+      "visible regular-width Safari toolbar selector context in the authorized state",
+      "Now readiness acknowledgement handled by the local display page"
+    ],
+    "data_sent": [
+      "explicit URLs and normal Safari requests to destination hosts",
+      "Now readiness traffic to the task-owned private-LAN HTTP server"
+    ],
+    "retention": "The integration stores no tab inventory. Safari may retain normal history, website data, and tabs under existing settings; URL delivery can reuse or create persistent tab state, and exact automatic tab cleanup is unsupported.",
+    "notes": "Safari is the built-in core browser. Production routes are foreground-only, explicit HTTP(S) URL delivery, and the durable Now routes. URL delivery does not establish tab ownership and may leave persistent tab state. Task-tab creation and cleanup actions are intentionally absent because exact current-task tab identity and exact cleanup are unsupported. Compatibility remains unverified."
+  }
+}

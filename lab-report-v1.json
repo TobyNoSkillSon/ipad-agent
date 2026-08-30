@@ -1,0 +1,22 @@
+{
+  "$schema": "schemas/lab-report-v1.json",
+  "schema": "ipad-agent.lab-report/v1",
+  "version": 1,
+  "generated_at": "2026-03-10T00:00:00Z",
+  "integration_id": "repository-baseline",
+  "binding": {
+    "integration_id": "repository-baseline",
+    "manifest_digest": null,
+    "evidence_sha256": [],
+    "compatibility_sha256": "03750a7665493f32f531245bc79404254f822a9b137bb6985dce34d92746297c"
+  },
+  "complete": false,
+  "checks": [
+    {
+      "id": "evidence.available",
+      "passed": false,
+      "detail": "No physical evidence is committed; raw evidence belongs under .runtime/lab and compatibility-v1.json is intentionally empty and unverified."
+    }
+  ],
+  "rule": "complete is true only when every listed gate passes"
+}

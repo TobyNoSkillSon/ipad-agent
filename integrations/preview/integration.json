@@ -1,0 +1,97 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "preview",
+  "name": "Preview",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.Preview"
+  ],
+  "aliases": [
+    "preview",
+    "apple preview"
+  ],
+  "capabilities": [
+    "launch"
+  ],
+  "selectors": {},
+  "actions": {
+    "activate": {
+      "description": "Bring Preview to the foreground without opening, importing, or selecting a document.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "scenarios": {
+    "foreground-only": {
+      "description": "Foreground Preview without opening or importing a document.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "safety": {
+    "classification": "bounded-ui-navigation",
+    "mutates_user_data": false,
+    "requires_confirmation": [],
+    "prohibited": [
+      "opening, importing, selecting, editing, annotating, signing, sharing, moving, or deleting a document",
+      "using a document picker or file-provider location",
+      "protected confirmations"
+    ],
+    "uncertain_outcome": "The launch may already have foregrounded Preview. Inspect only application foreground state; do not select a document or retry through a document picker."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer",
+      "Appium/XCUITest only for declared navigation controls"
+    ],
+    "device": [
+      "paired physical iPad",
+      "unlocked iPad for UI navigation",
+      "Developer Mode for UI navigation"
+    ],
+    "permissions": [
+      "Trust This Computer",
+      "locally signed WebDriverAgent only for UI navigation"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "26.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "Preview application foreground state only"
+    ],
+    "data_sent": [],
+    "retention": "The integration stores no document names, metadata, content, or annotations.",
+    "notes": "This bundled manifest supports foreground-only launch. It makes no file-import, document-opening, or document-inspection support claim."
+  }
+}

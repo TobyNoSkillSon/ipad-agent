@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ipad-agent.local/schemas/integrations-index-v1.json",
+  "title": "iPad Agent integrations index v1",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schema",
+    "version",
+    "integrations"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "../schemas/integrations-index-v1.json"
+    },
+    "schema": {
+      "const": "ipad-agent.integrations-index/v1"
+    },
+    "version": {
+      "const": 1
+    },
+    "integrations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "manifest",
+          "category",
+          "aliases",
+          "bundle_ids"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "kind": {
+            "enum": [
+              "core",
+              "addon"
+            ]
+          },
+          "manifest": {
+            "type": "string"
+          },
+          "category": {
+            "enum": [
+              "application",
+              "browser"
+            ]
+          },
+          "aliases": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "bundle_ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*(?:\\.[A-Za-z0-9][A-Za-z0-9-]*)+$"
+            }
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "core"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "manifest": {
+                  "pattern": "^[a-z][a-z0-9-]*/integration\\.json$"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "addon"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "manifest": {
+                  "pattern": "^\\.\\./addons/[a-z][a-z0-9-]*/integration\\.json$"
+                }
+              }
+            }
+          }
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

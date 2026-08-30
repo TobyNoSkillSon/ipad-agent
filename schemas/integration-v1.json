@@ -1,0 +1,639 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ipad-agent.local/schemas/integration-v1.json",
+  "title": "iPad Agent integration manifest v1",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schema",
+    "version",
+    "id",
+    "name",
+    "kind",
+    "bundle_ids",
+    "aliases",
+    "capabilities",
+    "selectors",
+    "actions",
+    "scenarios",
+    "safety",
+    "retry",
+    "requirements",
+    "compatibility",
+    "privacy"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "../../schemas/integration-v1.json"
+    },
+    "schema": {
+      "const": "ipad-agent.integration/v1"
+    },
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "name": {
+      "$ref": "#/$defs/nonemptyString"
+    },
+    "kind": {
+      "enum": [
+        "core",
+        "addon"
+      ]
+    },
+    "bundle_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*(?:\\.[A-Za-z0-9][A-Za-z0-9-]*)+$"
+      }
+    },
+    "aliases": {
+      "$ref": "#/$defs/nonemptyUniqueStrings"
+    },
+    "capabilities": {
+      "$ref": "#/$defs/nonemptyUniqueStrings"
+    },
+    "selectors": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "minLength": 1
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/selector"
+      }
+    },
+    "actions": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/id"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/action"
+      }
+    },
+    "scenarios": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/id"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/scenario"
+      }
+    },
+    "safety": {
+      "$ref": "#/$defs/safety"
+    },
+    "retry": {
+      "$ref": "#/$defs/retry"
+    },
+    "requirements": {
+      "$ref": "#/$defs/requirements"
+    },
+    "compatibility": {
+      "$ref": "#/$defs/compatibility"
+    },
+    "privacy": {
+      "$ref": "#/$defs/privacy"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "nonemptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "stringArray": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonemptyString"
+      }
+    },
+    "nonemptyUniqueStrings": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/nonemptyString"
+      }
+    },
+    "selector": {
+      "type": "object",
+      "required": [
+        "using",
+        "value"
+      ],
+      "properties": {
+        "using": {
+          "enum": [
+            "accessibility id",
+            "-ios predicate string",
+            "xpath",
+            "class name",
+            "-ios class chain",
+            "id",
+            "name"
+          ]
+        },
+        "value": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "cache": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "step": {
+      "type": "object",
+      "required": [
+        "operation"
+      ],
+      "properties": {
+        "operation": {
+          "enum": [
+            "activate",
+            "open-url",
+            "tap",
+            "clear-type",
+            "type",
+            "wait",
+            "swipe",
+            "inspect"
+          ]
+        },
+        "selector": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "value": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/nonemptyString"
+            },
+            {
+              "pattern": "^(?:[^{}]|\\{[A-Za-z][A-Za-z0-9_]*\\})+$"
+            }
+          ]
+        },
+        "seconds": {
+          "type": "number",
+          "maximum": 120,
+          "allOf": [
+            {
+              "if": {
+                "maximum": 0
+              },
+              "then": {
+                "type": "null"
+              }
+            }
+          ]
+        },
+        "direction": {
+          "enum": [
+            "up",
+            "down",
+            "left",
+            "right"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "activate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "direction": {
+                "type": "null"
+              },
+              "seconds": {
+                "type": "null"
+              },
+              "selector": {
+                "type": "null"
+              },
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "open-url"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "direction": {
+                "type": "null"
+              },
+              "seconds": {
+                "type": "null"
+              },
+              "selector": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "tap"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "direction": {
+                "type": "null"
+              },
+              "seconds": {
+                "type": "null"
+              },
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "selector"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "clear-type"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "direction": {
+                "type": "null"
+              },
+              "seconds": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "selector",
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "type"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "direction": {
+                "type": "null"
+              },
+              "seconds": {
+                "type": "null"
+              },
+              "selector": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "wait"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "direction": {
+                "type": "null"
+              },
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "seconds",
+              "selector"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "swipe"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "seconds": {
+                "type": "null"
+              },
+              "selector": {
+                "type": "null"
+              },
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "direction"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "operation": {
+                "const": "inspect"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "direction": {
+                "type": "null"
+              },
+              "seconds": {
+                "type": "null"
+              },
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "selector"
+            ]
+          }
+        }
+      ],
+      "additionalProperties": false
+    },
+    "action": {
+      "type": "object",
+      "required": [
+        "description",
+        "capability",
+        "steps",
+        "safety",
+        "retry"
+      ],
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "capability": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "steps": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/step"
+          }
+        },
+        "safety": {
+          "enum": [
+            "observe",
+            "navigate",
+            "transient",
+            "persistent",
+            "protected"
+          ]
+        },
+        "retry": {
+          "enum": [
+            "safe_repeat",
+            "inspect_then_decide",
+            "never_automated"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "scenario": {
+      "type": "object",
+      "required": [
+        "description",
+        "capabilities",
+        "actions",
+        "safety",
+        "retry"
+      ],
+      "properties": {
+        "description": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "capabilities": {
+          "$ref": "#/$defs/nonemptyUniqueStrings"
+        },
+        "actions": {
+          "$ref": "#/$defs/nonemptyUniqueStrings"
+        },
+        "safety": {
+          "enum": [
+            "observe",
+            "navigate",
+            "transient",
+            "persistent",
+            "protected"
+          ]
+        },
+        "retry": {
+          "enum": [
+            "safe_repeat",
+            "inspect_then_decide",
+            "never_automated"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "safety": {
+      "type": "object",
+      "required": [
+        "classification",
+        "mutates_user_data",
+        "requires_confirmation",
+        "prohibited",
+        "uncertain_outcome"
+      ],
+      "properties": {
+        "classification": {
+          "enum": [
+            "bounded-ui-navigation",
+            "navigate-and-transient-map-query",
+            "bounded-files-navigation",
+            "settings-navigation-only",
+            "clock-navigation-and-transient-stopwatch",
+            "optional-browser-navigation-with-persistent-tab-state"
+          ]
+        },
+        "mutates_user_data": {
+          "type": "boolean"
+        },
+        "requires_confirmation": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "prohibited": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "uncertain_outcome": {
+          "$ref": "#/$defs/nonemptyString"
+        }
+      },
+      "additionalProperties": false
+    },
+    "retry": {
+      "type": "object",
+      "required": [
+        "default",
+        "max_attempts",
+        "idempotent_actions"
+      ],
+      "properties": {
+        "default": {
+          "enum": [
+            "safe_repeat",
+            "inspect_then_decide",
+            "never_automated"
+          ]
+        },
+        "max_attempts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "idempotent_actions": {
+          "$ref": "#/$defs/stringArray"
+        }
+      },
+      "additionalProperties": false
+    },
+    "requirements": {
+      "type": "object",
+      "required": [
+        "host",
+        "device",
+        "permissions"
+      ],
+      "properties": {
+        "host": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "device": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "permissions": {
+          "$ref": "#/$defs/stringArray"
+        }
+      },
+      "additionalProperties": false
+    },
+    "compatibility": {
+      "type": "object",
+      "required": [
+        "verification",
+        "platform",
+        "minimum_os",
+        "maximum_os",
+        "locales",
+        "app_versions"
+      ],
+      "properties": {
+        "verification": {
+          "const": "unverified",
+          "description": "Static target only; no iPadOS or app version has been verified."
+        },
+        "platform": {
+          "const": "iPadOS",
+          "description": "Intended platform, not a support claim."
+        },
+        "minimum_os": {
+          "$ref": "#/$defs/nonemptyString",
+          "description": "Unevidenced target floor while verification is unverified."
+        },
+        "maximum_os": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "locales": {
+          "$ref": "#/$defs/nonemptyUniqueStrings",
+          "description": "Selector target locales, not verified locales."
+        },
+        "app_versions": {
+          "$ref": "#/$defs/stringArray",
+          "maxItems": 0,
+          "description": "Empty until physical app-version evidence exists."
+        }
+      },
+      "additionalProperties": false
+    },
+    "privacy": {
+      "type": "object",
+      "required": [
+        "data_access",
+        "data_sent",
+        "retention",
+        "notes"
+      ],
+      "properties": {
+        "data_access": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "data_sent": {
+          "$ref": "#/$defs/stringArray"
+        },
+        "retention": {
+          "$ref": "#/$defs/nonemptyString"
+        },
+        "notes": {
+          "$ref": "#/$defs/nonemptyString"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

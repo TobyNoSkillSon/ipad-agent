@@ -1,0 +1,358 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "clock",
+  "name": "Clock",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.mobiletimer"
+  ],
+  "aliases": [
+    "clock",
+    "apple clock"
+  ],
+  "capabilities": [
+    "launch",
+    "open-world-clock",
+    "open-alarms",
+    "open-stopwatch",
+    "open-timer",
+    "inspect-stopwatch-state",
+    "start-stopwatch",
+    "stop-stopwatch",
+    "reset-stopwatch"
+  ],
+  "selectors": {
+    "world_clock": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'World Clock' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "alarm": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Alarms' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "stopwatch": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Stopwatch' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "timer": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Timers' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "start": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Start' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "stop": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Stop' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "reset": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Reset' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "stopwatch_reading": {
+      "using": "accessibility id",
+      "value": "stopwatch-time",
+      "cache": false
+    },
+    "stopwatch_zero": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeStaticText' AND name == 'stopwatch-time' AND value == '0 seconds' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "stopped_start": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Start' AND visible == 1 AND accessible == 1",
+      "cache": false
+    }
+  },
+  "actions": {
+    "activate": {
+      "description": "Bring Clock to the foreground without changing the selected tab or clock state.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-world-clock": {
+      "description": "Open the World Clock tab without adding, editing, or deleting cities.",
+      "capability": "open-world-clock",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "world_clock"
+        }
+      ],
+      "safety": "transient",
+      "retry": "safe_repeat"
+    },
+    "open-alarms": {
+      "description": "Open the Alarms tab without operating or editing alarms.",
+      "capability": "open-alarms",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "alarm"
+        }
+      ],
+      "safety": "transient",
+      "retry": "safe_repeat"
+    },
+    "open-stopwatch": {
+      "description": "Open the Stopwatch tab without changing stopwatch state.",
+      "capability": "open-stopwatch",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "stopwatch"
+        }
+      ],
+      "safety": "transient",
+      "retry": "safe_repeat"
+    },
+    "open-timer": {
+      "description": "Open the Timers tab without configuring or operating a timer.",
+      "capability": "open-timer",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "timer"
+        }
+      ],
+      "safety": "transient",
+      "retry": "safe_repeat"
+    },
+    "inspect-stopwatch-state": {
+      "description": "Inspect the stopped stopwatch reading and require visible zero-state controls before claiming task ownership.",
+      "capability": "inspect-stopwatch-state",
+      "steps": [
+        {
+          "operation": "inspect",
+          "selector": "stopwatch_reading"
+        },
+        {
+          "operation": "wait",
+          "selector": "stopwatch_zero",
+          "seconds": 3
+        },
+        {
+          "operation": "wait",
+          "selector": "start",
+          "seconds": 3
+        }
+      ],
+      "safety": "observe",
+      "retry": "safe_repeat"
+    },
+    "start-stopwatch": {
+      "description": "Start once only after inspect-stopwatch-state established the unique zero reading and Start button.",
+      "capability": "start-stopwatch",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "start"
+        },
+        {
+          "operation": "wait",
+          "selector": "stop",
+          "seconds": 3
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "stop-stopwatch": {
+      "description": "Stop only the task-owned running stopwatch and verify stopped controls before cleanup.",
+      "capability": "stop-stopwatch",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "stop"
+        },
+        {
+          "operation": "wait",
+          "selector": "stopped_start",
+          "seconds": 3
+        },
+        {
+          "operation": "wait",
+          "selector": "reset",
+          "seconds": 3
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "reset-stopwatch": {
+      "description": "Reset only the stopped task-owned stopwatch and verify the stopped Start control; completion separately requires stopwatch_zero readiness.",
+      "capability": "reset-stopwatch",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "reset"
+        },
+        {
+          "operation": "wait",
+          "selector": "start",
+          "seconds": 3
+        },
+        {
+          "operation": "wait",
+          "selector": "stopwatch_zero",
+          "seconds": 3
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "navigate-world-clock": {
+      "description": "Open the World Clock tab without operating its contents.",
+      "capabilities": [
+        "launch",
+        "open-world-clock"
+      ],
+      "actions": [
+        "activate",
+        "open-world-clock"
+      ],
+      "safety": "transient",
+      "retry": "safe_repeat"
+    },
+    "navigate-alarms": {
+      "description": "Open the Alarms tab without operating its contents.",
+      "capabilities": [
+        "launch",
+        "open-alarms"
+      ],
+      "actions": [
+        "activate",
+        "open-alarms"
+      ],
+      "safety": "transient",
+      "retry": "safe_repeat"
+    },
+    "navigate-stopwatch": {
+      "description": "Open the Stopwatch tab without changing its state.",
+      "capabilities": [
+        "launch",
+        "open-stopwatch"
+      ],
+      "actions": [
+        "activate",
+        "open-stopwatch"
+      ],
+      "safety": "transient",
+      "retry": "safe_repeat"
+    },
+    "navigate-timer": {
+      "description": "Open the Timers tab without operating its contents.",
+      "capabilities": [
+        "launch",
+        "open-timer"
+      ],
+      "actions": [
+        "activate",
+        "open-timer"
+      ],
+      "safety": "transient",
+      "retry": "safe_repeat"
+    },
+    "transient-stopwatch": {
+      "description": "Inspect and claim an initially stopped zero stopwatch, run one bounded task interval, then stop, reset, and verify zero.",
+      "capabilities": [
+        "launch",
+        "open-stopwatch",
+        "inspect-stopwatch-state",
+        "start-stopwatch",
+        "stop-stopwatch",
+        "reset-stopwatch"
+      ],
+      "actions": [
+        "activate",
+        "open-stopwatch",
+        "inspect-stopwatch-state",
+        "start-stopwatch",
+        "stop-stopwatch",
+        "reset-stopwatch"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "clock-navigation-and-transient-stopwatch",
+    "mutates_user_data": false,
+    "requires_confirmation": [],
+    "prohibited": [
+      "adding, editing, deleting, enabling, or disabling alarms",
+      "adding, editing, or deleting World Clock cities",
+      "configuring, starting, pausing, resuming, or cancelling timers",
+      "recording stopwatch laps",
+      "leaving a task-owned stopwatch running or nonzero",
+      "protected confirmations"
+    ],
+    "uncertain_outcome": "A Start, Stop, or Reset tap may already have changed stopwatch state. Inspect which controls are visible and the reading before deciding; never replay blindly."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate",
+      "open-world-clock",
+      "open-alarms",
+      "open-stopwatch",
+      "open-timer",
+      "inspect-stopwatch-state"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer",
+      "Appium/XCUITest for tab and stopwatch controls"
+    ],
+    "device": [
+      "paired physical iPad",
+      "unlocked iPad",
+      "Developer Mode"
+    ],
+    "permissions": [
+      "Trust This Computer",
+      "locally signed WebDriverAgent"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "17.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "visible Clock tab",
+      "visible stopwatch controls and elapsed reading for the current task"
+    ],
+    "data_sent": [],
+    "retention": "The integration stores no alarm, city, timer, lap, or stopwatch data. Reset clears the task stopwatch on the device.",
+    "notes": "Apple documents that the stopwatch keeps running when another app opens or the iPad sleeps, so every stopwatch workflow includes stop-and-reset cleanup."
+  }
+}

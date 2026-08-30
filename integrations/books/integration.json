@@ -1,0 +1,225 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "books",
+  "name": "Books",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.iBooks"
+  ],
+  "aliases": [
+    "books",
+    "apple books",
+    "ibooks"
+  ],
+  "capabilities": [
+    "launch",
+    "open-reading-now",
+    "open-library",
+    "open-book-store",
+    "open-search"
+  ],
+  "selectors": {
+    "reading-now": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Reading Now' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "library": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Library' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "book-store": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Book Store' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "search": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Search' AND visible == 1 AND accessible == 1",
+      "cache": false
+    }
+  },
+  "actions": {
+    "activate": {
+      "description": "Bring Books to the foreground without opening a book or changing library state.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-reading-now": {
+      "description": "Select the unique visible Reading Now tab and stop before opening any item.",
+      "capability": "open-reading-now",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "reading-now"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-library": {
+      "description": "Select the unique visible Library tab and stop before opening or inspecting any item.",
+      "capability": "open-library",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "library"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-book-store": {
+      "description": "Select the unique visible Book Store tab and stop before selecting, sampling, obtaining, or buying an item.",
+      "capability": "open-book-store",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "book-store"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-search": {
+      "description": "Select the unique visible Search tab and stop before entering a query or selecting a result.",
+      "capability": "open-search",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "search"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "foreground-only": {
+      "description": "Foreground Books without opening an item.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "navigate-reading-now": {
+      "description": "Foreground Books and select only the Reading Now tab.",
+      "capabilities": [
+        "launch",
+        "open-reading-now"
+      ],
+      "actions": [
+        "activate",
+        "open-reading-now"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-library": {
+      "description": "Foreground Books and select only the Library tab.",
+      "capabilities": [
+        "launch",
+        "open-library"
+      ],
+      "actions": [
+        "activate",
+        "open-library"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-book-store": {
+      "description": "Foreground Books and select only the Book Store tab.",
+      "capabilities": [
+        "launch",
+        "open-book-store"
+      ],
+      "actions": [
+        "activate",
+        "open-book-store"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-search": {
+      "description": "Foreground Books and select only the Search tab.",
+      "capabilities": [
+        "launch",
+        "open-search"
+      ],
+      "actions": [
+        "activate",
+        "open-search"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "bounded-ui-navigation",
+    "mutates_user_data": false,
+    "requires_confirmation": [],
+    "prohibited": [
+      "opening or inspecting a book, audiobook, sample, PDF, collection item, or search result",
+      "entering a search query or enumerating library, store, recommendation, or result content",
+      "obtaining, buying, downloading, deleting, hiding, moving, or sharing an item",
+      "changing account, sync, notification, playback, or reading settings",
+      "payments and protected confirmations"
+    ],
+    "uncertain_outcome": "A tab tap may already have changed the visible destination. Inspect only the exact destination tab selector before deciding; never select content or replay blindly."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer",
+      "Appium/XCUITest only for declared navigation controls"
+    ],
+    "device": [
+      "paired physical iPad",
+      "unlocked iPad for UI navigation",
+      "Developer Mode for UI navigation"
+    ],
+    "permissions": [
+      "Trust This Computer",
+      "locally signed WebDriverAgent only for UI navigation"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "17.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "visible Books destination-tab control state only"
+    ],
+    "data_sent": [],
+    "retention": "The integration stores no library, store, recommendation, search, reading, or account data.",
+    "notes": "The manifest exposes foregrounding and exact top-level destination tabs only. It does not expose content rows, search entry, item opening, downloads, or purchases."
+  }
+}

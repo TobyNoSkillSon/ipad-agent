@@ -1,0 +1,281 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "settings",
+  "name": "Settings",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.Preferences"
+  ],
+  "aliases": [
+    "settings",
+    "apple settings"
+  ],
+  "capabilities": [
+    "launch",
+    "open-general",
+    "open-about",
+    "open-wifi",
+    "open-bluetooth",
+    "open-battery",
+    "open-accessibility"
+  ],
+  "selectors": {
+    "general": {
+      "using": "accessibility id",
+      "value": "com.apple.settings.general"
+    },
+    "accessibility id=About": {
+      "using": "accessibility id",
+      "value": "About",
+      "cache": false
+    },
+    "wifi": {
+      "using": "accessibility id",
+      "value": "com.apple.settings.wifi"
+    },
+    "bluetooth": {
+      "using": "accessibility id",
+      "value": "com.apple.settings.bluetooth"
+    },
+    "battery": {
+      "using": "accessibility id",
+      "value": "com.apple.settings.battery"
+    },
+    "accessibility": {
+      "using": "accessibility id",
+      "value": "com.apple.settings.accessibility"
+    }
+  },
+  "actions": {
+    "activate": {
+      "description": "Bring Settings to the foreground without selecting a row.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-general": {
+      "description": "Open the General top-level pane and stop there.",
+      "capability": "open-general",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "general"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-about": {
+      "description": "Open General, select the exact About row, and stop without operating any setting.",
+      "capability": "open-about",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "general"
+        },
+        {
+          "operation": "wait",
+          "selector": "accessibility id=About",
+          "seconds": 5
+        },
+        {
+          "operation": "tap",
+          "selector": "accessibility id=About"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-wifi": {
+      "description": "Open the Wi-Fi pane for on-device viewing and stop before every network or toggle control.",
+      "capability": "open-wifi",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "wifi"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-bluetooth": {
+      "description": "Open the Bluetooth pane for on-device viewing and stop before every device or toggle control.",
+      "capability": "open-bluetooth",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "bluetooth"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-battery": {
+      "description": "Open the Battery top-level pane and stop before its controls or activity details.",
+      "capability": "open-battery",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "battery"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-accessibility": {
+      "description": "Open the Accessibility top-level pane and stop there.",
+      "capability": "open-accessibility",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "accessibility"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "navigate-general": {
+      "description": "Launch Settings and select the General top-level pane.",
+      "capabilities": [
+        "launch",
+        "open-general"
+      ],
+      "actions": [
+        "activate",
+        "open-general"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-about": {
+      "description": "Launch Settings, navigate through General, select About, and stop without reading or changing a setting value.",
+      "capabilities": [
+        "launch",
+        "open-about"
+      ],
+      "actions": [
+        "activate",
+        "open-about"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-wifi": {
+      "description": "Launch Settings and select the Wi-Fi top-level pane for on-device viewing.",
+      "capabilities": [
+        "launch",
+        "open-wifi"
+      ],
+      "actions": [
+        "activate",
+        "open-wifi"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-bluetooth": {
+      "description": "Launch Settings and select the Bluetooth top-level pane for on-device viewing.",
+      "capabilities": [
+        "launch",
+        "open-bluetooth"
+      ],
+      "actions": [
+        "activate",
+        "open-bluetooth"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-battery": {
+      "description": "Launch Settings and select the Battery top-level pane.",
+      "capabilities": [
+        "launch",
+        "open-battery"
+      ],
+      "actions": [
+        "activate",
+        "open-battery"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-accessibility": {
+      "description": "Launch Settings and select the Accessibility top-level pane.",
+      "capabilities": [
+        "launch",
+        "open-accessibility"
+      ],
+      "actions": [
+        "activate",
+        "open-accessibility"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "settings-navigation-only",
+    "mutates_user_data": false,
+    "requires_confirmation": [],
+    "prohibited": [
+      "operating any toggle, picker, text field, button, network, device, or child setting other than selecting the exact About row through General",
+      "account, Apple Account, Family, password, passcode, biometric, or payment panes",
+      "Privacy and Security and Location Services panes",
+      "Software Update, beta updates, VPN and Device Management, and device update flows",
+      "Transfer or Reset, erase, reset, install, download, join, pair, connect, or disconnect actions",
+      "enumerating nearby networks, Bluetooth devices, identifiers, or per-app activity",
+      "protected confirmations"
+    ],
+    "uncertain_outcome": "A top-level pane may already be selected. Inspect only the pane heading before any retry and never compensate by tapping a control in the detail pane."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer",
+      "Appium/XCUITest for pane navigation"
+    ],
+    "device": [
+      "paired physical iPad",
+      "unlocked iPad",
+      "Developer Mode"
+    ],
+    "permissions": [
+      "Trust This Computer",
+      "locally signed WebDriverAgent"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "17.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "selected Settings pane heading"
+    ],
+    "data_sent": [],
+    "retention": "The integration stores no settings values, network names, device names, account data, or identifiers.",
+    "notes": "The manifest exposes bounded Settings navigation, including the exact About row through General. It does not authorize collecting device names, serial numbers, identifiers, or setting values, and it omits Settings search because search can route into prohibited account, privacy, security, or update controls."
+  }
+}

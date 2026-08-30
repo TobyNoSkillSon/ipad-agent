@@ -1,0 +1,215 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "files",
+  "name": "Files",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.DocumentsApp"
+  ],
+  "aliases": [
+    "files",
+    "apple files"
+  ],
+  "capabilities": [
+    "launch",
+    "open-recents",
+    "open-browse",
+    "focus-search",
+    "enter-visible-search"
+  ],
+  "selectors": {
+    "recents": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Recents' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "recents-selected": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Recents' AND selected == 1 AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "browse": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Browse' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "browse-selected": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Browse' AND selected == 1 AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "search": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeButton' AND label == 'Search' AND visible == 1 AND accessible == 1",
+      "cache": false
+    },
+    "search-field": {
+      "using": "-ios predicate string",
+      "value": "type == 'XCUIElementTypeSearchField' AND (label == 'Search' OR name == 'Search') AND visible == 1 AND accessible == 1",
+      "cache": false
+    }
+  },
+  "actions": {
+    "activate": {
+      "description": "Bring Files to the foreground without opening an item.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-recents": {
+      "description": "Tap the unique accessible visible Recents control only after readiness shows it is not already selected; verify with recents-selected without selecting an item.",
+      "capability": "open-recents",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "recents"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-browse": {
+      "description": "Tap the unique accessible visible Browse control only after readiness shows it is not already selected; verify with browse-selected without entering a location or folder.",
+      "capability": "open-browse",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "browse"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "focus-search": {
+      "description": "Tap the unique accessible visible Search button only when search-field is not already visible, then require the field without reading results.",
+      "capability": "focus-search",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "search"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "enter-search": {
+      "description": "Enter an explicit caller-supplied term in the visible Files search field and stop without inspecting or opening results.",
+      "capability": "enter-visible-search",
+      "steps": [
+        {
+          "operation": "clear-type",
+          "selector": "search-field",
+          "value": "{query}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "navigate-recents": {
+      "description": "Launch Files and use state-aware selector readiness to display Recents without selecting or inspecting an item.",
+      "capabilities": [
+        "launch",
+        "open-recents"
+      ],
+      "actions": [
+        "activate",
+        "open-recents"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-browse": {
+      "description": "Launch Files and use state-aware selector readiness to display the Browse root without traversing a location.",
+      "capabilities": [
+        "launch",
+        "open-browse"
+      ],
+      "actions": [
+        "activate",
+        "open-browse"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "visible-search-only": {
+      "description": "Use Search button/field state readiness, then enter an explicit term for the user to view on the device.",
+      "capabilities": [
+        "launch",
+        "focus-search",
+        "enter-visible-search"
+      ],
+      "actions": [
+        "activate",
+        "focus-search",
+        "enter-search"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "bounded-files-navigation",
+    "mutates_user_data": false,
+    "requires_confirmation": [],
+    "prohibited": [
+      "opening or previewing a file",
+      "enumerating file or folder names, metadata, or contents",
+      "traversing local, cloud, external, shared, or third-party provider locations",
+      "creating, moving, copying, renaming, tagging, sharing, uploading, downloading, or deleting items",
+      "using the More or context menus",
+      "protected confirmations"
+    ],
+    "uncertain_outcome": "A navigation tap or search term may already be visible. Check only the unique selected destination control or visible search-field selector, never source or result rows, before deciding what to do."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer",
+      "Appium/XCUITest for navigation and search controls"
+    ],
+    "device": [
+      "paired physical iPad",
+      "unlocked iPad",
+      "Developer Mode"
+    ],
+    "permissions": [
+      "Trust This Computer",
+      "locally signed WebDriverAgent"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "17.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "visible Files navigation and search control state",
+      "explicit search term supplied by the caller"
+    ],
+    "data_sent": [],
+    "retention": "The integration stores no file names, metadata, content, location list, or search results.",
+    "notes": "Search results stay on the iPad display. The integration must not scrape, enumerate, summarize, or transmit them."
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "iPad Agent doctor report v2",
+  "type": "object",
+  "required": ["schema", "state", "ready", "exit_code", "selected", "checks", "next"],
+  "properties": {
+    "schema": {"const": "ipad-agent.doctor/v2"},
+    "state": {"enum": ["ready", "action_required", "needs_agent_action", "blocked"]},
+    "ready": {"type": "boolean"},
+    "exit_code": {"enum": [0, 10, 20, 30, 40]},
+    "selected": {
+      "type": "object",
+      "properties": {
+        "device": {"type": "boolean"},
+        "signing": {"type": "boolean"},
+        "wda_artifact": {"type": "boolean"},
+        "verified": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "message", "stage", "evidence", "human_action", "remediation"],
+        "properties": {
+          "id": {"type": "string"},
+          "status": {"enum": ["pass", "fail", "action_required", "unknown", "skipped"]},
+          "message": {"type": "string"},
+          "stage": {"enum": ["host", "device", "signing", "wda", "verify"]},
+          "evidence": {"type": ["object", "null"]},
+          "human_action": {"type": ["string", "null"]},
+          "remediation": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "next": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

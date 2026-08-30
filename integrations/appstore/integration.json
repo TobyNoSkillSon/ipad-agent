@@ -1,0 +1,256 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "appstore",
+  "name": "App Store",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.AppStore"
+  ],
+  "aliases": [
+    "appstore",
+    "app store",
+    "apple app store"
+  ],
+  "capabilities": [
+    "launch",
+    "open-today",
+    "open-games",
+    "open-apps",
+    "open-arcade",
+    "open-search"
+  ],
+  "selectors": {
+    "today": {
+      "using": "accessibility id",
+      "value": "AppStore.tabBar.today",
+      "cache": false
+    },
+    "games": {
+      "using": "accessibility id",
+      "value": "AppStore.tabBar.games",
+      "cache": false
+    },
+    "apps": {
+      "using": "accessibility id",
+      "value": "AppStore.tabBar.apps",
+      "cache": false
+    },
+    "arcade": {
+      "using": "accessibility id",
+      "value": "AppStore.tabBar.arcade",
+      "cache": false
+    },
+    "search": {
+      "using": "accessibility id",
+      "value": "AppStore.tabBar.search",
+      "cache": false
+    }
+  },
+  "actions": {
+    "activate": {
+      "description": "Bring App Store to the foreground without selecting content or starting an account, download, or purchase flow.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-today": {
+      "description": "Select the exact Today tab and stop before selecting content or operating account, download, or purchase controls.",
+      "capability": "open-today",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "today"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-games": {
+      "description": "Select the exact Games tab and stop before selecting content or operating account, download, or purchase controls.",
+      "capability": "open-games",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "games"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-apps": {
+      "description": "Select the exact Apps tab and stop before selecting content or operating account, download, or purchase controls.",
+      "capability": "open-apps",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "apps"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-arcade": {
+      "description": "Select the exact Arcade tab and stop before selecting content or operating account, download, or purchase controls.",
+      "capability": "open-arcade",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "arcade"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-search": {
+      "description": "Select the exact Search tab and stop before selecting content or operating account, download, or purchase controls.",
+      "capability": "open-search",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "search"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "foreground-only": {
+      "description": "Foreground App Store without selecting content.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "navigate-today": {
+      "description": "Foreground App Store and select only the Today tab.",
+      "capabilities": [
+        "launch",
+        "open-today"
+      ],
+      "actions": [
+        "activate",
+        "open-today"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-games": {
+      "description": "Foreground App Store and select only the Games tab.",
+      "capabilities": [
+        "launch",
+        "open-games"
+      ],
+      "actions": [
+        "activate",
+        "open-games"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-apps": {
+      "description": "Foreground App Store and select only the Apps tab.",
+      "capabilities": [
+        "launch",
+        "open-apps"
+      ],
+      "actions": [
+        "activate",
+        "open-apps"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-arcade": {
+      "description": "Foreground App Store and select only the Arcade tab.",
+      "capabilities": [
+        "launch",
+        "open-arcade"
+      ],
+      "actions": [
+        "activate",
+        "open-arcade"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "navigate-search": {
+      "description": "Foreground App Store and select only the Search tab.",
+      "capabilities": [
+        "launch",
+        "open-search"
+      ],
+      "actions": [
+        "activate",
+        "open-search"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "bounded-ui-navigation",
+    "mutates_user_data": false,
+    "requires_confirmation": [],
+    "prohibited": [
+      "selecting or inspecting an app, game, story, event, offer, subscription, search result, or account item",
+      "entering a search query or enumerating store, recommendation, account, update, or result content",
+      "getting, buying, downloading, updating, deleting, rating, reviewing, sharing, subscribing to, or restoring an item",
+      "opening account, payment, purchase-history, subscription, redemption, or family controls",
+      "payments, authentication, and protected confirmations"
+    ],
+    "uncertain_outcome": "A tab tap may already have changed the visible destination. Inspect only the exact destination-tab accessibility identifier before deciding; never select content or replay blindly."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer",
+      "Appium/XCUITest only for declared navigation controls"
+    ],
+    "device": [
+      "paired physical iPad",
+      "unlocked iPad for UI navigation",
+      "Developer Mode for UI navigation"
+    ],
+    "permissions": [
+      "Trust This Computer",
+      "locally signed WebDriverAgent only for UI navigation"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "17.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "visible App Store destination-tab control state only"
+    ],
+    "data_sent": [],
+    "retention": "The integration stores no store content, query, app, account, purchase, subscription, or payment data.",
+    "notes": "The manifest exposes foregrounding and exact top-level destination tabs only. Search entry, content selection, account flows, downloads, updates, and purchases are unsupported."
+  }
+}

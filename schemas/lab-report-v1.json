@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ipad-agent.local/schemas/lab-report-v1.json",
+  "title": "iPad Agent completion report v1",
+  "type": "object",
+  "required": ["$schema", "schema", "version", "generated_at", "integration_id", "binding", "complete", "checks", "rule"],
+  "properties": {
+    "$schema": {"const": "schemas/lab-report-v1.json"},
+    "schema": {"const": "ipad-agent.lab-report/v1"},
+    "version": {"const": 1},
+    "generated_at": {"type": "string", "format": "date-time", "maxLength": 40},
+    "integration_id": {"type": "string", "minLength": 1},
+    "binding": {
+      "type": "object",
+      "required": ["integration_id", "manifest_digest", "evidence_sha256", "compatibility_sha256"],
+      "properties": {
+        "integration_id": {"type": "string", "minLength": 1},
+        "manifest_digest": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "evidence_sha256": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-f0-9]{64}$"}},
+        "compatibility_sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"}
+      },
+      "additionalProperties": false
+    },
+    "complete": {"type": "boolean"},
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "passed", "detail"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "passed": {"type": "boolean"},
+          "detail": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "rule": {"const": "complete is true only when every listed gate passes"}
+  },
+  "additionalProperties": false
+}

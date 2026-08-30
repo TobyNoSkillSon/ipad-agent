@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "iPad Agent doctor report",
+  "type": "object",
+  "required": [
+    "schema",
+    "ready",
+    "exit_code",
+    "checks",
+    "next"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ipad-agent.doctor/v1"
+    },
+    "ready": {
+      "type": "boolean"
+    },
+    "exit_code": {
+      "enum": [
+        0,
+        10,
+        20,
+        30,
+        40
+      ]
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "message"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "fail",
+              "action_required",
+              "unknown",
+              "skipped"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "evidence": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "human_action": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "remediation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "next": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": false
+}

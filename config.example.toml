@@ -1,0 +1,46 @@
+# Copy to .runtime/config/config.toml and keep the resulting file mode 0600.
+# This file is a template only. Device and signing identifiers belong in the
+# project-owned, Git-ignored .runtime/ state and must never be committed.
+
+[device]
+# id = "CoreDevice identifier or UDID"
+
+[apps]
+# The Now browser is an enabled integration ID or registry alias, never a bundle ID.
+# Aliases are stored internally as canonical IDs. Safari is the built-in core
+# browser and the default. An addon alias is rejected unless that addon is enabled.
+browser = "safari"
+# To use Brave instead, set browser = "Brave Browser" and enable "brave" below.
+
+# Exact bundle IDs may be passed to low-level ip/open calls. They do not select
+# the Now browser. Named aliases are an optional low-level escape hatch.
+[apps.aliases]
+# reader = "org.example.reader"
+
+[addons]
+# Addons are disabled unless named here. Brave requires explicit enablement:
+# enabled = ["brave"]
+enabled = []
+
+[display]
+# Optional: one reachable RFC1918 IPv4 address on the trusted private LAN.
+# host = "192.168.1.10"
+port = 8766
+
+[automation]
+# Setup writes the selected team, WDA bundle, and xctestrun provenance here.
+# Appium itself is installed under .runtime/node by host setup.
+# appium = ".runtime/node/node_modules/.bin/appium"
+appium_url = "http://127.0.0.1:4723"
+# team_id = "ABCDE12345"
+# wda_bundle_id = "com.example.WebDriverAgentRunner"
+# xctestrun = "/absolute/path/to/WebDriverAgentRunner.xctestrun"
+
+[airdrop]
+# Local-file transfer stays disabled until all three policy fields are set.
+# Paths must be absolute and canonical; extensions are case-insensitive.
+# allowed_roots = ["/Users/example/Downloads"]
+# allowed_extensions = [".pdf", ".epub", ".png"]
+# max_bytes = 524288000
+# The native process is always bounded (1–600 seconds).
+timeout_seconds = 120

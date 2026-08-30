@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "iPad Agent setup report",
+  "type": "object",
+  "required": [
+    "schema",
+    "applied",
+    "phase",
+    "changed",
+    "ready",
+    "exit_code",
+    "actions"
+  ],
+  "properties": {
+    "schema": {
+      "const": "ipad-agent.setup/v1"
+    },
+    "applied": {
+      "type": "boolean"
+    },
+    "phase": {
+      "enum": [
+        "all",
+        "host"
+      ]
+    },
+    "changed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "ready": {
+      "type": "boolean"
+    },
+    "exit_code": {
+      "enum": [
+        0,
+        10,
+        20,
+        30,
+        40
+      ]
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "doctor": {
+      "type": "object"
+    },
+    "error": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

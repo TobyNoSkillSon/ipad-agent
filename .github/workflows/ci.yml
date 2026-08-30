@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: macos-latest
+    timeout-minutes: 15
+    env:
+      # Device/Appium tests must opt in locally with exactly "1". CI never does.
+      IPAD_AGENT_RUN_LIVE_TESTS: "0"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Select Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check release boundary and validate JSON, TOML, and schemas
+        run: python3 scripts/release_check.py
+
+      - name: Verify repository-root import
+        run: python3 -c 'from ipad_agent import ipadc, ipadpreview, ipadbooks, ipadfiles, ipadsettings, ipadclock, ipadappstore, ipadbrave, ipadsafari, ipadmaps'
+
+      - name: Verify doctor JSON shape
+        shell: bash
+        run: |
+          set +e
+          python3 -m ipad_agent doctor --json > "$RUNNER_TEMP/doctor.json"
+          doctor_exit=$?
+          set -e
+          python3 scripts/release_check.py \
+            --doctor-json "$RUNNER_TEMP/doctor.json" \
+            --doctor-exit "$doctor_exit"
+
+      - name: Run offline unit tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Compile Python sources
+        run: python3 -m compileall -q ipad_agent tests scripts

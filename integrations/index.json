@@ -1,0 +1,126 @@
+{
+  "$schema": "../schemas/integrations-index-v1.json",
+  "schema": "ipad-agent.integrations-index/v1",
+  "version": 1,
+  "integrations": [
+    {
+      "id": "safari",
+      "kind": "core",
+      "manifest": "safari/integration.json",
+      "category": "browser",
+      "aliases": [
+        "safari",
+        "apple safari"
+      ],
+      "bundle_ids": [
+        "com.apple.mobilesafari"
+      ]
+    },
+    {
+      "id": "maps",
+      "kind": "core",
+      "manifest": "maps/integration.json",
+      "category": "application",
+      "aliases": [
+        "maps",
+        "apple maps"
+      ],
+      "bundle_ids": [
+        "com.apple.Maps"
+      ]
+    },
+    {
+      "id": "files",
+      "kind": "core",
+      "manifest": "files/integration.json",
+      "category": "application",
+      "aliases": [
+        "files",
+        "apple files"
+      ],
+      "bundle_ids": [
+        "com.apple.DocumentsApp"
+      ]
+    },
+    {
+      "id": "settings",
+      "kind": "core",
+      "manifest": "settings/integration.json",
+      "category": "application",
+      "aliases": [
+        "settings",
+        "apple settings"
+      ],
+      "bundle_ids": [
+        "com.apple.Preferences"
+      ]
+    },
+    {
+      "id": "clock",
+      "kind": "core",
+      "manifest": "clock/integration.json",
+      "category": "application",
+      "aliases": [
+        "clock",
+        "apple clock"
+      ],
+      "bundle_ids": [
+        "com.apple.mobiletimer"
+      ]
+    },
+    {
+      "id": "preview",
+      "kind": "core",
+      "manifest": "preview/integration.json",
+      "category": "application",
+      "aliases": [
+        "preview",
+        "apple preview"
+      ],
+      "bundle_ids": [
+        "com.apple.Preview"
+      ]
+    },
+    {
+      "id": "books",
+      "kind": "core",
+      "manifest": "books/integration.json",
+      "category": "application",
+      "aliases": [
+        "books",
+        "apple books",
+        "ibooks"
+      ],
+      "bundle_ids": [
+        "com.apple.iBooks"
+      ]
+    },
+    {
+      "id": "appstore",
+      "kind": "core",
+      "manifest": "appstore/integration.json",
+      "category": "application",
+      "aliases": [
+        "appstore",
+        "app store",
+        "apple app store"
+      ],
+      "bundle_ids": [
+        "com.apple.AppStore"
+      ]
+    },
+    {
+      "id": "brave",
+      "kind": "addon",
+      "manifest": "../addons/brave/integration.json",
+      "category": "browser",
+      "aliases": [
+        "brave",
+        "brave browser"
+      ],
+      "bundle_ids": [
+        "com.brave.ios.browser"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "schemas/compatibility-v1.json",
+  "schema": "ipad-agent.compatibility/v1",
+  "version": 1,
+  "generated_at": "2026-03-10T00:00:00Z",
+  "source_evidence": [],
+  "integrations": [],
+  "redaction": {
+    "raw_evidence_committed": false,
+    "excluded": [
+      "device identifiers",
+      "hostnames",
+      "user or team values",
+      "tokens",
+      "paths",
+      "URLs",
+      "UI source",
+      "raw responses",
+      "authorization actors and requests"
+    ],
+    "policy": "strict field allow-list plus SHA-256 evidence references only"
+  }
+}
