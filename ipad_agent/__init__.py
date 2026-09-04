@@ -16,6 +16,12 @@ from .ipadappstore import ipadappstore
 from .ipadbrave import ipadbrave
 from .ipadsafari import ipadsafari
 from .ipadmaps import ipadmaps
+from .ipadgooglemaps import ipadgooglemaps
+from .ipadpages import ipadpages
+from .ipadnumbers import ipadnumbers
+from .ipadkeynote import ipadkeynote
+from .ipadphotos import ipadphotos
+from .ipadmessages import ipadmessages
 
 
 __all__ = [
@@ -29,6 +35,12 @@ __all__ = [
     "ipadbrave",
     "ipadsafari",
     "ipadmaps",
+    "ipadgooglemaps",
+    "ipadpages",
+    "ipadnumbers",
+    "ipadkeynote",
+    "ipadphotos",
+    "ipadmessages",
     "Config",
     "IPadResult",
 ]
@@ -36,11 +48,11 @@ __all__ = [
 
 def __getattr__(name: str):
     if name == "Config":
-        from .config import Config
+        from ipad_agent.core.config import Config
 
         return Config
     if name == "IPadResult":
-        from .api import IPadResult
+        from ipad_agent.core.results import IPadResult
 
         return IPadResult
     raise AttributeError(name)

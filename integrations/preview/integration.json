@@ -30,8 +30,8 @@
     }
   },
   "scenarios": {
-    "foreground-only": {
-      "description": "Foreground Preview without opening or importing a document.",
+    "activate-direct": {
+      "description": "Foreground Preview without selecting or opening a document.",
       "capabilities": [
         "launch"
       ],
@@ -47,11 +47,12 @@
     "mutates_user_data": false,
     "requires_confirmation": [],
     "prohibited": [
-      "opening, importing, selecting, editing, annotating, signing, sharing, moving, or deleting a document",
-      "using a document picker or file-provider location",
+      "automatic AirDrop recipient selection",
+      "claiming recipient receipt or exact file opening from host callback or launch acceptance",
+      "editing, annotating, signing, sharing, moving, or deleting a document",
       "protected confirmations"
     ],
-    "uncertain_outcome": "The launch may already have foregrounded Preview. Inspect only application foreground state; do not select a document or retry through a document picker."
+    "uncertain_outcome": "A launch or transfer may already have occurred. Do not replay; inspect with the user."
   },
   "retry": {
     "default": "inspect_then_decide",
@@ -63,17 +64,14 @@
   "requirements": {
     "host": [
       "macOS with Xcode CoreDevice support",
-      "Python 3.11 or newer",
-      "Appium/XCUITest only for declared navigation controls"
+      "Python 3.11 or newer"
     ],
     "device": [
       "paired physical iPad",
-      "unlocked iPad for UI navigation",
-      "Developer Mode for UI navigation"
+      "unlocked iPad for dispatch"
     ],
     "permissions": [
-      "Trust This Computer",
-      "locally signed WebDriverAgent only for UI navigation"
+      "Trust This Computer"
     ]
   },
   "compatibility": {
@@ -88,10 +86,12 @@
   },
   "privacy": {
     "data_access": [
-      "Preview application foreground state only"
+      "No document content is read by the integration"
     ],
-    "data_sent": [],
-    "retention": "The integration stores no document names, metadata, content, or annotations.",
-    "notes": "This bundled manifest supports foreground-only launch. It makes no file-import, document-opening, or document-inspection support claim."
+    "data_sent": [
+      "A user-selected local file is offered through macOS AirDrop only for drop/show"
+    ],
+    "retention": "The repository retains no document content. The AirDrop transport may retain a private snapshot only after uncertain delivery.",
+    "notes": "Launch proof is exact-profile. AirDrop callback completion does not prove receipt or exact opening."
   }
 }

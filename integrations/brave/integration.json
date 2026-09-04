@@ -1,0 +1,177 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "brave",
+  "name": "Brave",
+  "kind": "addon",
+  "bundle_ids": [
+    "com.brave.ios.browser"
+  ],
+  "aliases": [
+    "brave",
+    "brave browser"
+  ],
+  "capabilities": [
+    "launch",
+    "open-url",
+    "direct-search",
+    "explicit-private-url",
+    "ipfs-content",
+    "ipns-content"
+  ],
+  "selectors": {},
+  "actions": {
+    "activate": {
+      "description": "Bring enabled Brave to the foreground through CoreDevice without claiming rendered content.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-url": {
+      "description": "Deliver one policy-validated HTTP or HTTPS URL directly through CoreDevice.",
+      "capability": "open-url",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "{url}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-search": {
+      "description": "Declare the exact source-backed brave search route; the trusted adapter builds and validates its sole query field.",
+      "capability": "direct-search",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "brave://search?q={query}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-private-website": {
+      "description": "Declare one exact source-backed private URL route requiring explicit maintenance authorization and strict nested HTTP(S) validation.",
+      "capability": "explicit-private-url",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "brave://open-url?url={url}&private=true"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-ipfs": {
+      "description": "Declare one exact source-backed IPFS content URI after adapter validation.",
+      "capability": "ipfs-content",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "{uri}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-ipns": {
+      "description": "Declare one exact source-backed IPNS content URI after adapter validation.",
+      "capability": "ipns-content",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "{uri}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "activate-direct": {
+      "description": "Request one direct Brave activation after addon enablement.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-url-direct": {
+      "description": "Deliver one caller-supplied HTTP or HTTPS URL directly, with no prelaunch ceremony.",
+      "capabilities": [
+        "open-url"
+      ],
+      "actions": [
+        "open-url"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "optional-browser-navigation-with-persistent-tab-state",
+    "mutates_user_data": true,
+    "requires_confirmation": [],
+    "prohibited": [
+      "sending an arbitrary brave URL or altering a reviewed custom-route host, path, field order, field names, or fixed private value",
+      "using open-text, internal deep links, shortcuts, blank-tab, bookmark, history, download, playlist, wallet, QR, Brave News, VPN promotion, or settings routes",
+      "dispatching the private website candidate or incompatible IPFS/IPNS routes through production commands",
+      "opening a private website candidate without exact authorization for its displayed destination",
+      "claiming tab ownership or automatically cleaning normal or private tabs",
+      "replaying any URL after dispatch begins or treating CoreDevice acceptance as rendering evidence",
+      "submitting forms, changing accounts, making payments, performing destructive actions, or handling protected confirmations"
+    ],
+    "uncertain_outcome": "Brave may have received the URL, changed history, reused a tab, or created a normal or private tab before a response was lost. Inspect with the user and never replay or clean up automatically."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer"
+    ],
+    "device": [
+      "paired physical iPad with Brave installed",
+      "unlocked iPad"
+    ],
+    "permissions": [
+      "explicit Brave addon enablement",
+      "Trust This Computer"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "26.6.1",
+    "maximum_os": "26.6.1",
+    "locales": [
+      "not-applicable"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "one explicit HTTP(S), search, private HTTP(S), IPFS, or IPNS value supplied by the caller"
+    ],
+    "data_sent": [
+      "the validated route to Brave and normal browser or distributed-content requests initiated by Brave"
+    ],
+    "retention": "The integration stores no route or tab inventory. Brave may retain history, website data, and tabs under existing settings; a private route may leave a private tab, and automatic cleanup is unsupported.",
+    "notes": "Production is CoreDevice-only and remains addon-gated. Exact-profile status is separate: website and search are proven and admitted; YouTube is candidate and legacy-admitted; private website is candidate-gated; IPFS and IPNS are incompatible and production-gated."
+  }
+}

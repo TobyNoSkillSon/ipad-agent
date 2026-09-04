@@ -88,6 +88,38 @@ class AirDropMaintenanceReadinessTests(unittest.TestCase):
         self.assertEqual("action_required", result["state"])
         self.assertEqual(10, result["exit_code"])
 
+    def test_dormant_wda_failures_do_not_block_core_readiness(self):
+        checks = [
+            doctor.Check("host.macos", "pass", "ready"),
+            doctor.Check("host.python", "pass", "ready"),
+            doctor.Check("host.xcode", "pass", "ready"),
+            doctor.Check("host.devicectl", "pass", "ready"),
+            doctor.Check("device.paired", "pass", "ready", "device"),
+            doctor.Check("device.unlocked", "pass", "ready", "device"),
+            doctor.Check("device.browser", "pass", "ready", "device"),
+            doctor.Check("host.node", "fail", "optional WDA tool missing"),
+            doctor.Check("automation.appium", "fail", "optional WDA tool missing"),
+            doctor.Check("signing.identity", "action_required", "optional signing missing", "signing"),
+            doctor.Check("device.developer_mode", "action_required", "optional developer mode off", "device"),
+        ]
+        report = doctor._report(checks, {})
+        self.assertTrue(report["ready"])
+        self.assertEqual("ready", report["state"])
+        self.assertEqual([], report["next"])
+
+    def test_blocked_wda_setup_operation_never_reports_ready(self):
+        doctor_report = doctor._report(
+            [doctor.Check("host.macos", "pass", "ready")], {}
+        )
+        result = setup._setup_report(
+            True, "wda", [],
+            [{"phase": "wda", "ok": False, "changed": False, "blocked_by": ["automation.appium"]}],
+            doctor_report, None,
+        )
+        self.assertFalse(result["ready"])
+        self.assertEqual("needs_agent_action", result["state"])
+        self.assertEqual(20, result["exit_code"])
+
     def test_host_setup_plans_or_builds_only_the_owned_helper(self):
         report = {
             "checks": [

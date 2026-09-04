@@ -11,6 +11,7 @@ import uuid
 
 from ipad_agent.airdrop import (
     AirDropSnapshotError,
+    AttemptSnapshot,
     _create_attempt_snapshot,
     _run_one_attempt,
     send_file,
@@ -156,6 +157,70 @@ class AirDropSnapshotHardeningTests(unittest.TestCase):
         finally:
             snapshot_path.unlink(missing_ok=True)
             snapshot_path.parent.rmdir()
+
+    def test_cancellation_before_helper_invocation_cleans_and_propagates(self):
+        private = "/private/project/.runtime/airdrop/attempts/preinvoke/payload.pdf"
+        with tempfile.TemporaryDirectory() as directory:
+            source = self._validated(directory)
+            snapshot = AttemptSnapshot(
+                "a" * 32,
+                Path(private).parent,
+                source,
+                "bounded_fd_copy",
+            )
+            with patch("ipad_agent.airdrop._require_runtime_executable"), patch(
+                "ipad_agent.airdrop._create_attempt_snapshot", return_value=snapshot
+            ), patch(
+                "ipad_agent.airdrop._remaining",
+                side_effect=[1.0, KeyboardInterrupt(f"cancelled before {private}")],
+            ), patch("ipad_agent.airdrop._cleanup_snapshot", return_value=None) as cleanup, patch(
+                "ipad_agent.airdrop._run_one_attempt"
+            ) as run:
+                with self.assertRaises(KeyboardInterrupt):
+                    send_file(
+                        source.path,
+                        allowed_roots=[Path(directory).resolve()],
+                        allowed_extensions=[".pdf"],
+                        max_bytes=1024,
+                        timeout_seconds=2,
+                        helper_path=Path("/mock/runtime/helper"),
+                    )
+
+        cleanup.assert_called_once_with(snapshot)
+        run.assert_not_called()
+
+    def test_cancellation_at_helper_boundary_is_uncertain_and_retains_snapshot(self):
+        private = "/private/project/.runtime/airdrop/attempts/postinvoke/payload.pdf"
+        with tempfile.TemporaryDirectory() as directory:
+            source = self._validated(directory)
+            snapshot = AttemptSnapshot(
+                "b" * 32,
+                Path(private).parent,
+                source,
+                "bounded_fd_copy",
+            )
+            with patch("ipad_agent.airdrop._require_runtime_executable"), patch(
+                "ipad_agent.airdrop._create_attempt_snapshot", return_value=snapshot
+            ), patch("ipad_agent.airdrop._remaining", return_value=1.0), patch(
+                "ipad_agent.airdrop._run_one_attempt",
+                side_effect=KeyboardInterrupt(f"cancelled after invoking {private}"),
+            ) as run, patch("ipad_agent.airdrop._cleanup_snapshot") as cleanup:
+                result = send_file(
+                    source.path,
+                    allowed_roots=[Path(directory).resolve()],
+                    allowed_extensions=[".pdf"],
+                    max_bytes=1024,
+                    timeout_seconds=2,
+                    helper_path=Path("/mock/runtime/helper"),
+                )
+
+        self.assertEqual(1, run.call_count)
+        cleanup.assert_not_called()
+        self.assertEqual("uncertain", result["status"])
+        self.assertEqual("unknown", result["dispatch"])
+        self.assertTrue(result["snapshot_retained"])
+        self.assertEqual(str(source.path), result["snapshot_path"])
+        self.assertNotIn(private, result["reason"])
 
     def test_helper_loss_before_observed_marker_is_unknown_not_pre_dispatch(self):
         with tempfile.TemporaryDirectory() as directory:

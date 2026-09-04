@@ -1,0 +1,189 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "google-maps",
+  "name": "Google Maps",
+  "kind": "core",
+  "bundle_ids": [
+    "com.google.Maps"
+  ],
+  "aliases": [
+    "google maps",
+    "googlemaps"
+  ],
+  "capabilities": [
+    "launch",
+    "search",
+    "directions",
+    "map",
+    "street-view",
+    "navigate",
+    "link"
+  ],
+  "selectors": {},
+  "actions": {
+    "activate": {
+      "description": "Bring Google Maps to the foreground.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-search": {
+      "description": "Open one validated Google Maps search.",
+      "capability": "search",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://www.google.com/maps/search/?query={query}&api={api}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-directions": {
+      "description": "Open one route preview without starting guidance.",
+      "capability": "directions",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://www.google.com/maps/dir/?destination={destination}&api={api}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-map": {
+      "description": "Open one validated map view.",
+      "capability": "map",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://www.google.com/maps/@?center={center}&api={api}&map_action={map_action}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-street-view": {
+      "description": "Open one validated Street View request.",
+      "capability": "street-view",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://www.google.com/maps/@?viewpoint={viewpoint}&api={api}&map_action={map_action}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "start-navigation": {
+      "description": "Open one explicitly authorized navigation-start request.",
+      "capability": "navigate",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://www.google.com/maps/dir/?destination={destination}&api={api}&dir_action={dir_action}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-link": {
+      "description": "Open one complete validated Google Maps URL.",
+      "capability": "link",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "{url}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "activate-direct": {
+      "description": "Foreground Google Maps without changing map state.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "navigate-candidate": {
+      "description": "Review one exact navigation-start candidate before sealed physical execution.",
+      "capabilities": [
+        "navigate"
+      ],
+      "actions": [
+        "start-navigation"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "navigate-and-transient-map-query",
+    "mutates_user_data": false,
+    "requires_confirmation": [
+      "starting navigation requires exact explicit user intent"
+    ],
+    "prohibited": [
+      "saving places, posting reviews, sharing location, timeline or account mutation",
+      "guessing undocumented URL routes or opaque identifiers",
+      "automatic permission, sign-in, account, or protected confirmation actions",
+      "starting guidance except through the separately authorized navigate command"
+    ],
+    "uncertain_outcome": "The map route may already have been delivered or navigation may have started. Inspect and never replay automatically."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer"
+    ],
+    "device": [
+      "paired physical iPad",
+      "Google Maps installed",
+      "unlocked iPad for dispatch"
+    ],
+    "permissions": [
+      "Trust This Computer"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "26.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "No account, saved place, timeline, review, or current-location state is read"
+    ],
+    "data_sent": [
+      "Only the explicit place, coordinates, route terms, and options in the requested URL"
+    ],
+    "retention": "Committed evidence contains no route URL, query, coordinates, locations, screenshot, or device identifier.",
+    "notes": "Location permissions and sign-in remain human controlled."
+  }
+}

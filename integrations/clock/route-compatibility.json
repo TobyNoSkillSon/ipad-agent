@@ -1,0 +1,30 @@
+{
+  "schema": "ipad-agent.clock-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-clock-1.1-ipados-26.6.1-23g83.json",
+  "routes": [
+    {
+      "command": "open",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "installed-application-metadata",
+          "bundle": "com.apple.mobiletimer",
+          "version": "1.1",
+          "build": "1.0"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-app-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ]
+}

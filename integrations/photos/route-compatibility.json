@@ -1,0 +1,81 @@
+{
+  "schema": "ipad-agent.photos-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-photos-system-23G83-ipados-26.6.1-23g83.json",
+  "commands": [
+    {
+      "command": "open",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "installed-app-inventory",
+          "declaration": "exact-bundle-and-version"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "application-visible-with-onboarding-gate",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "drop",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "apple-documentation",
+          "declaration": "declared-file-formats"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "method": "manual-recipient-airdrop-then-read-only-screenshot",
+          "result": "new-image-received-imported-and-opened-in-target-app;fixture-marker-not-visibly-rendered",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "show",
+      "availability": "candidate",
+      "production": "legacy-admitted",
+      "evidence": [
+        {
+          "kind": "transport-contract",
+          "declaration": "transfer-then-launch-cannot-prove-exact-file-open"
+        },
+        {
+          "kind": "observer-screenshot-partial",
+          "method": "manual-recipient-airdrop-then-read-only-screenshot",
+          "result": "photos-foregrounded-in-recently-saved;exact-test-image-not-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ],
+  "excluded_routes": [
+    {
+      "kind": "collaboration-link",
+      "reason": "No stable public host/path/token grammar or task-owned generated sample; opaque identifiers are never synthesized"
+    },
+    {
+      "kind": "raw-hevc-live-photo",
+      "reason": "Documented format families do not provide one safe exhaustive filename-extension map; unsupported containers remain excluded"
+    }
+  ]
+}

@@ -6,7 +6,7 @@ from typing import Any
 
 def ipadappstore(command: object, *args: object, **options: object) -> Any:
     """Open App Store or show one validated product destination."""
-    from .commands import app_store
+    from integrations.appstore.commands import app_store
 
     return app_store(command, *args, **options)
 

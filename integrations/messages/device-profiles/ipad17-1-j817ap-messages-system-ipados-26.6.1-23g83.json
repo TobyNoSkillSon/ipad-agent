@@ -1,0 +1,12 @@
+{
+  "schema": "ipad-agent.messages-device-profile/v1",
+  "version": 1,
+  "profile_id": "ipad17-1-j817ap-messages-system-ipados-26.6.1-23g83",
+  "scope_type": "model-build",
+  "app_name": "Messages",
+  "app_version": "system-23G83",
+  "product_type": "iPad17,1",
+  "hardware_model": "J817AP",
+  "os_version": "26.6.1",
+  "os_build": "23G83"
+}

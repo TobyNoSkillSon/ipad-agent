@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import stat
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -98,6 +99,9 @@ port = 9000
 
             path.chmod(0o600)
             self.assertEqual("one", load_config(environ={"IPAD_AGENT_CONFIG": str(path)}).device)
+            with patch("ipad_agent.config.descriptor_has_extended_acl", return_value=True):
+                with self.assertRaisesRegex(ConfigError, "extended ACL"):
+                    load_config(environ={"IPAD_AGENT_CONFIG": str(path)})
 
             link = Path(directory) / "linked.toml"
             link.symlink_to(path)
@@ -115,6 +119,14 @@ port = 9000
 
 
 class ContainedPathTests(unittest.TestCase):
+    def test_acl_detection_uses_the_macos_mode_marker(self):
+        plain = subprocess.CompletedProcess([], 0, "-rw-------  1 user staff 1 date file\n", "")
+        acl = subprocess.CompletedProcess([], 0, "-rw-------+ 1 user staff 1 date file\n", "")
+        with patch.object(paths.subprocess, "run", return_value=plain):
+            self.assertFalse(paths.has_extended_acl("/fixture"))
+        with patch.object(paths.subprocess, "run", return_value=acl):
+            self.assertTrue(paths.has_extended_acl("/fixture"))
+
     def test_containment_symlinks_and_private_writes(self):
         with tempfile.TemporaryDirectory() as directory:
             runtime_root = Path(directory) / ".runtime"

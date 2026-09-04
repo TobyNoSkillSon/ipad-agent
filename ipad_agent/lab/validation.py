@@ -1,7 +1,7 @@
 """Strict static validation for manifests and lab artifacts."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import math
@@ -10,7 +10,8 @@ import re
 from typing import Any, Mapping
 from urllib.parse import urlsplit
 
-from ipad_agent.registry import RegistryError, _validate_manifest
+from ipad_agent.core.registry import RegistryError, _validate_manifest
+from ipad_agent.core.urlroutes import URLPolicyError, ValidatedURLRoute
 
 
 class LabValidationError(ValueError):
@@ -66,13 +67,45 @@ def _url_policy_path(path: Path, integration_id: str, kind: str) -> Path:
     if path.name == "integration.json" and path.is_absolute():
         return path.with_name("url-policy.json")
     root = Path(__file__).resolve().parents[2]
-    base = root / ("addons" if kind == "addon" else "integrations") / integration_id
+    base = root / "integrations" / integration_id
     return base / "url-policy.json"
 
 
+def _plain_policy(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _plain_policy(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_plain_policy(item) for item in value]
+    return value
+
+
 def _validate_url_policy(
-    value: Mapping[str, Any], *, integration_id: str, open_url_actions: set[str], context: str,
-) -> dict[str, list[str]]:
+    value: Mapping[str, Any], *, integration_id: str, open_url_actions: set[str],
+    bundle_ids: list[str], actions: Mapping[str, Mapping[str, Any]], context: str,
+) -> dict[str, Any]:
+    if value.get("schema") == "ipad-agent.url-policy/v2":
+        try:
+            from ipad_agent.core.urlroutes import load_url_policy
+            encoded = json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8")
+            policy = load_url_policy(
+                encoded, integration_id=integration_id, bundle_ids=bundle_ids,
+                actions=actions, context=f"{context} URL policy",
+            )
+        except (TypeError, ValueError) as error:
+            raise LabValidationError(str(error)) from error
+        covered = {
+            route.action_id for route in policy.routes.values()
+            if route.kind in {"build", "exact"} and route.action_id in open_url_actions
+        }
+        if covered != open_url_actions:
+            raise LabValidationError(f"{context} v2 URL policy does not cover every open-url action")
+        # Evidence binds the complete parser-normalized v2 contract: command/action
+        # identity, authorities, paths, templates, parameters, constraints, and size.
+        return _plain_policy(policy.normalized)
+    if integration_id not in {"safari", "brave"}:
+        raise LabValidationError(
+            f"{context} URL policy v1 is reserved for legacy Safari and Brave integrations"
+        )
     _keys(
         value, {"$schema", "schema", "version", "integration_id", "actions"}, set(),
         f"{context} URL policy",
@@ -157,7 +190,8 @@ def validate_manifest(source: str | Path | Mapping[str, Any]) -> dict[str, Any]:
             }
         normalized["_lab_url_policy"] = _validate_url_policy(
             embedded_policy, integration_id=integration_id,
-            open_url_actions=open_url_actions, context=str(path),
+            open_url_actions=open_url_actions, bundle_ids=normalized["bundle_ids"],
+            actions=normalized["actions"], context=str(path),
         )
     elif embedded_policy not in (None, {}):
         raise LabValidationError(f"{path}: URL policy is forbidden without open-url actions")
@@ -219,7 +253,7 @@ def _validate_authorization(
     if not isinstance(value, dict):
         raise LabValidationError("physical evidence requires an authorization object")
     required = {
-        "actor", "request", "integration_id", "manifest_digest", "plan_digest",
+        "authorization_id", "actor", "request", "integration_id", "manifest_digest", "plan_digest",
         "scenario_id", "parameters", "safety_ceiling", "confirmations", "authorized_at",
         "expires_at", "run_count", "benchmark_parameters", "benchmark_control_plan",
     }
@@ -231,12 +265,16 @@ def _validate_authorization(
     expires = _parse_offset_time(value["expires_at"], "authorization.expires_at")
     if expires <= authorized:
         raise LabValidationError("authorization.expires_at must be after authorized_at")
+    if expires > authorized + timedelta(minutes=15):
+        raise LabValidationError("authorization.expires_at must be no more than 15 minutes after authorized_at")
     if _parse_offset_time(started_at, "evidence.started_at") < authorized:
         raise LabValidationError("physical evidence started before authorization")
     if _parse_offset_time(finished_at, "evidence.finished_at") > expires:
         raise LabValidationError("physical evidence finished after authorization expiry")
     if isinstance(value["run_count"], bool) or not isinstance(value["run_count"], int) or value["run_count"] < 1:
         raise LabValidationError("authorization.run_count must be a positive integer")
+    if not isinstance(value["authorization_id"], str) or not re.fullmatch(r"[a-f0-9]{64}", value["authorization_id"]):
+        raise LabValidationError("authorization.authorization_id must be a 256-bit lowercase hexadecimal identifier")
     for field in ("manifest_digest", "plan_digest"):
         if not isinstance(value[field], str) or not re.fullmatch(r"[a-f0-9]{64}", value[field]):
             raise LabValidationError(f"authorization.{field} must be a SHA-256 digest")
@@ -309,7 +347,6 @@ def _validate_serialized_plan(plan: Mapping[str, Any], integration_id: str, scen
     action_retries: dict[str, set[str]] = {}
     instruction_fields = {
         "activate": (set(), set()),
-        "open-url": ({"value", "allowed_schemes"}, {"value", "allowed_schemes"}),
         "tap": ({"selector"}, {"selector"}),
         "clear-type": ({"selector", "value"}, {"selector", "value"}),
         "type": ({"value"}, {"value"}),
@@ -331,12 +368,35 @@ def _validate_serialized_plan(plan: Mapping[str, Any], integration_id: str, scen
         _keys(operation, {"operation_id", "name", "safety_class", "retry_class", "authority", "metadata"}, set(), "evidence plan operation")
         operation_name = instruction.get("operation")
         expected_safety = _STEP_SAFETY.get(operation_name)
-        if expected_safety is not None:
+        if expected_safety is not None and operation_name != "open-url":
             required_fields, optional_fields = instruction_fields[operation_name]
             fields = set(instruction) - {"operation"}
             if not required_fields <= fields or fields - optional_fields:
                 raise LabValidationError("evidence instruction fields do not match its operation")
-        if operation_name == "open-url":
+        if operation_name == "open-url" and "validated_route" in instruction:
+            if set(instruction) != {"operation", "validated_route"}:
+                raise LabValidationError("evidence v2 open-url instruction fields are invalid")
+            try:
+                route = ValidatedURLRoute.from_dict(instruction["validated_route"])
+            except (TypeError, URLPolicyError) as error:
+                raise LabValidationError(f"evidence validated URL route is invalid: {error}") from error
+            policy_binding = plan.get("metadata", {}).get("url_policy_binding")
+            if policy_binding != {
+                "schema": "ipad-agent.url-policy/v2", "sha256": route.policy_sha256,
+            }:
+                raise LabValidationError("evidence validated URL route is not bound to its policy digest")
+            if (
+                route.integration_id != integration_id or route.action_id != action_id
+                or route.bundle_id != plan.get("bundle_id")
+                or route.safety != operation.get("metadata", {}).get("declared_action_safety")
+                or route.retry != operation.get("retry_class")
+            ):
+                raise LabValidationError("evidence validated URL route is not bound to its planned action")
+        elif operation_name == "open-url":
+            if integration_id not in {"safari", "brave"} or set(instruction) != {
+                "operation", "value", "allowed_schemes",
+            }:
+                raise LabValidationError("evidence v1 open-url instruction is not legacy-browser-only")
             schemes = instruction.get("allowed_schemes")
             url = instruction.get("value")
             if (

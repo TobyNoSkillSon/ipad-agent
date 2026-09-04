@@ -1,0 +1,42 @@
+{
+  "schema": "ipad-agent.safari-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-safari-26.6.1-ipados-26.6.1-23g83.json",
+  "routes": [
+    {
+      "command": "website",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/Introduction/Introduction.html",
+          "syntax": "http-https-browser-url"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-website-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "youtube",
+      "availability": "candidate",
+      "production": "legacy-admitted",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/Introduction/Introduction.html",
+          "syntax": "http-https-browser-url"
+        }
+      ]
+    }
+  ]
+}

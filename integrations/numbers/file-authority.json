@@ -1,0 +1,20 @@
+{
+  "schema": "ipad-agent.numbers-file-authority/v1",
+  "version": 1,
+  "application": "Numbers",
+  "transport": "airdrop-single-local-file",
+  "extensions": [
+    ".numbers",
+    ".xls",
+    ".xlsx",
+    ".csv",
+    ".tsv"
+  ],
+  "evidence": [
+    {
+      "kind": "apple-documentation",
+      "source": "https://support.apple.com/guide/numbers-ipad/import-an-excel-or-text-file-tan9f3c54bdc/15.3/ipados/1.0",
+      "declaration": "Numbers-15.3-document-open-and-import-formats"
+    }
+  ]
+}

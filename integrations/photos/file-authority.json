@@ -1,0 +1,24 @@
+{
+  "schema": "ipad-agent.photos-file-authority/v1",
+  "version": 1,
+  "application": "Photos",
+  "transport": "airdrop-single-local-file",
+  "extensions": [
+    ".heif",
+    ".heic",
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".tif",
+    ".tiff",
+    ".mp4"
+  ],
+  "evidence": [
+    {
+      "kind": "apple-documentation",
+      "source": "https://support.apple.com/guide/ipad/share-photos-and-videos-ipad4f44c78f/ipados",
+      "declaration": "Photos-system-23G83-document-open-and-import-formats"
+    }
+  ]
+}

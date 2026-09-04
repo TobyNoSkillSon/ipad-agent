@@ -6,7 +6,7 @@ from typing import Any
 
 def ipadc(command: object, *args: object, **options: object) -> Any:
     """Open an app, drop a local file, or report runtime status."""
-    from .commands import controller
+    from ipad_agent.core.controller import controller
 
     return controller(command, *args, **options)
 

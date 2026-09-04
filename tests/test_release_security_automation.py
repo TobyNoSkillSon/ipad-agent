@@ -1,5 +1,6 @@
 import importlib.util
 import json
+import os
 from pathlib import Path
 import shutil
 import socket
@@ -95,11 +96,14 @@ secret = "placeholder-value"
             )
             executable.chmod(0o644)  # The staged release mode must still be rejected.
             sock = socket.socket(socket.AF_UNIX)
-            try:
-                sock.bind(str(copy / "fixture.sock"))
-                issues = release_check.check_release(copy)
-            finally:
-                sock.close()
+            with tempfile.TemporaryDirectory(dir="/tmp", prefix="ipad-agent-socket-test-") as short:
+                bound = Path(short) / "fixture.sock"
+                try:
+                    sock.bind(str(bound))
+                    os.replace(bound, copy / "fixture.sock")
+                    issues = release_check.check_release(copy)
+                finally:
+                    sock.close()
             joined = "\n".join(issues)
             self.assertIn("symlink is not release-safe", joined)
             self.assertIn("socket is not release-safe", joined)
@@ -107,13 +111,13 @@ secret = "placeholder-value"
 
     def test_unindexed_and_invalid_manifests_are_rejected(self):
         with self._repository_copy() as copy:
-            rogue = copy / "addons" / "rogue" / "integration.json"
+            rogue = copy / "integrations" / "rogue" / "integration.json"
             rogue.parent.mkdir()
-            shutil.copyfile(copy / "addons" / "brave" / "integration.json", rogue)
+            shutil.copyfile(copy / "integrations" / "brave" / "integration.json", rogue)
             issues = release_check.check_release(copy)
             self.assertIn("unindexed integration manifest", "\n".join(issues))
         with self._repository_copy() as copy:
-            manifest = copy / "integrations" / "maps" / "integration.json"
+            manifest = copy / "integrations" / "apple_maps" / "integration.json"
             manifest.write_text('{"not": "a manifest"}', encoding="utf-8")
             issues = release_check.check_release(copy)
             self.assertTrue(any("missing required field" in issue for issue in issues), issues)
@@ -208,6 +212,20 @@ secret = "placeholder-value"
                 "exit_code": 0,
                 "selected": {},
                 "checks": [check("airdrop.policy", "fail", "host")],
+                "next": [],
+            }, 0),
+            ({
+                "schema": "ipad-agent.doctor/v2",
+                "state": "ready",
+                "ready": True,
+                "exit_code": 0,
+                "selected": {},
+                "checks": [
+                    check("host.node", "fail", "host"),
+                    check("automation.appium", "fail", "host"),
+                    check("signing.identity", "action_required", "signing"),
+                    check("device.developer_mode", "action_required", "device"),
+                ],
                 "next": [],
             }, 0),
             ({

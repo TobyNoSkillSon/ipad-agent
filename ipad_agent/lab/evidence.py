@@ -6,9 +6,12 @@ import json
 import os
 import platform
 import re
+import stat
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 from uuid import uuid4
+
+from ipad_agent.core.paths import descriptor_has_extended_acl, has_extended_acl
 
 from .model import PhysicalAuthorization, ScenarioPlan, canonical_digest
 from .planning import verify_plan_safety
@@ -37,21 +40,82 @@ def private_evidence_root(repository_root: str | Path = REPOSITORY_ROOT) -> Path
     return Path(repository_root).resolve() / ".runtime" / "lab"
 
 
+def _secure_private_directories(private_root: Path, parent: Path) -> None:
+    private_root = Path(os.path.abspath(private_root))
+    parent = Path(os.path.abspath(parent))
+    if private_root.name != "lab" or private_root.parent.name != ".runtime":
+        raise ValueError("private evidence root must be repository .runtime/lab")
+    repository_root = private_root.parent.parent
+    try:
+        relative = parent.relative_to(repository_root)
+        parent.relative_to(private_root)
+    except ValueError as error:
+        raise ValueError("evidence path escaped .runtime/lab") from error
+    current = repository_root
+    for part in relative.parts:
+        if part in {"", ".", ".."}:
+            raise ValueError("evidence path contains an unsafe component")
+        current = current / part
+        try:
+            info = current.lstat()
+        except FileNotFoundError:
+            os.mkdir(current, 0o700)
+            info = current.lstat()
+        if (
+            stat.S_ISLNK(info.st_mode)
+            or not stat.S_ISDIR(info.st_mode)
+            or info.st_uid != os.getuid()
+            or stat.S_IMODE(info.st_mode) & ~0o700
+            or has_extended_acl(current)
+        ):
+            raise PermissionError("private evidence directory is not owner-only")
+
+
 def _private_write(path: Path, payload: Mapping[str, Any], *, private_root: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    current = path.parent
-    while current == private_root or private_root in current.parents:
-        os.chmod(current, 0o700)
-        if current == private_root:
-            break
-        current = current.parent
-    temporary = path.with_name(path.name + ".tmp")
-    fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as handle:
-        json.dump(payload, handle, indent=2, ensure_ascii=False, allow_nan=False)
-        handle.write("\n")
-    os.replace(temporary, path)
-    os.chmod(path, 0o600)
+    private_root = Path(os.path.abspath(private_root))
+    path = Path(os.path.abspath(path))
+    try:
+        path.relative_to(private_root)
+    except ValueError as error:
+        raise ValueError("evidence path escaped .runtime/lab") from error
+    _secure_private_directories(private_root, path.parent)
+    try:
+        existing = path.lstat()
+    except FileNotFoundError:
+        existing = None
+    if existing is not None and (
+        stat.S_ISLNK(existing.st_mode)
+        or not stat.S_ISREG(existing.st_mode)
+        or existing.st_uid != os.getuid()
+        or stat.S_IMODE(existing.st_mode) & ~0o600
+        or has_extended_acl(path)
+    ):
+        raise PermissionError("private evidence file is not owner-only")
+
+    temporary = path.with_name(f".{path.name}.{uuid4().hex}.tmp")
+    descriptor = os.open(
+        temporary,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+        0o600,
+    )
+    try:
+        os.fchmod(descriptor, 0o600)
+        if descriptor_has_extended_acl(descriptor):
+            raise PermissionError("private evidence temporary file inherited an ACL")
+        with os.fdopen(descriptor, "w", encoding="utf-8", closefd=True) as handle:
+            descriptor = -1
+            json.dump(payload, handle, indent=2, ensure_ascii=False, allow_nan=False)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+    finally:
+        if descriptor >= 0:
+            os.close(descriptor)
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
 
 
 def evidence_document(
@@ -163,19 +227,24 @@ def compatibility_summary(
         if digest in seen_digests:
             continue
         seen_digests.add(digest)
+        physical_execution = value["mode"] == "physical"
+        physical_benchmark = (
+            value["mode"] == "benchmark"
+            and value["metrics"].get("physical") is True
+        )
         physically_sourced = (
-            value["mode"] in {"physical", "discovery"}
-            or (value["mode"] == "benchmark" and value["metrics"].get("physical") is True)
-        ) and (
-            value["device"].get("source") == "CoreDevice"
+            (physical_execution or physical_benchmark)
+            and value["scenario_id"] != "selector-discovery"
+            and value["device"].get("source") == "CoreDevice"
             and value["device"].get("capture") == "device info details"
         )
         if not (
             physically_sourced and value["complete"] is True
             and isinstance(value.get("authorization"), Mapping)
         ):
-            # Simulation, failed/uncertain execution, and unevidenced environment
-            # records are private diagnostics, never publishable compatibility.
+            # Simulation, selector discovery, failed/uncertain execution, and
+            # unevidenced environment records are private diagnostics, never
+            # publishable compatibility.
             continue
         sources.append({"sha256": digest})
         integration = integrations.setdefault(value["integration_id"], {

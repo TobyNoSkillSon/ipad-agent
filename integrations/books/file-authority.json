@@ -1,0 +1,17 @@
+{
+  "schema": "ipad-agent.books-file-authority/v1",
+  "version": 1,
+  "application": "Books",
+  "transport": "airdrop-single-local-file",
+  "extensions": [
+    ".epub",
+    ".pdf"
+  ],
+  "evidence": [
+    {
+      "kind": "apple-documentation",
+      "source": "Apple Books User Guide and Apple Books links",
+      "declaration": "Books imports EPUB and opens or saves PDF; this does not prove AirDrop handoff."
+    }
+  ]
+}

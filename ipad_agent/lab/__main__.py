@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 
 from .docs import integration_docs
 from .scaffold import scaffold_integration

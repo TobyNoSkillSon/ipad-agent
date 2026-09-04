@@ -24,13 +24,17 @@ from ipad_agent.lab import (
 )
 from ipad_agent.lab.validation import LabValidationError
 from ipad_agent.operations import OperationPhase, RetryClass, SafetyClass
+from tests.lab_fixture import isolate_authorization_receipts, lab_fixture_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
 SAFARI = ROOT / "integrations" / "safari" / "integration.json"
-MAPS = ROOT / "integrations" / "maps" / "integration.json"
+LAB_FIXTURE = lab_fixture_manifest()
 
 
 class IntegrationLabV1Tests(unittest.TestCase):
+    def setUp(self) -> None:
+        isolate_authorization_receipts(self)
+
     def test_static_cli_exposes_only_scaffold_validate_and_docs(self):
         completed = subprocess.run(
             [sys.executable, "-m", "ipad_agent.lab", "--help"],
@@ -68,12 +72,12 @@ class IntegrationLabV1Tests(unittest.TestCase):
             with self.assertRaisesRegex(LabValidationError, "duplicate JSON key"):
                 validate_manifest(path)
             value = json.loads(SAFARI.read_text(encoding="utf-8"))
-            value["scenarios"]["show-web-page"]["capabilities"] = ["launch"]
+            value["scenarios"]["open-url-direct"]["capabilities"] = ["launch"]
             with self.assertRaisesRegex(LabValidationError, "capability set"):
                 validate_manifest(value)
 
     def test_plan_resolves_parameters_and_uses_operation_retry_contracts(self):
-        plan = plan_scenario(MAPS, "find-place-ui-fallback", parameters={"query": "Warsaw"})
+        plan = plan_scenario(LAB_FIXTURE, "ui-fallback", parameters={"query": "Warsaw"})
         self.assertEqual(["activate", "clear-type", "tap"], [step.instruction["operation"] for step in plan.steps])
         self.assertEqual("Warsaw", plan.steps[1].instruction["value"])
         self.assertEqual(SafetyClass.NAVIGATE, plan.steps[0].operation.safety_class)
@@ -81,13 +85,13 @@ class IntegrationLabV1Tests(unittest.TestCase):
         self.assertEqual(SafetyClass.TRANSIENT, plan.steps[1].operation.safety_class)
         self.assertEqual(RetryClass.INSPECT_THEN_DECIDE, plan.steps[1].operation.retry_class)
         with self.assertRaisesRegex(ValueError, "missing scenario parameter"):
-            plan_scenario(MAPS, "find-place-ui-fallback")
+            plan_scenario(LAB_FIXTURE, "ui-fallback")
         with self.assertRaisesRegex(ValueError, "cannot exceed"):
-            plan_scenario(MAPS, "find-place-ui-fallback", parameters={"query": "x"}, safety_ceiling=SafetyClass.PERSISTENT)
+            plan_scenario(LAB_FIXTURE, "ui-fallback", parameters={"query": "x"}, safety_ceiling=SafetyClass.PERSISTENT)
 
     def test_fake_run_records_private_schema_evidence_and_physical_is_gated(self):
         with tempfile.TemporaryDirectory() as temporary:
-            run = run_fake_scenario(SAFARI, "show-web-page", parameters={"url": "https://example.com"}, repository_root=temporary)
+            run = run_fake_scenario(SAFARI, "open-url-direct", parameters={"url": "https://example.com"}, repository_root=temporary)
             self.assertTrue(run.ok)
             self.assertIsNotNone(run.evidence_path)
             self.assertIn(str(Path(temporary) / ".runtime" / "lab"), str(run.evidence_path))
@@ -96,7 +100,7 @@ class IntegrationLabV1Tests(unittest.TestCase):
             self.assertFalse(evidence["redaction"]["commit"])
             self.assertEqual(0o600, run.evidence_path.stat().st_mode & 0o777)
             with self.assertRaisesRegex(PermissionError, "physical=True"):
-                run_physical_scenario(plan_scenario(SAFARI, "show-web-page", parameters={"url": "https://example.com"}))
+                run_physical_scenario(plan_scenario(SAFARI, "open-url-direct", parameters={"url": "https://example.com"}))
             with self.assertRaisesRegex(PermissionError, "physical=True"):
                 PhysicalExecutor()
 
@@ -110,7 +114,7 @@ class IntegrationLabV1Tests(unittest.TestCase):
     def test_benchmark_has_warmups_metrics_and_private_evidence(self):
         with tempfile.TemporaryDirectory() as temporary:
             result = benchmark_scenario(
-                SAFARI, "show-web-page", parameters={"url": "https://example.com"},
+                SAFARI, "open-url-direct", parameters={"url": "https://example.com"},
                 warmups=1, runs=3, baseline_hook=lambda: None,
                 reset_hook=lambda: None, cleanup_hook=lambda: None, repository_root=temporary,
             )
@@ -123,7 +127,7 @@ class IntegrationLabV1Tests(unittest.TestCase):
 
     def test_compatibility_summary_is_allow_listed_and_docs_check_detects_drift(self):
         with tempfile.TemporaryDirectory() as temporary:
-            run = run_fake_scenario(SAFARI, "show-web-page", parameters={"url": "https://secret.example/path"}, repository_root=temporary)
+            run = run_fake_scenario(SAFARI, "open-url-direct", parameters={"url": "https://secret.example/path"}, repository_root=temporary)
             summary = compatibility_summary([run.evidence_path], generated_at="2026-03-10T00:00:00Z")
             encoded = json.dumps(summary)
             self.assertNotIn("secret.example", encoded)

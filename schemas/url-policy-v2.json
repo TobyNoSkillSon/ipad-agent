@@ -1,0 +1,229 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ipad-agent.local/schemas/url-policy-v2.json",
+  "title": "iPad Agent production URL policy v2",
+  "type": "object",
+  "required": [
+    "$schema",
+    "schema",
+    "version",
+    "integration_id",
+    "target_bundle",
+    "max_url_bytes",
+    "commands"
+  ],
+  "properties": {
+    "$schema": {
+      "const": "../../schemas/url-policy-v2.json"
+    },
+    "schema": {
+      "const": "ipad-agent.url-policy/v2"
+    },
+    "version": {
+      "const": 2
+    },
+    "integration_id": {
+      "$ref": "#/$defs/id"
+    },
+    "target_bundle": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9-]*(?:\\.[A-Za-z0-9][A-Za-z0-9-]*)+$"
+    },
+    "max_url_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 2048
+    },
+    "commands": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/id"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/command"
+      }
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+    },
+    "command": {
+      "type": "object",
+      "required": [
+        "action",
+        "aliases",
+        "kind",
+        "scheme",
+        "host",
+        "path",
+        "paths",
+        "canonical_commands",
+        "parameters",
+        "constraints"
+      ],
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/id"
+        },
+        "aliases": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "kind": {
+          "enum": [
+            "launch",
+            "build",
+            "exact"
+          ]
+        },
+        "scheme": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[a-z][a-z0-9+.-]*$"
+        },
+        "host": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^(?:/[^?#]*)?$"
+        },
+        "paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?:/[^?#]*)?$"
+          }
+        },
+        "canonical_commands": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/parameter"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/constraint"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "parameter": {
+      "type": "object",
+      "required": [
+        "name",
+        "query",
+        "type",
+        "required",
+        "positional",
+        "repeatable"
+      ],
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/id"
+        },
+        "query": {
+          "$ref": "#/$defs/query-name"
+        },
+        "type": {
+          "enum": [
+            "text",
+            "coordinate",
+            "span",
+            "finite-number",
+            "nonnegative-integer",
+            "enum",
+            "place-id",
+            "enum-list"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "positional": {
+          "type": "boolean"
+        },
+        "repeatable": {
+          "type": "boolean"
+        },
+        "values": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "minimum": {
+          "type": "number"
+        },
+        "maximum": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "constraint": {
+      "type": "object",
+      "required": [
+        "kind",
+        "fields"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "at-least-one",
+            "exactly-one",
+            "requires",
+            "forbids-together",
+            "same-length",
+            "requires-value"
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/id"
+          }
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "query-name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[-_][a-z0-9]+)*$"
+    }
+  },
+  "additionalProperties": false
+}

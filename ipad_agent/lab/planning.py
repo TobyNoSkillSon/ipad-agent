@@ -1,12 +1,16 @@
 """Scenario planning with manifest, instruction, safety, and retry invariants."""
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 from typing import Any, Mapping
 from urllib.parse import urlsplit
 
-from ipad_agent.operations import OperationSpec, RetryClass, SafetyClass
+from ipad_agent.core.operations import OperationSpec, RetryClass, SafetyClass
+from ipad_agent.core.urlroutes import (
+    URLPolicy, ValidatedURLRoute, load_url_policy, resolve_url_route,
+)
 
 from .model import PlannedStep, ScenarioPlan, canonical_digest
 from .validation import manifest_digest, validate_manifest
@@ -46,6 +50,20 @@ def _substitute(value: Any, parameters: Mapping[str, Any]) -> Any:
             raise ValueError(f"scenario parameter {name!r} must be string or number")
         rendered = rendered.replace("{" + name + "}", str(replacement))
     return rendered
+
+
+def _action_schemes(url_policy: Mapping[str, Any], action_id: str) -> Any:
+    if url_policy.get("schema") != "ipad-agent.url-policy/v2":
+        return url_policy.get(action_id)
+    commands = url_policy.get("commands")
+    if not isinstance(commands, Mapping):
+        return None
+    schemes = sorted({
+        command.get("scheme") for command in commands.values()
+        if isinstance(command, Mapping) and command.get("action") == action_id
+        and isinstance(command.get("scheme"), str)
+    })
+    return schemes
 
 
 def _validated_url(value: Any, allowed_schemes: Any, *, action_id: str) -> tuple[str, list[str]]:
@@ -109,6 +127,74 @@ def assert_step_invariant(step: PlannedStep) -> None:
         raise ValueError(f"observe-labelled action {step.action_id!r} cannot dispatch {operation_name}")
     if declared in {SafetyClass.PERSISTENT.value, SafetyClass.PROTECTED.value}:
         raise ValueError(f"lab rejects {declared} action {step.action_id!r}")
+    if operation_name == "open-url":
+        integration_id = step.operation.metadata.get("integration_id")
+        if "validated_route" in step.instruction:
+            if set(step.instruction) != {"operation", "validated_route"}:
+                raise ValueError("v2 open-url instructions must contain only the validated route record")
+            route = ValidatedURLRoute.from_dict(step.instruction["validated_route"])
+            if (
+                route.integration_id != integration_id or route.action_id != step.action_id
+                or route.safety != declared or route.retry != step.operation.retry_class.value
+            ):
+                raise ValueError("v2 open-url instruction is not bound to its planned action")
+        else:
+            if integration_id not in {"safari", "brave"}:
+                raise ValueError("v1 open-url instructions are available only to Safari and Brave")
+            if set(step.instruction) != {"operation", "value", "allowed_schemes"}:
+                raise ValueError("v1 open-url instruction fields are invalid")
+            _validated_url(
+                step.instruction.get("value"), step.instruction.get("allowed_schemes"),
+                action_id=step.action_id,
+            )
+
+
+def _planning_v2_policy(
+    source: str | Path | Mapping[str, Any], normalized: Mapping[str, Any],
+) -> URLPolicy | None:
+    policy_value = normalized.get("_lab_url_policy", {})
+    if not isinstance(policy_value, Mapping) or policy_value.get("schema") != "ipad-agent.url-policy/v2":
+        return None
+    if isinstance(source, Mapping):
+        raw_policy = source.get("_lab_url_policy", policy_value)
+        if not isinstance(raw_policy, Mapping):
+            raise ValueError("v2 scenario planning requires a URL policy object")
+        policy_bytes = json.dumps(
+            dict(raw_policy), ensure_ascii=False, allow_nan=False, separators=(",", ":"),
+        ).encode("utf-8")
+        context = f"{normalized['id']} embedded URL policy"
+    else:
+        policy_path = Path(source).expanduser().resolve().with_name("url-policy.json")
+        try:
+            policy_bytes = policy_path.read_bytes()
+        except OSError as error:
+            raise ValueError(f"cannot load {policy_path}: {error}") from error
+        context = str(policy_path)
+    return load_url_policy(
+        policy_bytes, integration_id=normalized["id"],
+        bundle_ids=normalized["bundle_ids"], actions=normalized["actions"], context=context,
+    )
+
+
+def _planned_v2_route(
+    policy: URLPolicy, action_id: str, parameters: Mapping[str, Any],
+) -> ValidatedURLRoute:
+    candidates = [
+        route for route in policy.routes.values()
+        if route.action_id == action_id and route.kind in {"build", "exact"}
+    ]
+    if len(candidates) != 1:
+        raise ValueError(f"v2 open-url action {action_id!r} must resolve to one policy command")
+    route = candidates[0]
+    accepted = {parameter["name"] for parameter in route.parameters}
+    selected: dict[str, Any] = {}
+    for raw_name, value in parameters.items():
+        if not isinstance(raw_name, str):
+            continue
+        canonical = raw_name.replace("_", "-")
+        if canonical in accepted:
+            selected[raw_name] = value
+    return resolve_url_route(policy, route.command, (), selected)
 
 
 def verify_plan_safety(
@@ -153,6 +239,7 @@ def plan_scenario(
 ) -> ScenarioPlan:
     normalized = validate_manifest(manifest)
     url_policy = normalized.get("_lab_url_policy", {})
+    v2_policy = _planning_v2_policy(manifest, normalized)
     try:
         ceiling = SafetyClass(safety_ceiling)
     except (TypeError, ValueError) as error:
@@ -179,13 +266,17 @@ def plan_scenario(
             "declared_class": None if declared is None else declared.value,
         }
         for raw in action["steps"]:
-            instruction = {key: _substitute(value, values) for key, value in raw.items()}
-            operation_name = instruction["operation"]
-            if operation_name == "open-url":
-                url, allowed = _validated_url(
-                    instruction.get("value"), url_policy.get(action_id), action_id=action_id,
-                )
-                instruction = {"operation": "open-url", "value": url, "allowed_schemes": allowed}
+            operation_name = raw["operation"]
+            if operation_name == "open-url" and v2_policy is not None:
+                route = _planned_v2_route(v2_policy, action_id, values)
+                instruction = {"operation": "open-url", "validated_route": route.to_dict()}
+            else:
+                instruction = {key: _substitute(value, values) for key, value in raw.items()}
+                if operation_name == "open-url":
+                    url, allowed = _validated_url(
+                        instruction.get("value"), _action_schemes(url_policy, action_id), action_id=action_id,
+                    )
+                    instruction = {"operation": "open-url", "value": url, "allowed_schemes": allowed}
             safety = _STEP_SAFETY[operation_name]
             if declared is SafetyClass.OBSERVE and safety is not SafetyClass.OBSERVE:
                 raise ValueError(f"observe-labelled action {action_id!r} cannot dispatch {operation_name}")
@@ -229,6 +320,9 @@ def plan_scenario(
             "requires_confirmation": normalized["safety"]["requires_confirmation"],
             "prohibited": normalized["safety"]["prohibited"],
             "uncertain_outcome": normalized["safety"]["uncertain_outcome"],
+            "url_policy_binding": None if v2_policy is None else {
+                "schema": v2_policy.schema, "sha256": v2_policy.sha256,
+            },
         },
         values,
         manifest_digest(normalized),

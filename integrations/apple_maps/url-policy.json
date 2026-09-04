@@ -1,0 +1,690 @@
+{
+  "$schema": "../../schemas/url-policy-v2.json",
+  "schema": "ipad-agent.url-policy/v2",
+  "version": 2,
+  "integration_id": "maps",
+  "target_bundle": "com.apple.Maps",
+  "max_url_bytes": 2048,
+  "commands": {
+    "open": {
+      "action": "activate",
+      "aliases": [],
+      "kind": "launch",
+      "scheme": null,
+      "host": null,
+      "path": null,
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [],
+      "constraints": []
+    },
+    "frame": {
+      "action": "open-frame",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": "/frame",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "center",
+          "query": "center",
+          "type": "coordinate",
+          "required": false,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "span",
+          "query": "span",
+          "type": "span",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "mode",
+          "query": "mode",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "follow",
+            "follow-with-heading",
+            "none"
+          ]
+        },
+        {
+          "name": "heading",
+          "query": "heading",
+          "type": "finite-number",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "pitch",
+          "query": "pitch",
+          "type": "finite-number",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "distance",
+          "query": "distance",
+          "type": "finite-number",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "minimum": 0
+        },
+        {
+          "name": "map",
+          "query": "map",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "explore",
+            "driving",
+            "transit",
+            "satellite",
+            "hybrid"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "at-least-one",
+          "fields": [
+            "center",
+            "span",
+            "mode",
+            "heading",
+            "pitch",
+            "distance",
+            "map"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "span",
+            "center"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "heading",
+            "center"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "pitch",
+            "center"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "distance",
+            "center"
+          ]
+        }
+      ]
+    },
+    "search": {
+      "action": "open-search",
+      "aliases": [
+        "show"
+      ],
+      "kind": "build",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": "/search",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "query",
+          "query": "query",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "center",
+          "query": "center",
+          "type": "coordinate",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "span",
+          "query": "span",
+          "type": "span",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "requires",
+          "fields": [
+            "span",
+            "center"
+          ]
+        }
+      ]
+    },
+    "place": {
+      "action": "open-place",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": "/place",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "address",
+          "query": "address",
+          "type": "text",
+          "required": false,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "coordinate",
+          "query": "coordinate",
+          "type": "coordinate",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "place-id",
+          "query": "place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "name",
+          "query": "name",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "map",
+          "query": "map",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "explore",
+            "driving",
+            "transit",
+            "satellite",
+            "hybrid"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "at-least-one",
+          "fields": [
+            "address",
+            "coordinate",
+            "place-id"
+          ]
+        }
+      ]
+    },
+    "look-around": {
+      "action": "open-look-around",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": "/look-around",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "address",
+          "query": "address",
+          "type": "text",
+          "required": false,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "coordinate",
+          "query": "coordinate",
+          "type": "coordinate",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "place-id",
+          "query": "place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "exactly-one",
+          "fields": [
+            "address",
+            "coordinate",
+            "place-id"
+          ]
+        }
+      ]
+    },
+    "directions": {
+      "action": "open-directions",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": "/directions",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "destination",
+          "query": "destination",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "source",
+          "query": "source",
+          "type": "text",
+          "required": false,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "source-place-id",
+          "query": "source-place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "waypoint",
+          "query": "waypoint",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": true
+        },
+        {
+          "name": "waypoint-place-id",
+          "query": "waypoint-place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": true
+        },
+        {
+          "name": "destination-place-id",
+          "query": "destination-place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "mode",
+          "query": "mode",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "driving",
+            "walking",
+            "transit",
+            "cycling"
+          ]
+        },
+        {
+          "name": "avoid",
+          "query": "avoid",
+          "type": "enum-list",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "tolls",
+            "highways",
+            "hills",
+            "busy-roads",
+            "stairs"
+          ]
+        },
+        {
+          "name": "transit-preferences",
+          "query": "transit-preferences",
+          "type": "enum-list",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "bus",
+            "subway",
+            "commuter",
+            "ferry"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "requires",
+          "fields": [
+            "source-place-id",
+            "source"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "destination-place-id",
+            "destination"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "waypoint-place-id",
+            "waypoint"
+          ]
+        },
+        {
+          "kind": "same-length",
+          "fields": [
+            "waypoint",
+            "waypoint-place-id"
+          ]
+        },
+        {
+          "kind": "requires-value",
+          "fields": [
+            "transit-preferences",
+            "mode"
+          ],
+          "value": "transit"
+        }
+      ]
+    },
+    "navigate": {
+      "action": "start-navigation",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": "/directions",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "destination",
+          "query": "destination",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "source",
+          "query": "source",
+          "type": "text",
+          "required": false,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "source-place-id",
+          "query": "source-place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "waypoint",
+          "query": "waypoint",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": true
+        },
+        {
+          "name": "waypoint-place-id",
+          "query": "waypoint-place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": true
+        },
+        {
+          "name": "destination-place-id",
+          "query": "destination-place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "mode",
+          "query": "mode",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "driving",
+            "walking",
+            "transit",
+            "cycling"
+          ]
+        },
+        {
+          "name": "avoid",
+          "query": "avoid",
+          "type": "enum-list",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "tolls",
+            "highways",
+            "hills",
+            "busy-roads",
+            "stairs"
+          ]
+        },
+        {
+          "name": "transit-preferences",
+          "query": "transit-preferences",
+          "type": "enum-list",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "bus",
+            "subway",
+            "commuter",
+            "ferry"
+          ]
+        },
+        {
+          "name": "start",
+          "query": "start",
+          "type": "nonnegative-integer",
+          "required": true,
+          "positional": false,
+          "repeatable": false
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "requires",
+          "fields": [
+            "source-place-id",
+            "source"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "destination-place-id",
+            "destination"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "waypoint-place-id",
+            "waypoint"
+          ]
+        },
+        {
+          "kind": "same-length",
+          "fields": [
+            "waypoint",
+            "waypoint-place-id"
+          ]
+        },
+        {
+          "kind": "requires-value",
+          "fields": [
+            "transit-preferences",
+            "mode"
+          ],
+          "value": "transit"
+        }
+      ]
+    },
+    "guides": {
+      "action": "open-guides",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": "/guides",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [],
+      "constraints": []
+    },
+    "report-a-problem": {
+      "action": "open-report-problem",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": "/report-a-problem",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "address",
+          "query": "address",
+          "type": "text",
+          "required": false,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "coordinate",
+          "query": "coordinate",
+          "type": "coordinate",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "place-id",
+          "query": "place-id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "exactly-one",
+          "fields": [
+            "address",
+            "coordinate",
+            "place-id"
+          ]
+        }
+      ]
+    },
+    "link": {
+      "action": "open-link",
+      "aliases": [],
+      "kind": "exact",
+      "scheme": "https",
+      "host": "maps.apple.com",
+      "path": null,
+      "paths": [
+        "/frame",
+        "/search",
+        "/place",
+        "/look-around",
+        "/directions",
+        "/guides"
+      ],
+      "canonical_commands": [
+        "frame",
+        "search",
+        "place",
+        "look-around",
+        "directions",
+        "guides"
+      ],
+      "parameters": [
+        {
+          "name": "url",
+          "query": "url",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        }
+      ],
+      "constraints": []
+    }
+  }
+}

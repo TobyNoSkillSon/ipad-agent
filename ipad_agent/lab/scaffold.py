@@ -91,7 +91,7 @@ def scaffold_integration(
     }
     validate_manifest(manifest)
     root = Path(repository_root).resolve() if repository_root is not None else Path(__file__).resolve().parents[2]
-    target = Path(output).expanduser() if output is not None else root / ("integrations" if kind == "core" else "addons") / integration_id / "integration.json"
+    target = Path(output).expanduser() if output is not None else root / "integrations" / integration_id / "integration.json"
     target = target if target.is_absolute() else root / target
     payload = json.dumps(manifest, indent=2, ensure_ascii=False) + "\n"
     changed = False
@@ -110,7 +110,7 @@ def scaffold_integration(
         "index_entry": {
             "id": integration_id,
             "kind": kind,
-            "manifest": f"{integration_id}/integration.json" if kind == "core" else f"../addons/{integration_id}/integration.json",
+            "manifest": f"{integration_id}/integration.json",
             "category": "application",
             "aliases": [integration_id],
             "bundle_ids": bundles,

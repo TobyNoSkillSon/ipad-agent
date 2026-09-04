@@ -6,14 +6,15 @@
 # id = "CoreDevice identifier or UDID"
 
 [apps]
-# The Now browser is an enabled integration ID or registry alias, never a bundle ID.
-# Aliases are stored internally as canonical IDs. Safari is the built-in core
-# browser and the default. An addon alias is rejected unless that addon is enabled.
+# Browser used by the legacy generated/local-content display compatibility
+# path. This value is an enabled integration ID or registry alias, never a
+# bundle ID. Safari is the default. An addon alias is rejected unless enabled.
 browser = "safari"
-# To use Brave instead, set browser = "Brave Browser" and enable "brave" below.
+# To use Brave on that legacy path, set browser = "Brave Browser" and enable
+# "brave" below. Semantic Safari and Brave calls select their own adapters.
 
 # Exact bundle IDs may be passed to low-level ip/open calls. They do not select
-# the Now browser. Named aliases are an optional low-level escape hatch.
+# the legacy display browser. Named aliases are an optional low-level escape hatch.
 [apps.aliases]
 # reader = "org.example.reader"
 
@@ -23,13 +24,16 @@ browser = "safari"
 enabled = []
 
 [display]
-# Optional: one reachable RFC1918 IPv4 address on the trusted private LAN.
+# Legacy generated/local-content display compatibility only. It is outside the
+# current semantic app integrations. If used, set one reachable RFC1918 IPv4
+# address on a trusted private LAN; never use a public, wildcard, or loopback host.
 # host = "192.168.1.10"
 port = 8766
 
 [automation]
-# Setup writes the selected team, WDA bundle, and xctestrun provenance here.
-# Appium itself is installed under .runtime/node by host setup.
+# Optional dormant WDA maintenance configuration. Setup writes the selected
+# team, WDA bundle, and xctestrun provenance here. Explicit host setup downloads
+# Appium/XCUITest through npm under .runtime; current semantic integrations do not use it.
 # appium = ".runtime/node/node_modules/.bin/appium"
 appium_url = "http://127.0.0.1:4723"
 # team_id = "ABCDE12345"
@@ -38,8 +42,10 @@ appium_url = "http://127.0.0.1:4723"
 
 [airdrop]
 # Local-file transfer stays disabled until all three policy fields are set.
-# Paths must be absolute and canonical; extensions are case-insensitive.
-# allowed_roots = ["/Users/example/Downloads"]
+# Use one narrow, current-user-owned directory that is not writable by group
+# or other users. Never allow /, /Users, the home directory, or a broad shared root.
+# Extensions are case-insensitive.
+# allowed_roots = ["/Users/example/iPad-Agent-Transfer"]
 # allowed_extensions = [".pdf", ".epub", ".png"]
 # max_bytes = 524288000
 # The native process is always bounded (1–600 seconds).

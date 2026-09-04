@@ -1,0 +1,11 @@
+{
+  "name": "ipad-agent-pi-skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "One on-demand iPad gateway skill backed by app-local instructions and repository documentation.",
+  "pi": {
+    "skills": [
+      "./skills/use-ipad"
+    ]
+  }
+}

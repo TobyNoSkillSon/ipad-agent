@@ -6,7 +6,7 @@ import statistics
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-from ipad_agent.operations import OperationError, OperationResult, SafetyClass
+from ipad_agent.core.operations import OperationError, OperationResult, SafetyClass
 
 from .evidence import evidence_document, record_evidence, utc_now
 from .model import BenchmarkControlPlan, LabRun, PhysicalAuthorization, PlannedStep, ScenarioPlan
@@ -187,11 +187,12 @@ def benchmark_scenario(
 
     factory: Callable[[], StepExecutor]
     if physical:
-        factory = lambda: PhysicalExecutor(
-            physical=True, authorization=authorization, plan=plan,
-            run_count=warmups + runs, benchmark_parameters=benchmark_parameters,
-            benchmark_control_plan=control_plan,
-        )
+        def physical_factory(claim: str) -> Callable[[], StepExecutor]:
+            return lambda: PhysicalExecutor(
+                physical=True, authorization=authorization, plan=plan,
+                run_count=warmups + runs, benchmark_parameters=benchmark_parameters,
+                benchmark_control_plan=control_plan, _execution_claim=claim,
+            )
     else:
         factory = executor_factory or FakeExecutor
     started = utc_now()
@@ -204,7 +205,7 @@ def benchmark_scenario(
     if physical:
         assert control_plan is not None
         baseline_event = _execute_control(
-            "baseline", control_plan.baseline, factory,
+            "baseline", control_plan.baseline, physical_factory("baseline:0"),
             execution_index=0, bundle_id=plan.bundle_id,
         )
     elif baseline_hook is not None:
@@ -223,7 +224,7 @@ def benchmark_scenario(
             if physical:
                 assert control_plan is not None
                 reset_event = _execute_control(
-                    "reset", control_plan.reset, factory,
+                    "reset", control_plan.reset, physical_factory(f"reset:{execution_index}"),
                     execution_index=execution_index, bundle_id=plan.bundle_id,
                 )
             elif reset_hook is not None:
@@ -237,7 +238,9 @@ def benchmark_scenario(
                     break
         try:
             run = _run(
-                plan, factory(), mode="physical" if physical else "fake", record=False,
+                plan,
+                physical_factory(f"run:{execution_index}")() if physical else factory(),
+                mode="physical" if physical else "fake", record=False,
                 repository_root=repository_root, authorization=authorization if physical else None,
                 authorization_run_count=warmups + runs if physical else 1,
                 benchmark_parameters=benchmark_parameters,
@@ -261,7 +264,7 @@ def benchmark_scenario(
     if physical:
         assert control_plan is not None
         cleanup_event = _execute_control(
-            "cleanup", control_plan.cleanup, factory,
+            "cleanup", control_plan.cleanup, physical_factory("cleanup:0"),
             execution_index=execution_index, bundle_id=plan.bundle_id,
         )
     elif cleanup_hook is not None:

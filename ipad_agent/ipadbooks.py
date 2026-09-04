@@ -6,7 +6,7 @@ from typing import Any
 
 def ipadbooks(command: object, *args: object, **options: object) -> Any:
     """Open Books, drop a local file, or hand off a transferred file."""
-    from .commands import books
+    from integrations.books.commands import books
 
     return books(command, *args, **options)
 

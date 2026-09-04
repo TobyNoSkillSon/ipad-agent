@@ -1,0 +1,64 @@
+{
+  "$schema": "../../schemas/url-policy-v2.json",
+  "schema": "ipad-agent.url-policy/v2",
+  "version": 2,
+  "integration_id": "lab-fixture",
+  "target_bundle": "org.example.LabFixture",
+  "max_url_bytes": 512,
+  "commands": {
+    "open": {
+      "action": "activate",
+      "kind": "launch",
+      "aliases": [],
+      "scheme": null,
+      "host": null,
+      "path": null,
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [],
+      "constraints": []
+    },
+    "search": {
+      "action": "open-search",
+      "kind": "build",
+      "aliases": [],
+      "scheme": "https",
+      "host": "links.example.org",
+      "path": "/search",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "query",
+          "query": "query",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        }
+      ],
+      "constraints": []
+    },
+    "directions": {
+      "action": "open-directions",
+      "kind": "build",
+      "aliases": [],
+      "scheme": "https",
+      "host": "links.example.org",
+      "path": "/directions",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "destination",
+          "query": "destination",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        }
+      ],
+      "constraints": []
+    }
+  }
+}

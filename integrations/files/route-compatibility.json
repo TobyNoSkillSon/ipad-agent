@@ -1,0 +1,82 @@
+{
+  "schema": "ipad-agent.files-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-files-1.0-ipados-26.6.1-23g83.json",
+  "commands": [
+    {
+      "command": "open",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "application-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "drop",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "bundle-document-type",
+          "runtime": "iOS 26.5 (23F77)",
+          "declaration": "public.item-and-public.folder"
+        },
+        {
+          "kind": "transport-contract",
+          "declaration": "allowlisted-regular-file-airdrop-only"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "method": "manual-recipient-airdrop-then-read-only-screenshot",
+          "result": "zip-received-and-opened-in-system-preview",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "show",
+      "availability": "candidate",
+      "production": "legacy-admitted",
+      "evidence": [
+        {
+          "kind": "transport-contract",
+          "declaration": "transfer-then-launch-cannot-prove-exact-file-visible"
+        },
+        {
+          "kind": "observer-screenshot-partial",
+          "method": "manual-recipient-airdrop-then-read-only-screenshot",
+          "result": "exact-file-received-and-opened-in-system-preview-target-files-not-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ],
+  "excluded_routes": [
+    {
+      "scheme": "shareddocuments",
+      "reason": "registered scheme has no defensible stable external path grammar"
+    },
+    {
+      "scheme": "smb",
+      "reason": "Apple documents manual Files UI connection; no stable credential-free automation contract is admitted"
+    }
+  ]
+}

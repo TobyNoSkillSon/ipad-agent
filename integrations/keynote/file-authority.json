@@ -1,0 +1,18 @@
+{
+  "schema": "ipad-agent.keynote-file-authority/v1",
+  "version": 1,
+  "application": "Keynote",
+  "transport": "airdrop-single-local-file",
+  "extensions": [
+    ".key",
+    ".ppt",
+    ".pptx"
+  ],
+  "evidence": [
+    {
+      "kind": "apple-documentation",
+      "source": "https://support.apple.com/guide/keynote-ipad/open-a-presentation-tan72232b56/15.3/ipados/1.0",
+      "declaration": "Keynote-15.3-document-open-and-import-formats"
+    }
+  ]
+}

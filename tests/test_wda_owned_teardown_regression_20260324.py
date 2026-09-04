@@ -73,6 +73,7 @@ class WDAOwnedTeardownRegression20260324Tests(unittest.TestCase):
             receipt_path = Path(temporary) / "appium-owner.json"
             receipt_path.write_text(json.dumps(receipt))
             with patch.object(wda, "APPIUM_OWNER_RECEIPT", receipt_path), \
+                 patch.object(wda, "private_read_text", side_effect=lambda value: Path(value).read_text()), \
                  patch("ipad_agent.wda._owned_appium_identity", return_value=(79890, "a" * 32, "appium-start", False)), \
                  patch("ipad_agent.wda._terminate_wda_xcodebuild", return_value={
                      "complete": False, "reason": "descendant_termination_timeout",
@@ -106,6 +107,7 @@ class WDAOwnedTeardownRegression20260324Tests(unittest.TestCase):
             receipt_path = Path(temporary) / "appium-owner.json"
             receipt_path.write_text(json.dumps(receipt))
             with patch.object(wda, "APPIUM_OWNER_RECEIPT", receipt_path), \
+                 patch.object(wda, "private_read_text", side_effect=lambda value: Path(value).read_text()), \
                  patch.object(wda, "_SERVER", None), \
                  patch("ipad_agent.wda._owned_appium_identity", return_value=(79890, "b" * 32, "appium-start", False)), \
                  patch("ipad_agent.wda._terminate_wda_xcodebuild", side_effect=cleanup), \
@@ -139,9 +141,11 @@ class WDAOwnedTeardownRegression20260324Tests(unittest.TestCase):
             events.append("cleanup")
             return {"complete": True, "captured_pids": [], "remaining_pids": []}
 
-        with patch("ipad_agent.wda.ensure_appium_server"), \
+        with patch("ipad_agent.wda._config_with_runtime_compatibility", return_value=config), \
+             patch("ipad_agent.wda._discover_ipad", return_value={"udid": "udid"}), \
+             patch("ipad_agent.wda.ensure_appium_server"), \
              patch("ipad_agent.wda._http_json", side_effect=http_json), \
-             patch("ipad_agent.wda._owned_appium_identity", return_value=(79890, "c" * 32, "start", False)), \
+             patch("ipad_agent.wda._prove_appium_endpoint", return_value=(79890, "c" * 32, "start", False)), \
              patch("ipad_agent.wda._capture_owned_wda_descendants", side_effect=capture), \
              patch("ipad_agent.wda._terminate_wda_xcodebuild", side_effect=cleanup):
             with wda.short_session(config) as session:
@@ -154,6 +158,40 @@ class WDAOwnedTeardownRegression20260324Tests(unittest.TestCase):
             "xcodebuild_descendants_captured": [],
             "xcodebuild_remaining": [],
         }, session.teardown_result)
+
+    def test_successful_bounded_verification_stops_owned_appium_before_receipt(self):
+        selection = wda.WDASelection(
+            "device", "udid", "18.0", "ABCDE12345", "io.example.wda",
+            "/driver/WDA.xcodeproj", "digest", "Xcode 16", "fingerprint",
+        )
+        session = wda.AppiumSession("http://127.0.0.1:4723", "session-1")
+        session.teardown_result = {
+            "session_deleted": True,
+            "appium_ownership_proven": True,
+            "xcodebuild_descendants_captured": [],
+            "xcodebuild_remaining": [],
+        }
+
+        @contextlib.contextmanager
+        def complete_session(*args, **kwargs):
+            yield session
+
+        with tempfile.TemporaryDirectory() as temporary:
+            receipt_path = Path(temporary) / "fingerprint.json"
+            xctestrun = Path(temporary) / "WDA.xctestrun"
+            xctestrun.write_text("fixture")
+            artifact = {"xctestrun": str(xctestrun)}
+            with patch("ipad_agent.wda.artifact_directory", return_value=Path(temporary)), \
+                 patch("ipad_agent.wda.validate_artifact", return_value=artifact), \
+                 patch("ipad_agent.wda.verification_path", return_value=receipt_path), \
+                 patch("ipad_agent.wda.short_session", side_effect=complete_session), \
+                 patch("ipad_agent.wda.stop_owned_appium_server", return_value={"stopped": True}) as stop, \
+                 patch("ipad_agent.wda.private_write_text") as write_receipt:
+                result = wda.verify_bounded_session(selection, apply=True)
+
+        self.assertTrue(result["receipt"]["appium_stopped"])
+        stop.assert_called_once_with()
+        write_receipt.assert_called_once()
 
     def test_failed_teardown_invalidates_prior_verification_and_writes_no_success(self):
         selection = wda.WDASelection(

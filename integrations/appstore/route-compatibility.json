@@ -1,0 +1,47 @@
+{
+  "schema": "ipad-agent.appstore-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-appstore-system-ipados-26.6.1-23g83.json",
+  "commands": [
+    {
+      "command": "open",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "application-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "show",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "apple-documentation",
+          "declaration": "apps-apple-com-product-links"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-product-page-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ]
+}

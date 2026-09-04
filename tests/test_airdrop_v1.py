@@ -10,6 +10,9 @@ from unittest.mock import Mock, patch
 
 from ipad_agent.airdrop import (
     AccessibilitySelection,
+    AirDropBuildError,
+    AirDropError,
+    AirDropSnapshotError,
     AirDropValidationError,
     HELPER_BUILD_SCRIPT,
     HELPER_SOURCE,
@@ -119,6 +122,40 @@ class AirDropV1Tests(unittest.TestCase):
                     max_bytes=100,
                 )
 
+    def test_validation_rejects_unsafe_or_overbroad_roots(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            path = self._file(directory)
+            root.chmod(0o770)
+            try:
+                with self.assertRaisesRegex(AirDropValidationError, "writable"):
+                    validate_local_file(
+                        path,
+                        allowed_roots=[root],
+                        allowed_extensions=[".pdf"],
+                        max_bytes=100,
+                    )
+            finally:
+                root.chmod(0o700)
+            path.chmod(0o660)
+            try:
+                with self.assertRaisesRegex(AirDropValidationError, "file must not be writable"):
+                    validate_local_file(
+                        path,
+                        allowed_roots=[root],
+                        allowed_extensions=[".pdf"],
+                        max_bytes=100,
+                    )
+            finally:
+                path.chmod(0o600)
+        with self.assertRaisesRegex(AirDropValidationError, "too broad"):
+            validate_local_file(
+                Path.home() / "nonexistent-ipad-agent-fixture.pdf",
+                allowed_roots=[Path.home().resolve()],
+                allowed_extensions=[".pdf"],
+                max_bytes=100,
+            )
+
     def test_completed_callback_is_only_path_to_metrics(self):
         with tempfile.TemporaryDirectory() as directory:
             validated = validate_local_file(
@@ -185,6 +222,33 @@ class AirDropV1Tests(unittest.TestCase):
         self.assertNotIn("nominal_source_bytes", result)
         self.assertNotIn("nominal_source_bytes_per_second", result)
 
+    def test_native_helper_launch_cancellation_is_uncertain_and_redacted(self):
+        private = "/private/project/.runtime/airdrop/attempts/badcafe/payload.pdf"
+        with tempfile.TemporaryDirectory() as directory:
+            validated = validate_local_file(
+                self._file(directory),
+                allowed_roots=[Path(directory).resolve()],
+                allowed_extensions=[".pdf"],
+                max_bytes=100,
+            )
+            with patch(
+                "ipad_agent.airdrop.subprocess.Popen",
+                side_effect=KeyboardInterrupt(f"cancelled while launching {private}"),
+            ) as popen:
+                result = _run_one_attempt(
+                    ["helper"],
+                    validated=validated,
+                    timeout_seconds=1,
+                    receiver=None,
+                    accessibility_selector=None,
+                    selector_timeout_seconds=0.5,
+                )
+
+        self.assertEqual(1, popen.call_count)
+        self.assertEqual("uncertain", result["status"])
+        self.assertEqual("unknown", result["dispatch"])
+        self.assertNotIn(private, json.dumps(result))
+
     def test_semantic_entry_point_is_disabled_without_complete_policy(self):
         with patch("ipad_agent.config.load_config", return_value=Config()):
             result = airdrop("/does/not/matter.pdf")
@@ -217,6 +281,127 @@ class AirDropV1Tests(unittest.TestCase):
             max_bytes=123,
             timeout_seconds=9,
         )
+
+    def test_semantic_airdrop_errors_are_stable_and_redacted(self):
+        config = Config(
+            airdrop_allowed_roots=["/canonical/root"],
+            airdrop_allowed_extensions=[".pdf"],
+            airdrop_max_bytes=123,
+        )
+        private = "/private/project/.runtime/airdrop/attempts/deadbeef/payload.pdf"
+        for error_type in (
+            AirDropError, AirDropValidationError, AirDropBuildError, AirDropSnapshotError,
+        ):
+            with self.subTest(error_type=error_type.__name__), patch(
+                "ipad_agent.config.load_config", return_value=config
+            ), patch(
+                "ipad_agent.airdrop.send_file",
+                side_effect=error_type(f"failed for {private} identifier=deadbeef"),
+            ):
+                result = airdrop("/canonical/root/file.pdf")
+
+            self.assertEqual("AirDrop request failed before dispatch", result["error"])
+            self.assertFalse(result["uncertain"])
+            self.assertNotIn(private, json.dumps(result))
+            self.assertNotIn("deadbeef", json.dumps(result))
+
+    def test_semantic_helper_failures_drop_nested_private_text(self):
+        config = Config(
+            airdrop_allowed_roots=["/canonical/root"],
+            airdrop_allowed_extensions=[".pdf"],
+            airdrop_max_bytes=123,
+        )
+        private = "/private/project/.runtime/airdrop/attempts/feedface/payload.pdf"
+        for dispatch, expected in (
+            ("not_attempted", "AirDrop request failed before dispatch"),
+            ("attempted", "AirDrop attempt failed"),
+        ):
+            failed = {
+                "schema": "ipad-agent.airdrop-result/v1",
+                "status": "failed",
+                "dispatch": dispatch,
+                "error": f"helper failed for {private} identifier=feedface",
+                "diagnostics": {
+                    "reason": f"recovery snapshot {private}",
+                    "children": [f"attempt feedface at {private}"],
+                },
+            }
+            with self.subTest(dispatch=dispatch), patch(
+                "ipad_agent.config.load_config", return_value=config
+            ), patch("ipad_agent.airdrop.send_file", return_value=failed):
+                result = airdrop("/canonical/root/file.pdf")
+
+            rendered = json.dumps(result)
+            self.assertEqual(expected, result["error"])
+            self.assertFalse(result["uncertain"])
+            self.assertNotIn("diagnostics", result)
+            self.assertNotIn(private, rendered)
+            self.assertNotIn("feedface", rendered)
+
+    def test_semantic_uncertain_result_redacts_private_attempt_details(self):
+        config = Config(
+            airdrop_allowed_roots=["/canonical/root"],
+            airdrop_allowed_extensions=[".pdf"],
+            airdrop_max_bytes=123,
+        )
+        private_path = "/private/project/.runtime/airdrop/attempts/deadbeef/payload.pdf"
+        attempt_id = "deadbeef" * 4
+        uncertain = {
+            "schema": "ipad-agent.airdrop-result/v1",
+            "status": "uncertain",
+            "dispatch": "unknown",
+            "reason": f"helper lost response for {private_path} ({attempt_id})",
+            "attempt_id": attempt_id,
+            "snapshot_path": private_path,
+            "snapshot_retained": True,
+            "diagnostics": {
+                "message": f"private recovery path {private_path}",
+                "children": [f"attempt identifier {attempt_id}"],
+            },
+        }
+        with patch("ipad_agent.config.load_config", return_value=config), patch(
+            "ipad_agent.airdrop.send_file", return_value=uncertain
+        ):
+            result = airdrop("/canonical/root/file.pdf")
+
+        rendered = json.dumps(result)
+        self.assertFalse(result["ok"])
+        self.assertTrue(result["uncertain"])
+        self.assertTrue(result["snapshot_retained"])
+        self.assertEqual("AirDrop outcome is unknown", result["reason"])
+        self.assertNotIn("attempt_id", result)
+        self.assertNotIn("snapshot_path", result)
+        self.assertNotIn("diagnostics", result)
+        self.assertNotIn(private_path, rendered)
+        self.assertNotIn(attempt_id, rendered)
+
+    def test_semantic_completed_result_redacts_cleanup_failure_details(self):
+        config = Config(
+            airdrop_allowed_roots=["/canonical/root"],
+            airdrop_allowed_extensions=[".pdf"],
+            airdrop_max_bytes=123,
+        )
+        private_path = "/private/project/.runtime/airdrop/attempts/cafebabe/payload.pdf"
+        completed = {
+            "schema": "ipad-agent.airdrop-result/v1",
+            "status": "completed",
+            "attempt_id": "cafebabe" * 4,
+            "snapshot_path": private_path,
+            "snapshot_retained": True,
+            "snapshot_cleanup_error": f"could not remove {private_path}: permission denied",
+        }
+        with patch("ipad_agent.config.load_config", return_value=config), patch(
+            "ipad_agent.airdrop.send_file", return_value=completed
+        ):
+            result = airdrop("/canonical/root/file.pdf")
+
+        rendered = json.dumps(result)
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["snapshot_retained"])
+        self.assertNotIn("attempt_id", result)
+        self.assertNotIn("snapshot_path", result)
+        self.assertNotIn("snapshot_cleanup_error", result)
+        self.assertNotIn(private_path, rendered)
 
     def test_airdrop_config_requires_complete_narrow_policy(self):
         with tempfile.TemporaryDirectory() as directory:

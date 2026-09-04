@@ -56,12 +56,53 @@ class HostSetupWDAStateMachineV2Tests(unittest.TestCase):
             foreign = root / "foreign"; foreign.mkdir()
             (foreign / wda.ARTIFACT_FILE).write_text("{}")
             state = Path(temporary) / "state"; state.mkdir()
-            with patch.object(wda, "DERIVED_DATA_ROOT", root), patch("ipad_agent.cleanup.require_runtime_path", side_effect=lambda value: Path(value)), patch.object(wda, "verification_path", side_effect=lambda fingerprint: state / f"{fingerprint}.json"):
+            with patch.object(wda, "DERIVED_DATA_ROOT", root), patch("ipad_agent.cleanup.require_runtime_path", side_effect=lambda value: Path(value)), patch.object(wda, "verification_path", side_effect=lambda fingerprint: state / f"{fingerprint}.json"), patch.object(wda, "private_read_text", side_effect=lambda value: Path(value).read_text()), patch.object(wda, "appium_start_marker_present", return_value=False), patch.object(wda, "appium_endpoint_or_project_process_present", return_value=False), patch("ipad_agent.cleanup.load_config", return_value=Config()):
                 result = cleanup.run_cleanup(apply=True)
             self.assertFalse(owned.exists())
             self.assertTrue(foreign.exists())
             self.assertEqual("complete", result["state"])
             self.assertTrue(result["rejected"])
+
+    def test_cleanup_stops_owned_appium_before_removing_artifacts(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "derived-data"
+            owned = root / "owned"
+            owned.mkdir(parents=True)
+            (owned / wda.ARTIFACT_FILE).write_text(json.dumps({
+                "schema": WDA_ARTIFACT_SCHEMA,
+                "owner": wda.OWNER,
+                "fingerprint": "owned",
+            }))
+            with patch.object(wda, "DERIVED_DATA_ROOT", root), \
+                 patch.object(wda, "stop_owned_appium_server", return_value={
+                     "stopped": False, "reason": "ownership_not_proven",
+                 }):
+                result = cleanup.run_cleanup(apply=True)
+            self.assertEqual("failed", result["state"])
+            self.assertEqual(20, result["exit_code"])
+            self.assertTrue(owned.exists())
+
+    def test_cleanup_refuses_artifact_removal_when_unreceipted_appium_is_detected(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / "derived-data"
+            owned = root / "owned"
+            owned.mkdir(parents=True)
+            (owned / wda.ARTIFACT_FILE).write_text(json.dumps({
+                "schema": WDA_ARTIFACT_SCHEMA,
+                "owner": wda.OWNER,
+                "fingerprint": "owned",
+            }))
+            with patch.object(wda, "DERIVED_DATA_ROOT", root), \
+                 patch.object(wda, "stop_owned_appium_server", return_value={
+                     "stopped": False, "reason": "no_owned_server_receipt",
+                 }), \
+                 patch.object(wda, "appium_start_marker_present", return_value=False), \
+                 patch.object(wda, "appium_endpoint_or_project_process_present", return_value=True), \
+                 patch("ipad_agent.cleanup.load_config", return_value=Config()):
+                result = cleanup.run_cleanup(apply=True)
+            self.assertEqual("failed", result["state"])
+            self.assertEqual("unreceipted_appium_may_be_running", result["appium_server"]["reason"])
+            self.assertTrue(owned.exists())
 
     def test_artifact_validation_rejects_incomplete_provenance(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -76,7 +117,7 @@ class HostSetupWDAStateMachineV2Tests(unittest.TestCase):
             }
             (artifact / wda.ARTIFACT_FILE).write_text(json.dumps(metadata))
             signature = {"team_id": "EXAMPLE123", "bundle_id": "io.example.wda.xctrunner", "authority": "Apple Development", "free_team": True}
-            with patch.object(wda, "DERIVED_DATA_ROOT", derived_root), patch("ipad_agent.wda.require_runtime_path", side_effect=lambda value: Path(value)), patch("ipad_agent.wda._signature_metadata", return_value=signature):
+            with patch.object(wda, "DERIVED_DATA_ROOT", derived_root), patch("ipad_agent.wda.require_runtime_path", side_effect=lambda value: Path(value)), patch("ipad_agent.wda.private_read_text", side_effect=lambda value: Path(value).read_text()), patch("ipad_agent.wda._signature_metadata", return_value=signature):
                 with self.assertRaisesRegex(wda.XCTestControlError, "provenance omits required metadata"):
                     wda.validate_artifact(artifact)
 

@@ -52,12 +52,16 @@ assert runtime.exists() == existed
             _bundle_for_target("Brave Browser", Config(enabled_addons=["brave"]), brave),
         )
 
-    def test_runtime_uses_registry_selectors(self):
+    def test_runtime_uses_registry_selectors_but_settings_has_no_selector_aliases(self):
         runtime = Runtime(config=Config(), registry=load_registry())
+        runtime.active_app = "com.apple.DocumentsApp"
+        literal = runtime.selector("recents")
+        self.assertEqual({"using": "accessibility id", "value": "recents"}, literal)
+        self.assertNotIn("_integration", literal)
         runtime.active_app = "com.apple.Preferences"
-        recipe = runtime.selector("wifi")
-        self.assertEqual("com.apple.settings.wifi", recipe["value"])
-        self.assertEqual("settings", recipe["_integration"])
+        literal = runtime.selector("wifi")
+        self.assertEqual({"using": "accessibility id", "value": "wifi"}, literal)
+        self.assertNotIn("_integration", literal)
         with self.assertRaises(AddonNotEnabledError):
             runtime.selector("brave.address")
 

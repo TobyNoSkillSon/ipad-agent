@@ -1,0 +1,100 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "photos",
+  "name": "Photos",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.mobileslideshow"
+  ],
+  "aliases": [
+    "photos",
+    "apple photos"
+  ],
+  "capabilities": [
+    "launch"
+  ],
+  "selectors": {},
+  "actions": {
+    "activate": {
+      "description": "Bring Photos to the foreground without selecting or editing a photo or video.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "scenarios": {
+    "activate-direct": {
+      "description": "Foreground Photos without opening a photo or video.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "safety": {
+    "classification": "bounded-ui-navigation",
+    "mutates_user_data": false,
+    "requires_confirmation": [
+      "AirDrop of exact media may persist it in the Photos library"
+    ],
+    "prohibited": [
+      "deleting, editing, favoriting, hiding, selecting, sharing, publishing, or creating albums",
+      "constructing or guessing iCloud Link, Shared Album, or private asset identifiers",
+      "automatic AirDrop recipient selection",
+      "claiming library import or exact media opening from callback or launch acceptance"
+    ],
+    "uncertain_outcome": "A launch or transfer may already have occurred. Inspect and do not replay."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer"
+    ],
+    "device": [
+      "paired physical iPad",
+      "Photos installed",
+      "unlocked iPad for dispatch"
+    ],
+    "permissions": [
+      "Trust This Computer"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "26.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "No photo or video contents, recents, collaboration, or account state is read"
+    ],
+    "data_sent": [
+      "One explicit user-selected local photo or video file through AirDrop when requested"
+    ],
+    "retention": "No file content, path, screenshot, device identifier, or raw response is committed.",
+    "notes": "AirDrop may persist received media in the Photos library; opaque sharing tokens are never synthesized."
+  }
+}

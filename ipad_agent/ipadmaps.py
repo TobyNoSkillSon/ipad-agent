@@ -5,8 +5,8 @@ from typing import Any
 
 
 def ipadmaps(command: object, *args: object, **options: object) -> Any:
-    """Open Maps or show one location."""
-    from .commands import maps
+    """Run one declared Apple Unified Maps command."""
+    from integrations.apple_maps.commands import maps
 
     return maps(command, *args, **options)
 

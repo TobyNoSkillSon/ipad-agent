@@ -1,0 +1,502 @@
+{
+  "$schema": "../../schemas/url-policy-v2.json",
+  "schema": "ipad-agent.url-policy/v2",
+  "version": 2,
+  "integration_id": "google-maps",
+  "target_bundle": "com.google.Maps",
+  "max_url_bytes": 2048,
+  "commands": {
+    "open": {
+      "action": "activate",
+      "aliases": [],
+      "kind": "launch",
+      "scheme": null,
+      "host": null,
+      "path": null,
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [],
+      "constraints": []
+    },
+    "search": {
+      "action": "open-search",
+      "aliases": [
+        "show"
+      ],
+      "kind": "build",
+      "scheme": "https",
+      "host": "www.google.com",
+      "path": "/maps/search/",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "query",
+          "query": "query",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "api",
+          "query": "api",
+          "type": "enum",
+          "required": true,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "1"
+          ]
+        },
+        {
+          "name": "query-place-id",
+          "query": "query_place_id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        }
+      ],
+      "constraints": []
+    },
+    "directions": {
+      "action": "open-directions",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "www.google.com",
+      "path": "/maps/dir/",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "destination",
+          "query": "destination",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "api",
+          "query": "api",
+          "type": "enum",
+          "required": true,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "1"
+          ]
+        },
+        {
+          "name": "origin",
+          "query": "origin",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "origin-place-id",
+          "query": "origin_place_id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "destination-place-id",
+          "query": "destination_place_id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "waypoints",
+          "query": "waypoints",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "waypoint-place-ids",
+          "query": "waypoint_place_ids",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "travelmode",
+          "query": "travelmode",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "driving",
+            "walking",
+            "bicycling",
+            "two-wheeler",
+            "transit"
+          ]
+        },
+        {
+          "name": "avoid",
+          "query": "avoid",
+          "type": "enum-list",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "ferries",
+            "highways",
+            "tolls"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "requires",
+          "fields": [
+            "origin-place-id",
+            "origin"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "destination-place-id",
+            "destination"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "waypoint-place-ids",
+            "waypoints"
+          ]
+        }
+      ]
+    },
+    "map": {
+      "action": "open-map",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "www.google.com",
+      "path": "/maps/@",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "center",
+          "query": "center",
+          "type": "coordinate",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "api",
+          "query": "api",
+          "type": "enum",
+          "required": true,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "1"
+          ]
+        },
+        {
+          "name": "map-action",
+          "query": "map_action",
+          "type": "enum",
+          "required": true,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "map"
+          ]
+        },
+        {
+          "name": "zoom",
+          "query": "zoom",
+          "type": "nonnegative-integer",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "minimum": 0,
+          "maximum": 21
+        },
+        {
+          "name": "basemap",
+          "query": "basemap",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "roadmap",
+            "satellite",
+            "terrain"
+          ]
+        },
+        {
+          "name": "layer",
+          "query": "layer",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "none",
+            "transit",
+            "traffic",
+            "bicycling"
+          ]
+        }
+      ],
+      "constraints": []
+    },
+    "street-view": {
+      "action": "open-street-view",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "www.google.com",
+      "path": "/maps/@",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "viewpoint",
+          "query": "viewpoint",
+          "type": "coordinate",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "api",
+          "query": "api",
+          "type": "enum",
+          "required": true,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "1"
+          ]
+        },
+        {
+          "name": "map-action",
+          "query": "map_action",
+          "type": "enum",
+          "required": true,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "pano"
+          ]
+        },
+        {
+          "name": "heading",
+          "query": "heading",
+          "type": "finite-number",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "minimum": -180,
+          "maximum": 360
+        },
+        {
+          "name": "pitch",
+          "query": "pitch",
+          "type": "finite-number",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "minimum": -90,
+          "maximum": 90
+        },
+        {
+          "name": "fov",
+          "query": "fov",
+          "type": "finite-number",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "minimum": 10,
+          "maximum": 100
+        }
+      ],
+      "constraints": []
+    },
+    "navigate": {
+      "action": "start-navigation",
+      "aliases": [],
+      "kind": "build",
+      "scheme": "https",
+      "host": "www.google.com",
+      "path": "/maps/dir/",
+      "paths": [],
+      "canonical_commands": [],
+      "parameters": [
+        {
+          "name": "destination",
+          "query": "destination",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        },
+        {
+          "name": "api",
+          "query": "api",
+          "type": "enum",
+          "required": true,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "1"
+          ]
+        },
+        {
+          "name": "dir-action",
+          "query": "dir_action",
+          "type": "enum",
+          "required": true,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "navigate"
+          ]
+        },
+        {
+          "name": "origin",
+          "query": "origin",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "origin-place-id",
+          "query": "origin_place_id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "destination-place-id",
+          "query": "destination_place_id",
+          "type": "place-id",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "waypoints",
+          "query": "waypoints",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "waypoint-place-ids",
+          "query": "waypoint_place_ids",
+          "type": "text",
+          "required": false,
+          "positional": false,
+          "repeatable": false
+        },
+        {
+          "name": "travelmode",
+          "query": "travelmode",
+          "type": "enum",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "driving",
+            "walking",
+            "bicycling",
+            "two-wheeler",
+            "transit"
+          ]
+        },
+        {
+          "name": "avoid",
+          "query": "avoid",
+          "type": "enum-list",
+          "required": false,
+          "positional": false,
+          "repeatable": false,
+          "values": [
+            "ferries",
+            "highways",
+            "tolls"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "kind": "requires",
+          "fields": [
+            "origin-place-id",
+            "origin"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "destination-place-id",
+            "destination"
+          ]
+        },
+        {
+          "kind": "requires",
+          "fields": [
+            "waypoint-place-ids",
+            "waypoints"
+          ]
+        }
+      ]
+    },
+    "link": {
+      "action": "open-link",
+      "aliases": [],
+      "kind": "exact",
+      "scheme": "https",
+      "host": "www.google.com",
+      "path": null,
+      "paths": [
+        "/maps/search/",
+        "/maps/dir/",
+        "/maps/@"
+      ],
+      "canonical_commands": [
+        "search",
+        "directions",
+        "map",
+        "street-view"
+      ],
+      "parameters": [
+        {
+          "name": "url",
+          "query": "url",
+          "type": "text",
+          "required": true,
+          "positional": true,
+          "repeatable": false
+        }
+      ],
+      "constraints": []
+    }
+  }
+}

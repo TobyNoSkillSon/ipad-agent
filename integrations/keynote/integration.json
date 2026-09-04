@@ -1,0 +1,98 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "keynote",
+  "name": "Keynote",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.Keynote"
+  ],
+  "aliases": [
+    "keynote",
+    "apple keynote"
+  ],
+  "capabilities": [
+    "launch"
+  ],
+  "selectors": {},
+  "actions": {
+    "activate": {
+      "description": "Bring Keynote to the foreground without selecting or editing a presentation.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "scenarios": {
+    "activate-direct": {
+      "description": "Foreground Keynote without opening a presentation.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "safety": {
+    "classification": "bounded-ui-navigation",
+    "mutates_user_data": false,
+    "requires_confirmation": [],
+    "prohibited": [
+      "creating, editing, exporting, printing, sharing, or deleting a presentation",
+      "creating, accepting, changing, or revoking collaboration",
+      "automatic AirDrop recipient selection",
+      "claiming receipt, import, or exact opening from callback or launch acceptance"
+    ],
+    "uncertain_outcome": "A launch or transfer may already have occurred. Inspect and do not replay."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer"
+    ],
+    "device": [
+      "paired physical iPad",
+      "Keynote installed",
+      "unlocked iPad for dispatch"
+    ],
+    "permissions": [
+      "Trust This Computer"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "26.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "No presentation contents, recents, collaboration, or account state is read"
+    ],
+    "data_sent": [
+      "One explicit user-selected local presentation file through AirDrop when requested"
+    ],
+    "retention": "No file content, path, screenshot, device identifier, or raw response is committed.",
+    "notes": "Opaque collaboration identifiers are never synthesized."
+  }
+}

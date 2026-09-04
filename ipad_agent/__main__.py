@@ -4,10 +4,10 @@ from __future__ import annotations
 import argparse
 import json
 
-from .cleanup import run_cleanup
-from .doctor import run_doctor
-from .setup import PHASES, run_setup
-from .versions import DOCTOR_SCHEMA, SETUP_SCHEMA
+from ipad_agent.maintenance.cleanup import run_cleanup
+from ipad_agent.maintenance.doctor import run_doctor
+from ipad_agent.maintenance.setup import PHASES, run_setup
+from ipad_agent.maintenance.versions import DOCTOR_SCHEMA, SETUP_SCHEMA
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -19,7 +19,7 @@ def main(argv: list[str] | None = None) -> int:
     setup.add_argument("--phase", choices=PHASES, default="all")
     setup.add_argument("--apply", action="store_true", help="permit the selected setup mutation")
     setup.add_argument("--json", action="store_true", help="emit one machine-readable document")
-    cleanup = sub.add_parser("cleanup", help="remove only metadata-proven ipad-agent WDA artifacts")
+    cleanup = sub.add_parser("cleanup", help="remove only ownership-metadata-matching iPad Agent WDA artifacts")
     cleanup.add_argument("--keep-fingerprint")
     cleanup.add_argument("--apply", action="store_true", help="permit owned artifact removal")
     cleanup.add_argument("--json", action="store_true", help="emit one machine-readable document")

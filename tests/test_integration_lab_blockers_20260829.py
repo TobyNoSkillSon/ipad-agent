@@ -20,10 +20,11 @@ from ipad_agent.lab import (
     validate_manifest,
 )
 from ipad_agent.lab.validation import LabValidationError
+from tests.lab_fixture import isolate_authorization_receipts, lab_fixture_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
 SAFARI = ROOT / "integrations" / "safari" / "integration.json"
-MAPS = ROOT / "integrations" / "maps" / "integration.json"
+LAB_FIXTURE = lab_fixture_manifest()
 CLOCK = ROOT / "integrations" / "clock" / "integration.json"
 
 
@@ -55,6 +56,9 @@ class EvidenceOnlyPhysicalExecutor(FakeExecutor):
 
 
 class IntegrationLabRecoveredBlockerTests(unittest.TestCase):
+    def setUp(self) -> None:
+        isolate_authorization_receipts(self)
+
     def test_manifest_cannot_hide_executable_safety_or_retry(self):
         manifest = json.loads(SAFARI.read_text(encoding="utf-8"))
         manifest["actions"]["open-url"]["safety"] = "observe"
@@ -66,14 +70,14 @@ class IntegrationLabRecoveredBlockerTests(unittest.TestCase):
             validate_manifest(manifest)
 
     def test_mixed_action_steps_inherit_the_action_retry_contract(self):
-        plan = plan_scenario(CLOCK, "transient-stopwatch")
-        start_steps = [step for step in plan.steps if step.action_id == "start-stopwatch"]
-        self.assertEqual(["inspect_then_decide", "inspect_then_decide"], [step.operation.retry_class.value for step in start_steps])
+        plan = plan_scenario(LAB_FIXTURE, "ui-fallback", parameters={"query": "test"})
+        ui_steps = [step for step in plan.steps if step.action_id in {"enter-query", "submit-query"}]
+        self.assertEqual(["inspect_then_decide", "inspect_then_decide"], [step.operation.retry_class.value for step in ui_steps])
 
     def test_authorization_and_executor_bind_the_exact_plan(self):
-        plan = plan_scenario(SAFARI, "show-web-page", parameters={"url": "https://example.com"})
+        plan = plan_scenario(SAFARI, "open-url-direct", parameters={"url": "https://example.com"})
         authorization = authorization_for(plan)
-        changed = plan_scenario(SAFARI, "show-web-page", parameters={"url": "https://example.org"})
+        changed = plan_scenario(SAFARI, "open-url-direct", parameters={"url": "https://example.org"})
         with self.assertRaisesRegex(PermissionError, "parameters|plan_digest"):
             authorization.verify(changed)
         from ipad_agent.lab.runner import PhysicalExecutor
@@ -84,7 +88,7 @@ class IntegrationLabRecoveredBlockerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             from ipad_agent.lab import run_fake_scenario
             run = run_fake_scenario(
-                SAFARI, "show-web-page", parameters={"url": "https://example.com"},
+                SAFARI, "open-url-direct", parameters={"url": "https://example.com"},
                 repository_root=temporary,
             )
             evidence = validate_evidence(run.evidence_path)
@@ -101,7 +105,7 @@ class IntegrationLabRecoveredBlockerTests(unittest.TestCase):
     def test_failed_outcome_cannot_be_marked_complete(self):
         with tempfile.TemporaryDirectory() as temporary:
             from ipad_agent.lab import run_fake_scenario
-            run = run_fake_scenario(SAFARI, "show-web-page", parameters={"url": "https://example.com"}, repository_root=temporary)
+            run = run_fake_scenario(SAFARI, "open-url-direct", parameters={"url": "https://example.com"}, repository_root=temporary)
             evidence = validate_evidence(run.evidence_path)
             evidence["outcomes"][0]["ok"] = False
             evidence["complete"] = True
@@ -109,7 +113,7 @@ class IntegrationLabRecoveredBlockerTests(unittest.TestCase):
                 validate_evidence(evidence)
 
     def test_physical_executor_injection_cannot_create_evidence(self):
-        plan = plan_scenario(SAFARI, "show-web-page", parameters={"url": "https://example.com"})
+        plan = plan_scenario(SAFARI, "open-url-direct", parameters={"url": "https://example.com"})
         with self.assertRaisesRegex(TypeError, "unexpected keyword argument 'executor'"):
             run_physical_scenario(
                 plan, physical=True, authorization=authorization_for(plan),
@@ -120,7 +124,7 @@ class IntegrationLabRecoveredBlockerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             from ipad_agent.lab import run_fake_scenario
             run = run_fake_scenario(
-                SAFARI, "show-web-page", parameters={"url": "https://example.com"},
+                SAFARI, "open-url-direct", parameters={"url": "https://example.com"},
                 executor=EvidenceOnlyPhysicalExecutor(), repository_root=temporary,
             )
             summary = compatibility_summary([run.evidence_path], generated_at="2026-08-29T00:00:00Z")
@@ -144,7 +148,7 @@ class IntegrationLabRecoveredBlockerTests(unittest.TestCase):
         self.assertFalse(repeated["unique"])
 
     def test_repeated_physical_benchmark_requires_state_hooks_before_execution(self):
-        plan = plan_scenario(SAFARI, "show-web-page", parameters={"url": "https://example.com"})
+        plan = plan_scenario(SAFARI, "open-url-direct", parameters={"url": "https://example.com"})
         with self.assertRaisesRegex(PermissionError, "do not accept executor injection"):
             benchmark_scenario(
                 plan, physical=True, authorization=authorization_for(plan),
@@ -155,7 +159,7 @@ class IntegrationLabRecoveredBlockerTests(unittest.TestCase):
         events = []
         with tempfile.TemporaryDirectory() as temporary:
             result = benchmark_scenario(
-                MAPS, "search-place-direct", parameters={"encoded_query": "test"},
+                LAB_FIXTURE, "search-direct", parameters={"query": "test"},
                 warmups=1, runs=3, baseline_hook=lambda: events.append("baseline"),
                 reset_hook=lambda: events.append("reset"),
                 cleanup_hook=lambda: (_ for _ in ()).throw(RuntimeError("cleanup failed")),

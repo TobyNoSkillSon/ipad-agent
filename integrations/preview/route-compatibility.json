@@ -1,0 +1,67 @@
+{
+  "schema": "ipad-agent.preview-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-preview-1.0-ipados-26.6.1-23g83.json",
+  "commands": [
+    {
+      "command": "open",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "application-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "drop",
+      "availability": "candidate",
+      "production": "legacy-admitted",
+      "evidence": [
+        {
+          "kind": "transport-contract",
+          "declaration": "one-attempt-host-airdrop-callback-only"
+        },
+        {
+          "kind": "authorized-physical-uncertain",
+          "method": "manual-recipient-airdrop",
+          "result": "native-helper-timeout",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "show",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "transport-contract",
+          "declaration": "transfer-then-launch-cannot-prove-exact-file-open"
+        },
+        {
+          "kind": "user-visual-pass",
+          "method": "manual-recipient-airdrop",
+          "result": "pdf-received-and-opened-in-target-app",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ]
+}

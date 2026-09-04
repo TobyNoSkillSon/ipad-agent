@@ -114,7 +114,10 @@ def release_paths(root: Path) -> list[Path]:
         raise CheckFailure(f"root must be the Git worktree root: {top}")
     output = _git(root, "ls-files", "--cached", "--others", "--exclude-standard", "-z").stdout
     relative_names = sorted({item for item in output.decode("utf-8", "surrogateescape").split("\0") if item})
-    return [root / PurePosixPath(name) for name in relative_names]
+    candidates = [root / PurePosixPath(name) for name in relative_names]
+    # A dirty working tree can contain tracked paths removed by an authorized
+    # reorganization. They are not part of the current release candidate.
+    return [path for path in candidates if path.exists() or path.is_symlink()]
 
 
 def index_modes(root: Path) -> dict[str, int]:
@@ -495,12 +498,15 @@ def _canonical_digest(value: Any) -> str:
 def _manifest_claim_digest(root: Path, manifest_relative: str) -> str:
     manifest = _strict_json(root / manifest_relative)
     policy_path = (root / manifest_relative).with_name("url-policy.json")
-    policy_actions: dict[str, Any] = {}
+    policy_claim: dict[str, Any] = {}
     if policy_path.is_file():
         policy = _strict_json(policy_path)
-        if isinstance(policy, dict) and isinstance(policy.get("actions"), dict):
-            policy_actions = policy["actions"]
-    return _canonical_digest({"integration": manifest, "url_policy": policy_actions})
+        if isinstance(policy, dict) and policy.get("schema") == "ipad-agent.url-policy/v2":
+            policy_claim = policy
+        elif isinstance(policy, dict) and isinstance(policy.get("actions"), dict):
+            # Preserve existing v1 claim digests while binding every v2 field.
+            policy_claim = policy["actions"]
+    return _canonical_digest({"integration": manifest, "url_policy": policy_claim})
 
 
 def validate_manifests(root: Path, candidate_relatives: set[str]) -> list[str]:
@@ -511,6 +517,7 @@ def validate_manifests(root: Path, candidate_relatives: set[str]) -> list[str]:
             raise CheckFailure("integrations/index.json is not in the release candidate")
         required_release_files = {
             "schemas/integrations-index-v1.json", "schemas/integration-v1.json",
+            "schemas/url-policy-v1.json", "schemas/url-policy-v2.json",
         }
         missing_release_files = required_release_files - candidate_relatives
         if missing_release_files:
@@ -526,35 +533,79 @@ def validate_manifests(root: Path, candidate_relatives: set[str]) -> list[str]:
         validate_schema(index, index_schema, name="integrations/index.json")
         if not isinstance(index, dict):
             raise CheckFailure("integrations/index.json must be an object")
+        try:
+            added_path = str(root) not in sys.path
+            if added_path:
+                sys.path.insert(0, str(root))
+            from ipad_agent.core.registry import CORE_INTEGRATIONS, normalize_name
+        finally:
+            if 'added_path' in locals() and added_path:
+                sys.path.pop(0)
+        indexed_core = {
+            entry["id"] for entry in index["integrations"]
+            if entry["id"] in CORE_INTEGRATIONS and entry["kind"] == "core"
+        }
+        missing_core = CORE_INTEGRATIONS - indexed_core
+        if missing_core:
+            raise CheckFailure(
+                "required core integration(s) must remain indexed as core: "
+                + ", ".join(sorted(missing_core))
+            )
 
         indexed: set[str] = set()
         ids: set[str] = set()
+        lookup_owners: dict[str, str] = {}
         for position, entry in enumerate(index["integrations"]):
+            integration_id = entry["id"]
+            normalized_id = normalize_name(integration_id)
+            normalized_aliases: set[str] = set()
+            for alias in entry["aliases"]:
+                key = normalize_name(alias)
+                if not key:
+                    raise CheckFailure(
+                        f"index entry {position} has an empty normalized integration alias"
+                    )
+                if key in normalized_aliases:
+                    raise CheckFailure(
+                        f"index entry {position} has duplicate normalized integration alias {key!r}"
+                    )
+                normalized_aliases.add(key)
+            if normalized_id not in normalized_aliases:
+                raise CheckFailure(
+                    f"index entry {position} aliases must include integration ID {integration_id!r}"
+                )
+            for reference in (integration_id, *entry["aliases"]):
+                key = normalize_name(reference)
+                previous = lookup_owners.get(key)
+                if previous is not None and previous != integration_id:
+                    raise CheckFailure(
+                        f"normalized integration reference {key!r} is ambiguous: "
+                        f"{previous} and {integration_id}"
+                    )
+                lookup_owners[key] = integration_id
+
             manifest_relative = (PurePosixPath("integrations") / entry["manifest"]).as_posix()
             normalized = PurePosixPath(manifest_relative)
             if normalized.is_absolute() or ".." in normalized.parts:
-                # The sole allowed parent hop is normalized into addons below.
-                if not manifest_relative.startswith("integrations/../addons/"):
-                    raise CheckFailure(f"index entry {position} escapes manifest roots")
-                manifest_relative = PurePosixPath(*normalized.parts[2:]).as_posix()
-            expected_prefix = "integrations/" if entry["kind"] == "core" else "addons/"
-            if not manifest_relative.startswith(expected_prefix):
-                raise CheckFailure(f"index entry {position} has a kind/path mismatch")
+                raise CheckFailure(f"index entry {position} escapes integrations root")
+            if not manifest_relative.startswith("integrations/"):
+                raise CheckFailure(f"index entry {position} must stay under integrations/")
             if manifest_relative in indexed:
                 raise CheckFailure(f"duplicate indexed manifest {manifest_relative}")
-            if entry["id"] in ids:
-                raise CheckFailure(f"duplicate indexed integration ID {entry['id']}")
+            if integration_id in ids:
+                raise CheckFailure(f"duplicate indexed integration ID {integration_id}")
             indexed.add(manifest_relative)
-            ids.add(entry["id"])
+            ids.add(integration_id)
             if manifest_relative not in candidate_relatives:
                 raise CheckFailure(f"indexed manifest is missing from release: {manifest_relative}")
             manifest = _strict_json(root / manifest_relative)
             validate_schema(manifest, manifest_schema, name=manifest_relative)
             if manifest.get("id") != entry["id"] or manifest.get("kind") != entry["kind"]:
                 raise CheckFailure(f"{manifest_relative}: id/kind does not match integrations/index.json")
-            if PurePosixPath(manifest_relative).parent.name != entry["id"]:
-                raise CheckFailure(f"{manifest_relative}: directory must match integration ID")
-
+            if manifest.get("aliases") != entry["aliases"]:
+                raise CheckFailure(
+                    f"{manifest_relative}: aliases must exactly match integrations/index.json"
+                )
             open_url_actions = {
                 action_id for action_id, action in manifest["actions"].items()
                 if any(step.get("operation") == "open-url" for step in action["steps"])
@@ -563,38 +614,51 @@ def validate_manifests(root: Path, candidate_relatives: set[str]) -> list[str]:
             if open_url_actions:
                 if policy_relative not in candidate_relatives:
                     raise CheckFailure(f"{manifest_relative}: open-url actions require url-policy.json")
-                policy = _strict_json(root / policy_relative)
-                if not isinstance(policy, dict) or set(policy) != {
-                    "$schema", "schema", "version", "integration_id", "actions"
-                }:
-                    raise CheckFailure(f"{policy_relative}: URL policy fields are invalid")
-                if (
-                    policy.get("$schema") != "../../schemas/url-policy-v1.json"
-                    or policy.get("schema") != "ipad-agent.url-policy/v1"
-                    or policy.get("version") != 1
-                    or isinstance(policy.get("version"), bool)
-                    or policy.get("integration_id") != entry["id"]
-                    or not isinstance(policy.get("actions"), dict)
-                    or set(policy["actions"]) != open_url_actions
-                ):
-                    raise CheckFailure(f"{policy_relative}: URL policy is not bound to every open-url action")
-                for action_id, schemes in policy["actions"].items():
-                    if (
-                        not isinstance(schemes, list) or not schemes
-                        or schemes != sorted(set(schemes))
-                        or not all(
-                            isinstance(scheme, str)
-                            and re.fullmatch(r"[a-z][a-z0-9+.-]*", scheme)
-                            for scheme in schemes
+                policy_path = root / policy_relative
+                policy = _strict_json(policy_path)
+                policy_schema_name = policy.get("schema") if isinstance(policy, dict) else None
+                if policy_schema_name == "ipad-agent.url-policy/v1":
+                    schema_relative = "schemas/url-policy-v1.json"
+                elif policy_schema_name == "ipad-agent.url-policy/v2":
+                    schema_relative = "schemas/url-policy-v2.json"
+                else:
+                    raise CheckFailure(f"{policy_relative}: unsupported URL policy schema")
+                policy_schema = _strict_json(root / schema_relative)
+                _validate_schema_document(policy_schema, root / schema_relative)
+                validate_schema(policy, policy_schema, name=policy_relative)
+                try:
+                    added_path = str(root) not in sys.path
+                    if added_path:
+                        sys.path.insert(0, str(root))
+                    from ipad_agent.core.urlroutes import load_url_policy
+                    parsed_policy = load_url_policy(
+                        policy_path.read_bytes(), integration_id=entry["id"],
+                        bundle_ids=tuple(manifest["bundle_ids"]), actions=manifest["actions"],
+                        context=policy_relative,
+                    )
+                except (OSError, TypeError, ValueError) as error:
+                    raise CheckFailure(f"{policy_relative}: {error}") from error
+                finally:
+                    if 'added_path' in locals() and added_path:
+                        sys.path.pop(0)
+                if parsed_policy.schema == "ipad-agent.url-policy/v1":
+                    if entry["id"] not in {"safari", "brave"}:
+                        raise CheckFailure(
+                            f"{policy_relative}: URL policy v1 is reserved for legacy Safari and Brave integrations"
                         )
-                    ):
-                        raise CheckFailure(f"{policy_relative}: {action_id} schemes are not strict")
+                    if set(parsed_policy.actions) != open_url_actions:
+                        raise CheckFailure(f"{policy_relative}: URL policy is not bound to every open-url action")
+                    for action_id, schemes in parsed_policy.actions.items():
+                        if list(schemes) != sorted(set(schemes)):
+                            raise CheckFailure(f"{policy_relative}: {action_id} schemes are not strict")
+                if entry["id"] == "maps" and parsed_policy.schema != "ipad-agent.url-policy/v2":
+                    raise CheckFailure(f"{policy_relative}: Maps requires the v2 production URL policy")
             elif policy_relative in candidate_relatives:
                 raise CheckFailure(f"{policy_relative}: URL policy exists without an open-url action")
 
         discovered = {
             relative for relative in candidate_relatives
-            if (relative.startswith("integrations/") or relative.startswith("addons/"))
+            if relative.startswith("integrations/")
             and relative.endswith("/integration.json")
         }
         missing = discovered - indexed
@@ -604,6 +668,212 @@ def validate_manifests(root: Path, candidate_relatives: set[str]) -> list[str]:
         if stale:
             raise CheckFailure("missing indexed integration manifest(s): " + ", ".join(sorted(stale)))
     except CheckFailure as error:
+        issues.append(str(error))
+    return issues
+
+
+_SKILL_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+_GATEWAY_SKILL_DIRECTORY = PurePosixPath("skills/use-ipad")
+_GATEWAY_SKILL_PATH = (_GATEWAY_SKILL_DIRECTORY / "SKILL.md").as_posix()
+_GATEWAY_SKILL_DECLARATION = f"./{_GATEWAY_SKILL_DIRECTORY.as_posix()}"
+_GATEWAY_SKILL_FIELDS = {
+    "name": "use-ipad",
+    "description": (
+        "Use the paired iPad through iPad Agent for applications, websites, maps, "
+        "settings, files, media, messages, or other supported destinations."
+    ),
+}
+_GATEWAY_SKILL_BODY = """
+# Use the iPad
+
+Resolve the requested application in [`../../integrations/index.json`](../../integrations/index.json), then read only that application package's `SKILL.md` and follow it. For a multi-application request, read only the skills for the applications actually involved.
+
+Reading an app skill loads it into the current session context; reuse that knowledge for repeated calls instead of copying or editing this gateway.
+
+Run its bare Python call with the repository root as the working directory; installing the Pi skill does not install `ipad_agent` into the system Python environment.
+
+For ordinary use, stop there. For investigation or maintenance, follow the app skill into its `WORKFLOWS.md`; read [`../../SECURITY.md`](../../SECURITY.md) for physical actions or uncertainty, [`../../README.md`](../../README.md) for public semantics, and [`../../docs/integrations/authoring.md`](../../docs/integrations/authoring.md) for integration development.
+"""
+
+
+def _skill_frontmatter(path: Path) -> dict[str, str]:
+    """Parse the deliberately flat frontmatter used by repository skills."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as error:
+        raise CheckFailure(f"{path}: cannot read skill: {error}") from error
+    lines = text.splitlines()
+    if not lines or lines[0] != "---":
+        raise CheckFailure(f"{path}: SKILL.md must start with YAML frontmatter")
+    try:
+        closing = lines.index("---", 1)
+    except ValueError as error:
+        raise CheckFailure(f"{path}: SKILL.md frontmatter is not closed") from error
+    fields: dict[str, str] = {}
+    for line in lines[1:closing]:
+        key, separator, value = line.partition(":")
+        key = key.strip()
+        value = value.strip()
+        if not separator or not key or not value:
+            raise CheckFailure(f"{path}: SKILL.md frontmatter must use flat non-empty fields")
+        if key in fields:
+            raise CheckFailure(f"{path}: duplicate SKILL.md frontmatter field {key!r}")
+        fields[key] = value
+    if set(fields) != {"name", "description"}:
+        raise CheckFailure(
+            f"{path}: model-invoked SKILL.md frontmatter requires only name and description"
+        )
+    if not _SKILL_NAME.fullmatch(fields["name"]):
+        raise CheckFailure(f"{path}: invalid skill name {fields['name']!r}")
+    return fields
+
+
+def _skill_body(path: Path) -> str:
+    """Return the exact body after the validated flat frontmatter."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as error:
+        raise CheckFailure(f"{path}: cannot read skill: {error}") from error
+    lines = text.splitlines(keepends=True)
+    try:
+        closing = next(
+            index for index, line in enumerate(lines[1:], 1)
+            if line.rstrip("\r\n") == "---"
+        )
+    except StopIteration as error:
+        raise CheckFailure(f"{path}: SKILL.md frontmatter is not closed") from error
+    return "".join(lines[closing + 1:])
+
+
+def _admit_skill_name(name: str, skill_relative: str, names: dict[str, str]) -> None:
+    if name in names:
+        raise CheckFailure(
+            f"duplicate skill name {name!r}: {names[name]}, {skill_relative}"
+        )
+    names[name] = skill_relative
+
+
+def validate_application_packages(root: Path, candidate_relatives: set[str]) -> list[str]:
+    """Validate indexed app packages and the single installed gateway skill."""
+    issues: list[str] = []
+    try:
+        if "package.json" not in candidate_relatives:
+            raise CheckFailure("package.json is not in the release candidate")
+        package = _strict_json(root / "package.json")
+        if not isinstance(package, dict):
+            raise CheckFailure("package.json must be an object")
+        dependency_keys = {
+            "dependencies", "devDependencies", "optionalDependencies", "peerDependencies"
+        }
+        present_dependencies = dependency_keys & set(package)
+        if present_dependencies:
+            raise CheckFailure(
+                "package.json must not add npm dependency sections: "
+                + ", ".join(sorted(present_dependencies))
+            )
+        if "skills" in package:
+            raise CheckFailure("package.json must use only pi.skills as its skill source")
+        pi = package.get("pi")
+        if not isinstance(pi, dict) or set(pi) != {"skills"}:
+            raise CheckFailure("package.json must expose one pi.skills source")
+        declarations = pi["skills"]
+        if (
+            not isinstance(declarations, list)
+            or not declarations
+            or not all(isinstance(item, str) for item in declarations)
+            or len(declarations) != len(set(declarations))
+        ):
+            raise CheckFailure("package.json pi.skills must contain unique direct paths")
+        description = package.get("description")
+        if not isinstance(description, str) or not all(
+            phrase in description.casefold()
+            for phrase in ("one on-demand ipad gateway skill", "app-local instructions")
+        ):
+            raise CheckFailure(
+                "package.json description must document one on-demand iPad gateway skill backed by app-local instructions"
+            )
+
+        index = _strict_json(root / "integrations/index.json")
+        expected_declarations = {_GATEWAY_SKILL_DECLARATION}
+        expected_skills = {_GATEWAY_SKILL_PATH}
+        names: dict[str, str] = {}
+        for entry in index["integrations"]:
+            manifest = PurePosixPath("integrations") / entry["manifest"]
+            directory = manifest.parent
+            required = {
+                (directory / "__init__.py").as_posix(),
+                (directory / "commands.py").as_posix(),
+                manifest.as_posix(),
+                (directory / "SKILL.md").as_posix(),
+                (directory / "WORKFLOWS.md").as_posix(),
+                (directory / "tests/__init__.py").as_posix(),
+            }
+            missing = required - candidate_relatives
+            if missing:
+                raise CheckFailure(
+                    f"{directory.as_posix()}: incomplete application package: "
+                    + ", ".join(sorted(missing))
+                )
+            test_prefix = (directory / "tests").as_posix() + "/"
+            tests = {
+                relative for relative in candidate_relatives
+                if relative.startswith(test_prefix)
+                and PurePosixPath(relative).name.startswith("test_")
+                and relative.endswith(".py")
+            }
+            if not tests:
+                raise CheckFailure(f"{directory.as_posix()}: app-local tests are missing")
+
+            skill_relative = (directory / "SKILL.md").as_posix()
+            expected_skills.add(skill_relative)
+            fields = _skill_frontmatter(root / skill_relative)
+            _admit_skill_name(fields["name"], skill_relative, names)
+
+        if set(declarations) != expected_declarations:
+            missing = expected_declarations - set(declarations)
+            extra = set(declarations) - expected_declarations
+            detail = []
+            if missing:
+                detail.append("missing " + ", ".join(sorted(missing)))
+            if extra:
+                detail.append("extra " + ", ".join(sorted(extra)))
+            raise CheckFailure(
+                "package.json pi.skills must declare only the use-ipad gateway skill: "
+                + "; ".join(detail)
+            )
+
+        discovered_skills = {
+            relative for relative in candidate_relatives
+            if PurePosixPath(relative).name == "SKILL.md"
+        }
+        for skill_relative in sorted(discovered_skills - expected_skills):
+            fields = _skill_frontmatter(root / skill_relative)
+            _admit_skill_name(fields["name"], skill_relative, names)
+        if discovered_skills != expected_skills:
+            extra = discovered_skills - expected_skills
+            missing = expected_skills - discovered_skills
+            detail = []
+            if missing:
+                detail.append("missing " + ", ".join(sorted(missing)))
+            if extra:
+                detail.append("non-colocated " + ", ".join(sorted(extra)))
+            raise CheckFailure(
+                "release skill files must be exactly the app-local instructions and use-ipad gateway: "
+                + "; ".join(detail)
+            )
+
+        gateway_fields = _skill_frontmatter(root / _GATEWAY_SKILL_PATH)
+        if gateway_fields != _GATEWAY_SKILL_FIELDS:
+            raise CheckFailure(
+                f"{_GATEWAY_SKILL_PATH}: gateway skill frontmatter is not canonical"
+            )
+        if _skill_body(root / _GATEWAY_SKILL_PATH) != _GATEWAY_SKILL_BODY:
+            raise CheckFailure(
+                f"{_GATEWAY_SKILL_PATH}: gateway skill body is not canonical; "
+                "it must load only the requested app instructions on demand"
+            )
+        _admit_skill_name(gateway_fields["name"], _GATEWAY_SKILL_PATH, names)
+    except (CheckFailure, KeyError, TypeError) as error:
         issues.append(str(error))
     return issues
 
@@ -641,6 +911,216 @@ def validate_documents(root: Path, paths: Iterable[Path]) -> list[str]:
                 if not isinstance(value, dict):
                     raise CheckFailure(f"{relative}: TOML root must be a table")
         except (CheckFailure, OSError, UnicodeError, tomllib.TOMLDecodeError) as error:
+            issues.append(str(error))
+    return issues
+
+
+def validate_route_compatibility_sidecars(
+    root: Path, candidate_relatives: set[str],
+) -> list[str]:
+    """Validate release-facing route status vocabulary and positive evidence shape."""
+    issues: list[str] = []
+    allowed_availability = {"candidate", "proven", "incompatible", "template"}
+    allowed_production = {"admitted", "legacy-admitted", "candidate-gated"}
+    positive_kinds = {"user-visual-pass", "observer-screenshot-pass"}
+    evidence_fields = {
+        "apple-documentation": (
+            {"kind", "declaration"}, {"kind", "source", "declaration"},
+        ),
+        "authorized-physical-uncertain": ({"kind", "method", "result", "proof_scope"},),
+        "bundle-document-type": ({"kind", "runtime", "declaration"},),
+        "google-documentation": ({"kind", "source", "declaration"},),
+        "installed-app-inventory": ({"kind", "declaration"},),
+        "installed-application-metadata": ({"kind", "bundle", "version", "build"},),
+        "observer-screenshot-fail": ({"kind", "actor", "method", "result", "proof_scope"},),
+        "observer-screenshot-partial": ({"kind", "method", "result", "proof_scope"},),
+        "observer-screenshot-pass": (
+            {"kind", "method", "result", "proof_scope"},
+            {"kind", "actor", "method", "result", "proof_scope"},
+        ),
+        "official-documentation": (
+            {"kind", "source", "syntax"}, {"kind", "source", "endpoint"},
+        ),
+        "transport-contract": ({"kind", "declaration"},),
+        "user-visual-pass": (
+            {"kind", "method", "result", "proof_scope"},
+            {"kind", "actor", "result", "proof_scope"},
+        ),
+        "vendor-issue": ({"kind", "repository", "number", "subject"},),
+        "vendor-pull-request": ({"kind", "repository", "number", "subject"},),
+        "vendor-source": ({"kind", "repository", "ref", "files"},),
+    }
+    allowed_actors = {"agent", "user"}
+    allowed_methods = {
+        "authorized-coredevice-observer-screenshot", "manual-recipient-airdrop",
+        "manual-recipient-airdrop-then-read-only-screenshot", "project-owned-wda-screenshot",
+    }
+    allowed_results = {
+        "application-visible", "application-visible-with-onboarding-gate",
+        "blank-compose-visible", "docx-received-imported-and-opened-in-target-app",
+        "epub-received-imported-and-opened-in-target-app",
+        "exact-file-received-and-opened-in-system-preview-target-files-not-visible",
+        "expected-app-visible", "expected-linked-route-visible", "expected-map-view-visible",
+        "expected-product-page-visible", "expected-route-preview-visible",
+        "expected-route-visible", "expected-search-visible", "expected-street-view-visible",
+        "expected-website-visible", "native-helper-timeout",
+        "new-image-received-imported-and-opened-in-target-app;fixture-marker-not-visibly-rendered",
+        "pdf-received-and-opened-in-target-app",
+        "photos-foregrounded-in-recently-saved;exact-test-image-not-visible",
+        "pptx-received-imported-and-opened-in-target-app;fixture-content-not-visibly-rendered",
+        "prior-route-remained-visible", "xlsx-received-imported-and-opened-in-target-app",
+        "zip-received-and-opened-in-system-preview",
+    }
+    index = _strict_json(root / "integrations/index.json")
+    schema_by_directory = {
+        (PurePosixPath("integrations") / PurePosixPath(entry["manifest"]).parent).as_posix():
+            f"ipad-agent.{entry['id']}-route-compatibility/v1"
+        for entry in index["integrations"]
+    }
+    for relative in sorted(
+        item for item in candidate_relatives
+        if item.startswith("integrations/") and item.endswith("/route-compatibility.json")
+    ):
+        try:
+            data = _strict_json(root / relative)
+            if not isinstance(data, dict):
+                raise CheckFailure(f"{relative}: route compatibility must be an object")
+            row_keys = {key for key in ("commands", "routes") if key in data}
+            required_top = {"schema", "version", "profile"}
+            allowed_top = required_top | row_keys | {"excluded", "excluded_routes"}
+            if (
+                len(row_keys) != 1 or not required_top.issubset(data)
+                or set(data) - allowed_top
+                or data.get("version") != 1
+                or data.get("schema") != schema_by_directory.get(
+                    PurePosixPath(relative).parent.as_posix()
+                )
+            ):
+                raise CheckFailure(f"{relative}: route compatibility document fields are invalid")
+            rows = data[next(iter(row_keys))]
+            if not isinstance(rows, list) or not rows:
+                raise CheckFailure(f"{relative}: route compatibility requires command rows")
+            profile = data.get("profile")
+            if not isinstance(profile, str) or not profile or ".." in PurePosixPath(profile).parts:
+                raise CheckFailure(f"{relative}: route compatibility profile is invalid")
+            profile_relative = (PurePosixPath(relative).parent / profile).as_posix()
+            if profile_relative not in candidate_relatives:
+                raise CheckFailure(f"{relative}: route compatibility profile is missing")
+            profile_data = _strict_json(root / profile_relative)
+            expected_scope = {
+                key: profile_data.get(key)
+                for key in ("product_type", "hardware_model", "os_build")
+            }
+            if not all(isinstance(value, str) and value for value in expected_scope.values()):
+                raise CheckFailure(f"{relative}: route compatibility profile scope is invalid")
+            excluded_keys = {key for key in ("excluded", "excluded_routes") if key in data}
+            if len(excluded_keys) > 1:
+                raise CheckFailure(f"{relative}: route compatibility exclusions are ambiguous")
+            for exclusion_key in excluded_keys:
+                exclusions = data[exclusion_key]
+                if not isinstance(exclusions, list) or not exclusions:
+                    raise CheckFailure(f"{relative}: route compatibility exclusions are invalid")
+                identity_key = "route" if exclusion_key == "excluded" else None
+                seen_exclusions: set[str] = set()
+                for exclusion in exclusions:
+                    if not isinstance(exclusion, dict):
+                        raise CheckFailure(f"{relative}: route compatibility exclusion is invalid")
+                    keys = set(exclusion)
+                    if identity_key is None:
+                        candidates = keys & {"kind", "scheme"}
+                        if len(candidates) != 1:
+                            raise CheckFailure(f"{relative}: route compatibility exclusion is invalid")
+                        current_identity = next(iter(candidates))
+                    else:
+                        current_identity = identity_key
+                    if keys != {current_identity, "reason"}:
+                        raise CheckFailure(f"{relative}: route compatibility exclusion is invalid")
+                    identity = exclusion[current_identity]
+                    reason = exclusion["reason"]
+                    if (
+                        not isinstance(identity, str) or not identity
+                        or not isinstance(reason, str) or not reason
+                        or identity in seen_exclusions
+                    ):
+                        raise CheckFailure(f"{relative}: route compatibility exclusion is invalid")
+                    seen_exclusions.add(identity)
+            names: set[str] = set()
+            for position, row in enumerate(rows):
+                if not isinstance(row, dict):
+                    raise CheckFailure(f"{relative}: row {position} must be an object")
+                expected_row = {"command", "availability", "evidence"}
+                if "production" in row:
+                    expected_row.add("production")
+                if set(row) != expected_row:
+                    raise CheckFailure(f"{relative}: row {position} fields are invalid")
+                name = row.get("command")
+                availability = row.get("availability")
+                production = row.get("production")
+                if not isinstance(name, str) or not name or name in names:
+                    raise CheckFailure(f"{relative}: row {position} command is invalid or duplicate")
+                names.add(name)
+                if availability not in allowed_availability:
+                    raise CheckFailure(f"{relative}: {name} availability is invalid")
+                if production is not None and production not in allowed_production:
+                    raise CheckFailure(f"{relative}: {name} production status is invalid")
+                if production == "admitted" and availability != "proven":
+                    raise CheckFailure(f"{relative}: {name} admitted production lacks proven availability")
+                if production == "candidate-gated" and availability == "proven":
+                    raise CheckFailure(f"{relative}: {name} proven route cannot remain candidate-gated")
+                evidence = row.get("evidence")
+                if not isinstance(evidence, list):
+                    raise CheckFailure(f"{relative}: {name} evidence must be a list")
+                for item in evidence:
+                    if not isinstance(item, dict):
+                        raise CheckFailure(f"{relative}: {name} evidence item must be an object")
+                    kind = item.get("kind")
+                    expected_fields = evidence_fields.get(kind)
+                    if expected_fields is None or set(item) not in expected_fields:
+                        raise CheckFailure(
+                            f"{relative}: {name} evidence kind or fields are not allowlisted"
+                        )
+                    for key, value in item.items():
+                        if key == "proof_scope":
+                            if value != expected_scope:
+                                raise CheckFailure(
+                                    f"{relative}: {name} evidence proof scope is invalid"
+                                )
+                        elif key == "actor" and value not in allowed_actors:
+                            raise CheckFailure(f"{relative}: {name} evidence actor is invalid")
+                        elif key == "method" and value not in allowed_methods:
+                            raise CheckFailure(f"{relative}: {name} evidence method is invalid")
+                        elif key == "result" and value not in allowed_results:
+                            raise CheckFailure(f"{relative}: {name} evidence result is invalid")
+                        elif key == "files":
+                            if not isinstance(value, list) or not value:
+                                raise CheckFailure(f"{relative}: {name} vendor files are invalid")
+                            for source in value:
+                                if not isinstance(source, dict) or set(source) != {"path", "declaration"}:
+                                    raise CheckFailure(f"{relative}: {name} vendor file entry is invalid")
+                                source_path = source["path"]
+                                if (
+                                    not isinstance(source_path, str) or not source_path
+                                    or PurePosixPath(source_path).is_absolute()
+                                    or ".." in PurePosixPath(source_path).parts
+                                    or not isinstance(source["declaration"], str)
+                                    or not source["declaration"]
+                                ):
+                                    raise CheckFailure(f"{relative}: {name} vendor file entry is invalid")
+                        elif isinstance(value, bool) or not isinstance(value, (str, int)) or value == "":
+                            raise CheckFailure(f"{relative}: {name} evidence field {key!r} is invalid")
+                if availability == "proven":
+                    positives = [item for item in evidence if item.get("kind") in positive_kinds]
+                    if not positives:
+                        raise CheckFailure(f"{relative}: {name} proven route lacks visible evidence")
+                    for item in positives:
+                        scope = item.get("proof_scope")
+                        if not isinstance(scope, dict) or set(scope) != {
+                            "product_type", "hardware_model", "os_build",
+                        } or not all(isinstance(value, str) and value for value in scope.values()):
+                            raise CheckFailure(
+                                f"{relative}: {name} positive evidence lacks exact non-unique profile scope"
+                            )
+        except (CheckFailure, KeyError, TypeError) as error:
             issues.append(str(error))
     return issues
 
@@ -776,18 +1256,32 @@ def check_release(root: Path) -> list[str]:
                 first_line = b""
             safe_script = (
                 relative.startswith("scripts/")
-                or relative in {"ipad_agent/runtime.py", "ipad_agent/server.py"}
+                or relative in {
+                    "ipad_agent/runtime/engine.py",
+                    "ipad_agent/runtime/server.py",
+                    # Historical executable compatibility entry point.
+                    "ipad_agent/server.py",
+                }
             ) and path.suffix.casefold() in {".py", ".sh"}
             if not safe_script or not first_line.startswith(b"#!"):
                 issues.append(f"{relative}: unsafe executable bit")
         issues.extend(content_issues(path, relative))
     issues.extend(validate_documents(root, paths))
     issues.extend(validate_manifests(root, relatives))
+    issues.extend(validate_application_packages(root, relatives))
+    issues.extend(validate_route_compatibility_sidecars(root, relatives))
     issues.extend(validate_public_lab_claims(root, relatives))
     return sorted(set(issues))
 
 
-_OPTIONAL_DOCTOR_CHECKS = {"host.swift", "airdrop.policy", "airdrop.helper"}
+_OPTIONAL_DOCTOR_CHECKS = {
+    "host.swift", "airdrop.policy", "airdrop.helper",
+    "host.node", "host.npm", "config.appium_url", "device.developer_mode",
+    "signing.identity", "signing.selection", "automation.appium",
+    "automation.xcuitest_driver", "automation.wda_source", "automation.wda_build",
+    "automation.wda_provenance", "automation.runtime_config",
+    "device.developer_trust", "automation.session_verified",
+}
 
 
 def _doctor_blocking_checks(report: dict[str, Any]) -> list[dict[str, Any]]:

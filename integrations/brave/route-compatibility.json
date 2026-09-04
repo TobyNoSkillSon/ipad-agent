@@ -1,0 +1,187 @@
+{
+  "schema": "ipad-agent.brave-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-brave-1.93-136-ipados-26.6.1-23g83.json",
+  "routes": [
+    {
+      "command": "website",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "vendor-source",
+          "repository": "brave/brave-ios",
+          "ref": "development",
+          "files": [
+            {
+              "path": "App/iOS/Supporting Files/Info.plist",
+              "declaration": "http-https-url-payloads"
+            },
+            {
+              "path": "Sources/Brave/Frontend/Browser/NavigationRouter.swift",
+              "declaration": "http-https-navigation"
+            }
+          ]
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "youtube",
+      "availability": "candidate",
+      "production": "legacy-admitted",
+      "evidence": [
+        {
+          "kind": "vendor-source",
+          "repository": "brave/brave-ios",
+          "ref": "development",
+          "files": [
+            {
+              "path": "App/iOS/Supporting Files/Info.plist",
+              "declaration": "http-https-url-payloads"
+            },
+            {
+              "path": "Sources/Brave/Frontend/Browser/NavigationRouter.swift",
+              "declaration": "http-https-navigation"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "command": "search",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "vendor-source",
+          "repository": "brave/brave-ios",
+          "ref": "development",
+          "files": [
+            {
+              "path": "Sources/Brave/Frontend/Browser/NavigationRouter.swift",
+              "declaration": "brave-search-query"
+            }
+          ]
+        },
+        {
+          "kind": "vendor-issue",
+          "repository": "brave/brave-ios",
+          "number": 627,
+          "subject": "search-url-scheme"
+        },
+        {
+          "kind": "vendor-pull-request",
+          "repository": "brave/brave-ios",
+          "number": 3582,
+          "subject": "search-url-scheme"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "private-website",
+      "availability": "candidate",
+      "production": "candidate-gated",
+      "evidence": [
+        {
+          "kind": "vendor-source",
+          "repository": "brave/brave-ios",
+          "ref": "development",
+          "files": [
+            {
+              "path": "Sources/Brave/Frontend/Browser/NavigationRouter.swift",
+              "declaration": "brave-open-url-private-true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "command": "ipfs",
+      "availability": "incompatible",
+      "production": "candidate-gated",
+      "evidence": [
+        {
+          "kind": "vendor-source",
+          "repository": "brave/brave-ios",
+          "ref": "development",
+          "files": [
+            {
+              "path": "App/iOS/Supporting Files/Info.plist",
+              "declaration": "ipfs-url-scheme"
+            },
+            {
+              "path": "Sources/Brave/Frontend/Browser/NavigationRouter.swift",
+              "declaration": "ipfs-navigation"
+            }
+          ]
+        },
+        {
+          "kind": "observer-screenshot-fail",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "prior-route-remained-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "ipns",
+      "availability": "incompatible",
+      "production": "candidate-gated",
+      "evidence": [
+        {
+          "kind": "vendor-source",
+          "repository": "brave/brave-ios",
+          "ref": "development",
+          "files": [
+            {
+              "path": "App/iOS/Supporting Files/Info.plist",
+              "declaration": "ipns-url-scheme"
+            },
+            {
+              "path": "Sources/Brave/Frontend/Browser/NavigationRouter.swift",
+              "declaration": "ipns-navigation"
+            }
+          ]
+        },
+        {
+          "kind": "observer-screenshot-fail",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "prior-route-remained-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "schema": "ipad-agent.maps-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad-pro-11-inch-m5-wifi-ipados-26.6.1-23g83.json",
+  "routes": [
+    {
+      "command": "frame",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "frame"
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "search",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "search"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "place",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "place"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "look-around",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "look-around"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "directions",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "directions"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "navigate",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "directions-start"
+        }
+      ]
+    },
+    {
+      "command": "guides",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "guides"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "report-a-problem",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "report-a-problem"
+        }
+      ]
+    },
+    {
+      "command": "link",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "official-documentation",
+          "source": "https://developer.apple.com/documentation/mapkit/unified-map-urls",
+          "endpoint": "full-and-short-links"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ]
+}

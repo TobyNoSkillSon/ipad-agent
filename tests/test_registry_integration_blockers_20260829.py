@@ -15,21 +15,17 @@ class RegistryIntegrationBlockers20260829Tests(unittest.TestCase):
     def _copy_registry(self, directory: str) -> Path:
         project = Path(directory) / "project"
         shutil.copytree(ROOT / "integrations", project / "integrations")
-        shutil.copytree(ROOT / "addons", project / "addons")
         shutil.copytree(ROOT / "schemas", project / "schemas")
         return project / "integrations" / "index.json"
 
     def test_disabled_addon_manifest_is_never_opened_or_validated(self):
         with tempfile.TemporaryDirectory() as directory:
             index = self._copy_registry(directory)
-            addon = index.parent.parent / "addons" / "brave" / "integration.json"
+            expected = {entry["id"] for entry in json.loads(index.read_text())["integrations"] if entry["kind"] == "core"}
+            addon = index.parent.parent / "integrations" / "brave" / "integration.json"
             addon.write_text("not json", encoding="utf-8")
-
             registry = IntegrationRegistry(index)
-            self.assertEqual(
-            {"safari", "maps", "files", "settings", "clock", "preview", "books", "appstore"},
-            set(registry),
-        )
+            self.assertEqual(expected, set(registry))
             with self.assertRaises(AddonNotEnabledError):
                 registry.resolve("com.brave.ios.browser")
             with self.assertRaisesRegex(RegistryError, "cannot load"):
@@ -69,7 +65,7 @@ class RegistryIntegrationBlockers20260829Tests(unittest.TestCase):
         for mutate, message in mutations:
             with self.subTest(message=message), tempfile.TemporaryDirectory() as directory:
                 index = self._copy_registry(directory)
-                path = index.parent / "maps" / "integration.json"
+                path = index.parent / "apple_maps" / "integration.json"
                 manifest = json.loads(path.read_text(encoding="utf-8"))
                 mutate(manifest)
                 path.write_text(json.dumps(manifest), encoding="utf-8")
@@ -78,23 +74,12 @@ class RegistryIntegrationBlockers20260829Tests(unittest.TestCase):
 
     def test_clock_and_reload_have_state_gates_and_compatibility_is_unverified(self):
         clock = load_registry().resolve("clock")
-        scenario = clock["scenarios"]["transient-stopwatch"]
-        self.assertLess(
-            scenario["actions"].index("inspect-stopwatch-state"),
-            scenario["actions"].index("start-stopwatch"),
-        )
-        inspect_steps = clock["actions"]["inspect-stopwatch-state"]["steps"]
-        self.assertEqual("inspect", inspect_steps[0]["operation"])
-        self.assertTrue(any(step.get("selector") == "stopwatch_zero" for step in inspect_steps))
-        self.assertTrue(all(step["seconds"] <= 3 for step in inspect_steps if "seconds" in step))
-        self.assertEqual("start", clock["actions"]["reset-stopwatch"]["steps"][-2]["selector"])
-        self.assertEqual("stopwatch_zero", clock["actions"]["reset-stopwatch"]["steps"][-1]["selector"])
-
+        self.assertEqual(clock["selectors"], {})
+        self.assertEqual(set(clock["actions"]), {"activate"})
+        self.assertEqual(set(clock["scenarios"]), {"activate-direct"})
         brave = load_registry(enabled_addons=["brave"]).resolve("brave")
-        reload_steps = brave["actions"]["reload-page"]["steps"]
-        self.assertEqual(["wait", "tap"], [step["operation"] for step in reload_steps])
-        self.assertIn("label == 'Reload'", brave["selectors"]["reload"]["value"])
-
+        self.assertEqual(brave["selectors"], {})
+        self.assertNotIn("reload-page", brave["actions"])
         for integration in [*load_registry().integrations.values(), brave]:
             self.assertEqual("unverified", integration["compatibility"]["verification"])
             self.assertEqual([], integration["compatibility"]["app_versions"])

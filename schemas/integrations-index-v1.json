@@ -44,7 +44,8 @@
             ]
           },
           "manifest": {
-            "type": "string"
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_-]*/integration\\.json$"
           },
           "category": {
             "enum": [
@@ -71,40 +72,6 @@
             }
           }
         },
-        "allOf": [
-          {
-            "if": {
-              "properties": {
-                "kind": {
-                  "const": "core"
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "manifest": {
-                  "pattern": "^[a-z][a-z0-9-]*/integration\\.json$"
-                }
-              }
-            }
-          },
-          {
-            "if": {
-              "properties": {
-                "kind": {
-                  "const": "addon"
-                }
-              }
-            },
-            "then": {
-              "properties": {
-                "manifest": {
-                  "pattern": "^\\.\\./addons/[a-z][a-z0-9-]*/integration\\.json$"
-                }
-              }
-            }
-          }
-        ],
         "additionalProperties": false
       }
     }

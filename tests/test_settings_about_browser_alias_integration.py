@@ -1,31 +1,35 @@
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
+from integrations.settings import commands as settings_commands
+from ipad_agent import ipadsettings
 from ipad_agent.config import Config, ConfigError, config_snapshot, load_config
 from ipad_agent.registry import load_registry
 
 
 class SettingsAboutBrowserAliasIntegrationTests(unittest.TestCase):
-    def test_about_selector_matches_semantic_command_key_and_action_is_bounded(self):
+    def test_about_alias_uses_the_app_catalogue_and_shared_direct_dispatch(self):
         registry = load_registry()
-        selector = registry.resolve_selector("settings", "accessibility id=About")
-        self.assertEqual("accessibility id", selector["using"])
-        self.assertEqual("About", selector["value"])
-        self.assertFalse(selector["cache"])
-        self.assertEqual("settings", selector["_integration"])
-        self.assertEqual("accessibility id=About", selector["_selector"])
+        settings = registry.resolve("Apple Settings")
+        self.assertEqual("settings", settings.id)
+        self.assertEqual({}, settings["selectors"])
+        self.assertEqual({}, settings["actions"])
+        self.assertFalse(settings["safety"]["mutates_user_data"])
 
-        action = registry.resolve("settings")["actions"]["open-about"]
+        route = settings_commands._load_catalog()["general-about"]
+        self.assertEqual("normal", route["dispatch_policy"])
         self.assertEqual(
-            [
-                {"operation": "tap", "selector": "general"},
-                {"operation": "wait", "selector": "accessibility id=About", "seconds": 5},
-                {"operation": "tap", "selector": "accessibility id=About"},
-            ],
-            action["steps"],
+            "settings-navigation://com.apple.Settings.General/About",
+            route["url"],
         )
-        self.assertFalse(registry.resolve("settings")["safety"]["mutates_user_data"])
+        sentinel = object()
+        with mock.patch.object(
+            settings_commands.shared, "_direct_open", return_value=sentinel
+        ) as direct_open:
+            self.assertIs(ipadsettings("about"), sentinel)
+        direct_open.assert_called_once_with("Settings", route["url"])
 
     def test_browser_alias_is_canonicalized_only_when_addon_is_enabled(self):
         config = Config(browser="Brave Browser", enabled_addons=["brave"])

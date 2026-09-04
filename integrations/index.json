@@ -19,7 +19,7 @@
     {
       "id": "maps",
       "kind": "core",
-      "manifest": "maps/integration.json",
+      "manifest": "apple_maps/integration.json",
       "category": "application",
       "aliases": [
         "maps",
@@ -110,9 +110,87 @@
       ]
     },
     {
+      "id": "google-maps",
+      "kind": "core",
+      "manifest": "google_maps/integration.json",
+      "category": "application",
+      "aliases": [
+        "google maps",
+        "googlemaps"
+      ],
+      "bundle_ids": [
+        "com.google.Maps"
+      ]
+    },
+    {
+      "id": "pages",
+      "kind": "core",
+      "manifest": "pages/integration.json",
+      "category": "application",
+      "aliases": [
+        "pages",
+        "apple pages"
+      ],
+      "bundle_ids": [
+        "com.apple.Pages"
+      ]
+    },
+    {
+      "id": "numbers",
+      "kind": "core",
+      "manifest": "numbers/integration.json",
+      "category": "application",
+      "aliases": [
+        "numbers",
+        "apple numbers"
+      ],
+      "bundle_ids": [
+        "com.apple.Numbers"
+      ]
+    },
+    {
+      "id": "keynote",
+      "kind": "core",
+      "manifest": "keynote/integration.json",
+      "category": "application",
+      "aliases": [
+        "keynote",
+        "apple keynote"
+      ],
+      "bundle_ids": [
+        "com.apple.Keynote"
+      ]
+    },
+    {
+      "id": "photos",
+      "kind": "core",
+      "manifest": "photos/integration.json",
+      "category": "application",
+      "aliases": [
+        "photos",
+        "apple photos"
+      ],
+      "bundle_ids": [
+        "com.apple.mobileslideshow"
+      ]
+    },
+    {
+      "id": "messages",
+      "kind": "core",
+      "manifest": "messages/integration.json",
+      "category": "application",
+      "aliases": [
+        "messages",
+        "apple messages"
+      ],
+      "bundle_ids": [
+        "com.apple.MobileSMS"
+      ]
+    },
+    {
       "id": "brave",
       "kind": "addon",
-      "manifest": "../addons/brave/integration.json",
+      "manifest": "brave/integration.json",
       "category": "browser",
       "aliases": [
         "brave",

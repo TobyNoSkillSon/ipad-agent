@@ -1,0 +1,5370 @@
+{
+  "schema": "ipad-agent.settings-route-catalog/v2",
+  "version": 2,
+  "profile": "device-profiles/ipad-pro-11-inch-m5-wifi-ipados-26.6.1-23g83.json",
+  "source": {
+    "scheme": "settings-navigation",
+    "status": "private-unsupported",
+    "runtime_literal_source": {
+      "platform": "iOS simulator",
+      "os_version": "26.5",
+      "os_build": "23F77",
+      "xcode_version": "26.6"
+    },
+    "user_visual_source": {
+      "actor": "user",
+      "proof_scope": {
+        "product_type": "iPad17,1",
+        "hardware_model": "J817AP",
+        "os_build": "23G83"
+      }
+    }
+  },
+  "routes": [
+    {
+      "id": "settings",
+      "section": "Settings",
+      "label": "Settings main page",
+      "url": "settings-navigation://com.apple.Settings",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accessibility",
+      "section": "Accessibility",
+      "label": "Accessibility",
+      "url": "settings-navigation://com.apple.Settings.Accessibility",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accessibility-motion-title",
+      "section": "Accessibility",
+      "label": "Accessibility > Motion",
+      "url": "settings-navigation://com.apple.Settings.Accessibility/MOTION_TITLE",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "accessibility-sound-recognition-title-sounds",
+      "section": "Accessibility",
+      "label": "Settings.Accessibility > SOUND RECOGNITION TITLE > Sounds",
+      "url": "settings-navigation://com.apple.Settings.Accessibility/SOUND_RECOGNITION_TITLE/Sounds",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "action-button",
+      "section": "ActionButton",
+      "label": "Action Button device specific",
+      "url": "settings-navigation://com.apple.Settings.ActionButton",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "action_button",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "app-store",
+      "section": "AppStore",
+      "label": "Settings.App Store",
+      "url": "settings-navigation://com.apple.Settings.AppStore",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account",
+      "section": "AppleAccount",
+      "label": "Apple Account",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-empty",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account >",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service",
+      "section": "AppleAccount",
+      "label": "Apple Account > iCloud see the iCloud main section for more URLs",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service-storage-and-backup-manage-storage",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > ICLOUD SERVICE > STORAGE AND BACKUP > MANAGE STORAGE",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/STORAGE_AND_BACKUP/MANAGE_STORAGE",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service-com-apple-dataclass",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > ICLOUD SERVICE > com.apple.Dataclass",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service-com-apple-dataclass-cloud-photos",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > ICLOUD SERVICE > com.apple.Dataclass.Cloud Photos",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.CloudPhotos",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service-com-apple-dataclass-mail",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > ICLOUD SERVICE > com.apple.Dataclass.Mail",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Mail",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service-com-apple-dataclass-mail-empty",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > ICLOUD SERVICE > com.apple.Dataclass.Mail >",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Mail/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service-com-apple-dataclass-mail-icloud-mail-cleanup",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > ICLOUD SERVICE > com.apple.Dataclass.Mail > ICLOUD MAIL CLEANUP",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Mail/ICLOUD_MAIL_CLEANUP",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service-com-apple-dataclass-mail-icloud-mail-cleanup-empty",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > ICLOUD SERVICE > com.apple.Dataclass.Mail > ICLOUD MAIL CLEANUP >",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Mail/ICLOUD_MAIL_CLEANUP/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-icloud-service-com-apple-dataclass-messages",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > ICLOUD SERVICE > com.apple.Dataclass.Messages",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Messages",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-transparency",
+      "section": "AppleAccount",
+      "label": "Apple Account > Contact Key Verification",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount/TRANSPARENCY",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-query-aaaction-setup-family",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > aaaction=setup Family",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount?aaaction=setupFamily",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-query-aaaction-show-all-invites",
+      "section": "AppleAccount",
+      "label": "Settings.Apple Account > aaaction=show All Invites",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount?aaaction=showAllInvites",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apple-account-query-aaaction-show-family-settings",
+      "section": "AppleAccount",
+      "label": "Apple Account > Family",
+      "url": "settings-navigation://com.apple.Settings.AppleAccount?aaaction=showFamilySettings",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps",
+      "section": "Apps",
+      "label": "Apps",
+      "url": "settings-navigation://com.apple.Settings.Apps",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-empty",
+      "section": "Apps",
+      "label": "Settings.Apps >",
+      "url": "settings-navigation://com.apple.Settings.Apps/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-placeholder",
+      "section": "Apps",
+      "label": "Settings.Apps > %",
+      "url": "settings-navigation://com.apple.Settings.Apps/%",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-fitness-fitness-plus",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.Fitness > fitness-plus",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Fitness/fitness-plus",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-fitness-workout-controls",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.Fitness > workout-controls",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Fitness/workout-controls",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-health",
+      "section": "Apps",
+      "label": "General > Health Data",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Health",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-health-medical-id-item",
+      "section": "Apps",
+      "label": "General > Health Data > Medical ID",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Health/MEDICAL_ID_ITEM",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-maps",
+      "section": "Apps",
+      "label": "Apps > Maps",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Maps",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-maps-cycling-link-preference-id",
+      "section": "Apps",
+      "label": "Apps > Maps > Directions – Cycling",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Maps/CyclingLinkPreferenceID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-maps-driving-link-preference-id",
+      "section": "Apps",
+      "label": "Apps > Maps > Directions – Driving",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Maps/DrivingLinkPreferenceID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-maps-navigation-guidance-link-preference-id",
+      "section": "Apps",
+      "label": "Apps > Maps > Spoken Directions",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Maps/NavigationGuidanceLinkPreferenceID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-maps-transit-link-preference-id",
+      "section": "Apps",
+      "label": "Apps > Maps > Directions – Transit",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Maps/TransitLinkPreferenceID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-maps-walking-link-preference-id",
+      "section": "Apps",
+      "label": "Apps > Maps > Directions – Walking",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Maps/WalkingLinkPreferenceID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobile-address-book",
+      "section": "Apps",
+      "label": "Apps > Contacts",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.MobileAddressBook",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobile-sms-row-conversation-backgrounds-enabled-switch",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.Mobile SMS > CONVERSATION BACKGROUNDS ENABLED SWITCH",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.MobileSMS#CONVERSATION_BACKGROUNDS_ENABLED_SWITCH",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobile-sms-row-filter-new-senders-switch",
+      "section": "Apps",
+      "label": "Apps > Messages > Screen Unknown Senders (switch)",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.MobileSMS#FILTER_NEW_SENDERS_SWITCH",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobile-sms-row-notificattions-unkown-senders-button",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.Mobile SMS > NOTIFICATTIONS UNKOWN SENDERS BUTTON",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.MobileSMS#NOTIFICATTIONS_UNKOWN_SENDERS_BUTTON",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-passwords",
+      "section": "Apps",
+      "label": "Apps > Passwords",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Passwords",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-settings-apps-app-clips",
+      "section": "Apps",
+      "label": "Settings.Apps > Settings.Apps.App Clips",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Settings.Apps.AppClips",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-settings-apps-default-apps",
+      "section": "Apps",
+      "label": "Apps > Default Apps",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Settings.Apps.DefaultApps",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-translate",
+      "section": "Apps",
+      "label": "Apps > Translate",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Translate",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-translate-empty",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.Translate >",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Translate/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-translate-downloaded-languages-specifier",
+      "section": "Apps",
+      "label": "Apps > Translate > Languages",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.Translate/DOWNLOADED_LANGUAGES_SPECIFIER",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-voice-memos",
+      "section": "Apps",
+      "label": "Apps > Voice Memos",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.VoiceMemos",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-facetime-row-filter-as-new-callers",
+      "section": "Apps",
+      "label": "Apps > FaceTime > Call Filtering – Unknow Callers (switch)",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.facetime#FILTER_AS_NEW_CALLERS",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-facetime-blocklist-settings-main-specifier-identifier",
+      "section": "Apps",
+      "label": "Apps > FaceTime > Blocked Contacts",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.facetime/BLOCKLIST_SETTINGS_MAIN_SPECIFIER_IDENTIFIER",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal",
+      "section": "Apps",
+      "label": "Apps > Calendar",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-delegate-calendars",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.mobilecal > DELEGATE CALENDARS",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/DELEGATE_CALENDARS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-alternate-calendars",
+      "section": "Apps",
+      "label": "Apps > Calendar > Alternate Calendars",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/alternateCalendars",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-default-alert-times",
+      "section": "Apps",
+      "label": "Apps > Calendar > Default Alert Times",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/defaultAlertTimes",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-default-alert-times-all-day-events-default-alert-times",
+      "section": "Apps",
+      "label": "Apps > Calendar > Default Alert Times > All-Day Events",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/defaultAlertTimes/allDayEventsDefaultAlertTimes",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-default-alert-times-birthdays-default-alert-times",
+      "section": "Apps",
+      "label": "Apps > Calendar > Default Alert Times > Birthdays",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/defaultAlertTimes/birthdaysDefaultAlertTimes",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-default-alert-times-timed-events-default-alert-times",
+      "section": "Apps",
+      "label": "Apps > Calendar > Default Alert Times > Events",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/defaultAlertTimes/timedEventsDefaultAlertTimes",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-default-calendar",
+      "section": "Apps",
+      "label": "Apps > Calendar > Default Calendar",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/defaultCalendar",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-duration-for-new-events",
+      "section": "Apps",
+      "label": "Apps > Calendar > Duration for New Events",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/durationForNewEvents",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-start-week-on",
+      "section": "Apps",
+      "label": "Apps > Calendar > Start Week On",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/startWeekOn",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-sync-duration",
+      "section": "Apps",
+      "label": "Apps > Calendar > Sync",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/syncDuration",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilecal-time-zone-override",
+      "section": "Apps",
+      "label": "Apps > Calendar > Time Zone Override",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilecal/timeZoneOverride",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilemail",
+      "section": "Apps",
+      "label": "Apps > Mail",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilemail",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilephone-row-filter-as-new-callers",
+      "section": "Apps",
+      "label": "Apps > Phone > Call Filtering – Unknown Callers (switch)",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilephone#FILTER_AS_NEW_CALLERS",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilesafari",
+      "section": "Apps",
+      "label": "Apps > Safari",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilesafari",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobilesafari-row-private-browsing-uses-normal-browsing-search-engine-selection",
+      "section": "Apps",
+      "label": "Apps > Safari > Also Use in Private Browsing (switch)",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilesafari#PRIVATE_BROWSING_USES_NORMAL_BROWSING_SEARCH_ENGINE_SELECTION",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobileslideshow",
+      "section": "Apps",
+      "label": "Apps > Photos",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobileslideshow",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-mobileslideshow-shared-library-settings-button",
+      "section": "Apps",
+      "label": "Apps > Photos > Shared Library (dialog)",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.mobileslideshow/SharedLibrarySettingsButton",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-news",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.news",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.news",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-news-automatic-downloads-link",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.news > AUTOMATIC DOWNLOADS LINK",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.news/AUTOMATIC_DOWNLOADS_LINK",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-podcasts",
+      "section": "Apps",
+      "label": "Apps > Podcasts",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.podcasts",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-podcasts-backward",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.podcasts > BACKWARD",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.podcasts/BACKWARD",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-podcasts-cellular-downloads",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.podcasts > CELLULAR DOWNLOADS",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.podcasts/CELLULAR_DOWNLOADS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "cellular",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-podcasts-forward",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.podcasts > FORWARD",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.podcasts/FORWARD",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-podcasts-podcasts-and-privacy",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.podcasts > PODCASTS AND PRIVACY",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.podcasts/PODCASTS_AND_PRIVACY",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-reminders",
+      "section": "Apps",
+      "label": "Apps > Reminders",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.reminders",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-reminders-notifications",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.reminders > NOTIFICATIONS",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.reminders/NOTIFICATIONS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-shortcuts",
+      "section": "Apps",
+      "label": "Apps > Shortcuts",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.shortcuts",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-shortcuts-shortcuts-advanced-settings",
+      "section": "Apps",
+      "label": "Apps > Shortcuts > Advanced",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.shortcuts/ShortcutsAdvancedSettings",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-shortcuts-shortcuts-legal-notices",
+      "section": "Apps",
+      "label": "Apps > Shortcuts > Legal Notices",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.shortcuts/ShortcutsLegalNotices",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-sports",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.sports",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.sports",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-stocks",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.stocks",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.stocks",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-tv",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.tv",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.tv",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-tv-empty",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.tv >",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.tv/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-tv-com-apple-videos-top-level-audio-and-subtitle-languages",
+      "section": "Apps",
+      "label": "Settings.Apps > com.apple.tv > com.apple.videos:Top Level Audio And Subtitle Languages",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.tv/com.apple.videos:TopLevelAudioAndSubtitleLanguages",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-weather",
+      "section": "Apps",
+      "label": "Apps > Weather",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.weather",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-weather-row-home-work-show-labels",
+      "section": "Apps",
+      "label": "Apps > Weather > Locations – Home and Work (switch)",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.weather#HOME_WORK_SHOW_LABELS",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-weather-row-privacy-reset",
+      "section": "Apps",
+      "label": "Apps > Weather > Privacy – Reset Indentifier (switch)",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.weather#PRIVACY_RESET",
+      "target_kind": "row",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-weather-row-temperature-unit",
+      "section": "Apps",
+      "label": "Apps > Weather > Temperature Unit",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.weather#TEMPERATURE_UNIT",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps-com-apple-weather-row-use-significant-locations",
+      "section": "Apps",
+      "label": "Apps > Weather > Locations – Suggested Locations (switch)",
+      "url": "settings-navigation://com.apple.Settings.Apps/com.apple.weather#USE_SIGNIFICANT_LOCATIONS",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "battery",
+      "section": "Battery",
+      "label": "Battery",
+      "url": "settings-navigation://com.apple.Settings.Battery",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bluetooth",
+      "section": "Bluetooth",
+      "label": "Bluetooth",
+      "url": "settings-navigation://com.apple.Settings.Bluetooth",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "camera",
+      "section": "Camera",
+      "label": "Camera",
+      "url": "settings-navigation://com.apple.Settings.Camera",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "camera-camera-button-settings",
+      "section": "Camera",
+      "label": "Settings.Camera > CAMERA BUTTON SETTINGS",
+      "url": "settings-navigation://com.apple.Settings.Camera/CAMERA_BUTTON_SETTINGS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "camera_control",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "camera-camera-formats-settings-list",
+      "section": "Camera",
+      "label": "Camera > Formats",
+      "url": "settings-navigation://com.apple.Settings.Camera/CameraFormatsSettingsList",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "camera-camera-preserve-settings-switch",
+      "section": "Camera",
+      "label": "Camera > Preserve Settings",
+      "url": "settings-navigation://com.apple.Settings.Camera/CameraPreserveSettingsSwitch",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "camera-camera-slomo-settings-list",
+      "section": "Camera",
+      "label": "Camera > Record Slo-mo",
+      "url": "settings-navigation://com.apple.Settings.Camera/CameraSlomoSettingsList",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "camera-camera-video-settings-list",
+      "section": "Camera",
+      "label": "Camera > Record Video",
+      "url": "settings-navigation://com.apple.Settings.Camera/CameraVideoSettingsList",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cellular",
+      "section": "Cellular",
+      "label": "Cellular",
+      "url": "settings-navigation://com.apple.Settings.Cellular",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "cellular",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cellular-cellular-data-options",
+      "section": "Cellular",
+      "label": "Cellular > Cellular Data Options",
+      "url": "settings-navigation://com.apple.Settings.Cellular/CELLULAR_DATA_OPTIONS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "cellular",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "class-kit",
+      "section": "ClassKit",
+      "label": "Settings.Class Kit",
+      "url": "settings-navigation://com.apple.Settings.ClassKit",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "classroom",
+      "section": "Classroom",
+      "label": "Settings.Classroom",
+      "url": "settings-navigation://com.apple.Settings.Classroom",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "contactless",
+      "section": "Contactless",
+      "label": "Settings.Contactless",
+      "url": "settings-navigation://com.apple.Settings.Contactless",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "contactless-com-apple-passbook",
+      "section": "Contactless",
+      "label": "Settings.Contactless > com.apple.Passbook",
+      "url": "settings-navigation://com.apple.Settings.Contactless/com.apple.Passbook",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "control-center",
+      "section": "ControlCenter",
+      "label": "Control Center",
+      "url": "settings-navigation://com.apple.Settings.ControlCenter",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "developer",
+      "section": "Developer",
+      "label": "Settings.Developer",
+      "url": "settings-navigation://com.apple.Settings.Developer",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "developer-empty",
+      "section": "Developer",
+      "label": "Settings.Developer >",
+      "url": "settings-navigation://com.apple.Settings.Developer/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "developer-l4-s-settings",
+      "section": "Developer",
+      "label": "Settings.Developer > L4 S SETTINGS",
+      "url": "settings-navigation://com.apple.Settings.Developer/L4S_SETTINGS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "developer-magnify",
+      "section": "Developer",
+      "label": "Settings.Developer > MAGNIFY",
+      "url": "settings-navigation://com.apple.Settings.Developer/MAGNIFY",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display",
+      "section": "Display",
+      "label": "Display & Brightness",
+      "url": "settings-navigation://com.apple.Settings.Display",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display-appearance-options",
+      "section": "Display",
+      "label": "Settings.Display > APPEARANCE OPTIONS",
+      "url": "settings-navigation://com.apple.Settings.Display/APPEARANCE_OPTIONS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display-autolock",
+      "section": "Display",
+      "label": "Display & Brightness > Auto-Lock",
+      "url": "settings-navigation://com.apple.Settings.Display/AUTOLOCK",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display-blue-light-reduction",
+      "section": "Display",
+      "label": "Display & Brightness > Night Shift",
+      "url": "settings-navigation://com.apple.Settings.Display/BLUE_LIGHT_REDUCTION",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display-blue-light-reduction-schedule",
+      "section": "Display",
+      "label": "Settings.Display > BLUE LIGHT REDUCTION > SCHEDULE",
+      "url": "settings-navigation://com.apple.Settings.Display/BLUE_LIGHT_REDUCTION/SCHEDULE",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display-liquid-glass",
+      "section": "Display",
+      "label": "Dispaly & Brightness > Liquid Glass",
+      "url": "settings-navigation://com.apple.Settings.Display/LIQUID_GLASS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display-magnify",
+      "section": "Display",
+      "label": "Display & Brightness > Display Zoom",
+      "url": "settings-navigation://com.apple.Settings.Display/MAGNIFY",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "display-text-size",
+      "section": "Display",
+      "label": "Display & Brightness > Text Size",
+      "url": "settings-navigation://com.apple.Settings.Display/TEXT_SIZE",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ethernet",
+      "section": "Ethernet",
+      "label": "Settings.Ethernet",
+      "url": "settings-navigation://com.apple.Settings.Ethernet",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "exposure-notifications",
+      "section": "ExposureNotifications",
+      "label": "Settings.Exposure Notifications",
+      "url": "settings-navigation://com.apple.Settings.ExposureNotifications",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "family",
+      "section": "Family",
+      "label": "Family",
+      "url": "settings-navigation://com.apple.Settings.Family",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "family-query-family-path-members",
+      "section": "Family",
+      "label": "Settings.Family > family Path= > members >",
+      "url": "settings-navigation://com.apple.Settings.Family?familyPath=/members/",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "family-query-family-path-subscriptions",
+      "section": "Family",
+      "label": "Family > Subscriptions",
+      "url": "settings-navigation://com.apple.Settings.Family?familyPath=/subscriptions",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "focus",
+      "section": "Focus",
+      "label": "Focus",
+      "url": "settings-navigation://com.apple.Settings.Focus",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "focus-empty",
+      "section": "Focus",
+      "label": "Settings.Focus >",
+      "url": "settings-navigation://com.apple.Settings.Focus/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "focus-focus",
+      "section": "Focus",
+      "label": "Settings.Focus > Focus",
+      "url": "settings-navigation://com.apple.Settings.Focus/Focus",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "game-center",
+      "section": "GameCenter",
+      "label": "Game Center",
+      "url": "settings-navigation://com.apple.Settings.GameCenter",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "game-center-invite-friends",
+      "section": "GameCenter",
+      "label": "Game Center > Invite Friends",
+      "url": "settings-navigation://com.apple.Settings.GameCenter/INVITE_FRIENDS",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general",
+      "section": "General",
+      "label": "General",
+      "url": "settings-navigation://com.apple.Settings.General",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-airdrop-link",
+      "section": "General",
+      "label": "General > AirDrop",
+      "url": "settings-navigation://com.apple.Settings.General/AIRDROP_LINK",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-airdrop-link-row-airdrop-cellular-usage-id",
+      "section": "General",
+      "label": "General > AirDrop > Out of Range – Use Cellular Data (switch) almost unnoticeable highlighting",
+      "url": "settings-navigation://com.apple.Settings.General/AIRDROP_LINK#AIRDROP_CELLULAR_USAGE_ID",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "cellular",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-airdrop-link-row-airdrop-group-id",
+      "section": "General",
+      "label": "Settings.General > AIRDROP LINK > AIRDROP GROUP ID",
+      "url": "settings-navigation://com.apple.Settings.General/AIRDROP_LINK#AIRDROP_GROUP_ID",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-airdrop-link-row-airdrop-nfc-id",
+      "section": "General",
+      "label": "General > AirDrop > Start Sharing By – Bringing Devices Together (switch) almost unnoticeable highlighting",
+      "url": "settings-navigation://com.apple.Settings.General/AIRDROP_LINK#AIRDROP_NFC_ID",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-autofill",
+      "section": "General",
+      "label": "General > AutoFill & Passwords",
+      "url": "settings-navigation://com.apple.Settings.General/AUTOFILL",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-auto-content-download",
+      "section": "General",
+      "label": "General > Background App Refresh",
+      "url": "settings-navigation://com.apple.Settings.General/AUTO_CONTENT_DOWNLOAD",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-about",
+      "section": "General",
+      "label": "General > About",
+      "url": "settings-navigation://com.apple.Settings.General/About",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-about-sw-version-specifier",
+      "section": "General",
+      "label": "General > About > iOS Version",
+      "url": "settings-navigation://com.apple.Settings.General/About/SW_VERSION_SPECIFIER",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-carplay",
+      "section": "General",
+      "label": "Settings.General > CARPLAY",
+      "url": "settings-navigation://com.apple.Settings.General/CARPLAY",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-continuity-spec",
+      "section": "General",
+      "label": "General > AirPlay & Continuity",
+      "url": "settings-navigation://com.apple.Settings.General/CONTINUITY_SPEC",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-date-and-time",
+      "section": "General",
+      "label": "General > Date & Time",
+      "url": "settings-navigation://com.apple.Settings.General/DATE_AND_TIME",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-dictionary",
+      "section": "General",
+      "label": "General > Dictionary",
+      "url": "settings-navigation://com.apple.Settings.General/DICTIONARY",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-font-setting",
+      "section": "General",
+      "label": "General > Fonts",
+      "url": "settings-navigation://com.apple.Settings.General/FONT_SETTING",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-health-data",
+      "section": "General",
+      "label": "Settings.General > HEALTH DATA",
+      "url": "settings-navigation://com.apple.Settings.General/HEALTH_DATA",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-home-button",
+      "section": "General",
+      "label": "Settings.General > HOME BUTTON",
+      "url": "settings-navigation://com.apple.Settings.General/HOME_BUTTON",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "home_button",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-international",
+      "section": "General",
+      "label": "General > Language & Region",
+      "url": "settings-navigation://com.apple.Settings.General/INTERNATIONAL",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-international-placeholder",
+      "section": "General",
+      "label": "Settings.General > INTERNATIONAL > %",
+      "url": "settings-navigation://com.apple.Settings.General/INTERNATIONAL/%",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-international-add-preferred-language",
+      "section": "General",
+      "label": "General > Language & Region > Add Language",
+      "url": "settings-navigation://com.apple.Settings.General/INTERNATIONAL/ADD_PREFERRED_LANGUAGE",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-international-locale",
+      "section": "General",
+      "label": "General > Language & Region > Region",
+      "url": "settings-navigation://com.apple.Settings.General/INTERNATIONAL/LOCALE",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-keyboard",
+      "section": "General",
+      "label": "General > Keyboard",
+      "url": "settings-navigation://com.apple.Settings.General/Keyboard",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-keyboard-placeholder",
+      "section": "General",
+      "label": "Settings.General > Keyboard > %",
+      "url": "settings-navigation://com.apple.Settings.General/Keyboard/%",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-keyboard-dictation-settings",
+      "section": "General",
+      "label": "General > Keyboard > Dictation Languages",
+      "url": "settings-navigation://com.apple.Settings.General/Keyboard/DictationSettings",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-keyboard-fuzzy-pinyin-option",
+      "section": "General",
+      "label": "Settings.General > Keyboard > FUZZY PINYIN OPTION",
+      "url": "settings-navigation://com.apple.Settings.General/Keyboard/FUZZY_PINYIN_OPTION",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-keyboard-keyboards",
+      "section": "General",
+      "label": "General > Keyboard > Keyboards",
+      "url": "settings-navigation://com.apple.Settings.General/Keyboard/KEYBOARDS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-keyboard-keyboards-add-new-keyboard",
+      "section": "General",
+      "label": "Settings.General > Keyboard > KEYBOARDS > Add New Keyboard",
+      "url": "settings-navigation://com.apple.Settings.General/Keyboard/KEYBOARDS/AddNewKeyboard",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-keyboard-user-dictionary",
+      "section": "General",
+      "label": "General > Keyboard > Text Replacement",
+      "url": "settings-navigation://com.apple.Settings.General/Keyboard/USER_DICTIONARY",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-legal-and-regulatory",
+      "section": "General",
+      "label": "General > Legal & Regulatory",
+      "url": "settings-navigation://com.apple.Settings.General/LEGAL_AND_REGULATORY",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-matter-accessories",
+      "section": "General",
+      "label": "General > Matter Accessories",
+      "url": "settings-navigation://com.apple.Settings.General/MATTER_ACCESSORIES",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-managed-configuration-list",
+      "section": "General",
+      "label": "General > VPN & Device Management",
+      "url": "settings-navigation://com.apple.Settings.General/ManagedConfigurationList",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-managed-configuration-list-downloaded-profile",
+      "section": "General",
+      "label": "Settings.General > Managed Configuration List > Downloaded Profile",
+      "url": "settings-navigation://com.apple.Settings.General/ManagedConfigurationList/DownloadedProfile",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-managed-configuration-list-mdmmigration",
+      "section": "General",
+      "label": "Settings.General > Managed Configuration List > MDMMigration",
+      "url": "settings-navigation://com.apple.Settings.General/ManagedConfigurationList/MDMMigration",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-managed-configuration-list-managed-account",
+      "section": "General",
+      "label": "Settings.General > Managed Configuration List > Managed Account",
+      "url": "settings-navigation://com.apple.Settings.General/ManagedConfigurationList/ManagedAccount",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-nfc-link",
+      "section": "General",
+      "label": "Settings.General > NFC LINK",
+      "url": "settings-navigation://com.apple.Settings.General/NFC_LINK",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-pointers",
+      "section": "General",
+      "label": "General > Trackpad & Mouse",
+      "url": "settings-navigation://com.apple.Settings.General/POINTERS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-pi-p-spec",
+      "section": "General",
+      "label": "General > Picture in Picture",
+      "url": "settings-navigation://com.apple.Settings.General/PiP_SPEC",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-reset",
+      "section": "General",
+      "label": "General > Transfer or Reset iPhone",
+      "url": "settings-navigation://com.apple.Settings.General/Reset",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-reset-exit-buddy",
+      "section": "General",
+      "label": "Settings.General > Reset > exit Buddy",
+      "url": "settings-navigation://com.apple.Settings.General/Reset/exitBuddy",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-reset-exit-buddy-up-sell-trade-in",
+      "section": "General",
+      "label": "Settings.General > Reset > exit Buddy Up Sell Trade In",
+      "url": "settings-navigation://com.apple.Settings.General/Reset/exitBuddyUpSellTradeIn",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-reset-prebuddy-begin",
+      "section": "General",
+      "label": "Settings.General > Reset > prebuddy Begin",
+      "url": "settings-navigation://com.apple.Settings.General/Reset/prebuddyBegin",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-screen-capture",
+      "section": "General",
+      "label": "General > Screen Capture",
+      "url": "settings-navigation://com.apple.Settings.General/SCREEN_CAPTURE",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-software-update-link",
+      "section": "General",
+      "label": "General > Software Update",
+      "url": "settings-navigation://com.apple.Settings.General/SOFTWARE_UPDATE_LINK",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-software-update-link-suautomatic-update-button",
+      "section": "General",
+      "label": "General > Software Update > Automatic Updates",
+      "url": "settings-navigation://com.apple.Settings.General/SOFTWARE_UPDATE_LINK/SUAutomaticUpdateButton",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-software-update-link-subeta-updates-button",
+      "section": "General",
+      "label": "Settings.General > SOFTWARE UPDATE LINK > SUBeta Updates Button",
+      "url": "settings-navigation://com.apple.Settings.General/SOFTWARE_UPDATE_LINK/SUBetaUpdatesButton",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-storage-mgmt",
+      "section": "General",
+      "label": "General > iPhone Storage",
+      "url": "settings-navigation://com.apple.Settings.General/STORAGE_MGMT",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "general-tv-provider",
+      "section": "General",
+      "label": "Settings.General > TV PROVIDER",
+      "url": "settings-navigation://com.apple.Settings.General/TV_PROVIDER",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "home-screen-and-app-library",
+      "section": "HomeScreenAndAppLibrary",
+      "label": "Home Screen & App Library",
+      "url": "settings-navigation://com.apple.Settings.HomeScreenAndAppLibrary",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "internal-classic",
+      "section": "Internal.Classic",
+      "label": "Settings.Internal.Classic",
+      "url": "settings-navigation://com.apple.Settings.Internal.Classic",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "internet-accounts-empty",
+      "section": "InternetAccounts",
+      "label": "Settings.Internet Accounts >",
+      "url": "settings-navigation://com.apple.Settings.InternetAccounts/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "internet-accounts-placeholder",
+      "section": "InternetAccounts",
+      "label": "Settings.Internet Accounts > %",
+      "url": "settings-navigation://com.apple.Settings.InternetAccounts/%",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "multitasking-and-gestures",
+      "section": "MultitaskingAndGestures",
+      "label": "Settings.Multitasking And Gestures",
+      "url": "settings-navigation://com.apple.Settings.MultitaskingAndGestures",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "notifications",
+      "section": "Notifications",
+      "label": "Notifications",
+      "url": "settings-navigation://com.apple.Settings.Notifications",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "notifications-notification-forwarding-id",
+      "section": "Notifications",
+      "label": "Settings.Notifications > NOTIFICATION FORWARDING ID",
+      "url": "settings-navigation://com.apple.Settings.Notifications/NOTIFICATION_FORWARDING_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "passcode",
+      "section": "Passcode",
+      "label": "Touch ID & Passcode",
+      "url": "settings-navigation://com.apple.Settings.Passcode",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pencil",
+      "section": "Pencil",
+      "label": "Settings.Pencil",
+      "url": "settings-navigation://com.apple.Settings.Pencil",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "personal-hotspot",
+      "section": "PersonalHotspot",
+      "label": "Personal Hotspot",
+      "url": "settings-navigation://com.apple.Settings.PersonalHotspot",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "personal_hotspot",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-advertising",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Apple Advertising",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/ADVERTISING",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-almanac",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Research Sensor & Usage Data",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/ALMANAC",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-background-security-improvements",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Background Security Improvements",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/BACKGROUND_SECURITY_IMPROVEMENTS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-bt-peripheral",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Bluetooth",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/BT_PERIPHERAL",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-calendars",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Calendars",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/CALENDARS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-camera",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Camera",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/CAMERA",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-contacts",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Contacts",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/CONTACTS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-fileaccess",
+      "section": "PrivacyAndSecurity",
+      "label": "Settings.Privacy And Security > FILEACCESS",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/FILEACCESS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-local-network",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Local Network",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/LOCAL_NETWORK",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-location",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Location Services",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/LOCATION",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-location-system-services",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Location Services > System Services",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/LOCATION/SYSTEM_SERVICES",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-medialibrary",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Media & Apple Music",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/MEDIALIBRARY",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-microphone",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Microphone",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/MICROPHONE",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-motion",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Motion & Fitness",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/MOTION",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-nearby-interactions",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Nearby Interactions",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/NEARBY_INTERACTIONS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-passkeys",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Passkeys Access for Web Browsers",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/PASSKEYS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-photos",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Photos",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/PHOTOS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-problem-reporting",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Analytics & Improvements",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/PROBLEM_REPORTING",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-reminders",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Reminders",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/REMINDERS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-safety-check",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Safety Check",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/SAFETY_CHECK",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-safety-check-empty",
+      "section": "PrivacyAndSecurity",
+      "label": "Settings.Privacy And Security > SAFETY CHECK >",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/SAFETY_CHECK/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-safety-check-device-access-empty",
+      "section": "PrivacyAndSecurity",
+      "label": "Settings.Privacy And Security > SAFETY CHECK > DEVICE ACCESS >",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/SAFETY_CHECK/DEVICE_ACCESS/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-speech-recognition",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Speech Recognition",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/SPEECH_RECOGNITION",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-user-tracking",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Tracking",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/USER_TRACKING",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "privacy-and-security-willow",
+      "section": "PrivacyAndSecurity",
+      "label": "Privacy & Security > Home Accessories",
+      "url": "settings-navigation://com.apple.Settings.PrivacyAndSecurity/WILLOW",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sos",
+      "section": "SOS",
+      "label": "Emergency SOS",
+      "url": "settings-navigation://com.apple.Settings.SOS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sos-row-64",
+      "section": "SOS",
+      "label": "Settings.SOS > -64",
+      "url": "settings-navigation://com.apple.Settings.SOS#-64",
+      "target_kind": "row",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time",
+      "section": "ScreenTime",
+      "label": "Screen Time",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-always-allowed",
+      "section": "ScreenTime",
+      "label": "Screen Time > Always Allowed If App & Website Activity is enabled",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/ALWAYS_ALLOWED",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-app-limits",
+      "section": "ScreenTime",
+      "label": "Screen Time > App Limits If App & Website Activity is enabled",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/APP_LIMITS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-communication-limits",
+      "section": "ScreenTime",
+      "label": "Screen Time > Communication Limits",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/COMMUNICATION_LIMITS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-communication-safety",
+      "section": "ScreenTime",
+      "label": "Screen Time > Communication Safety",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/COMMUNICATION_SAFETY",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-content-privacy",
+      "section": "ScreenTime",
+      "label": "Screen Time > Content & Privacy Restrictions",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/CONTENT_PRIVACY",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-content-privacy-allowed-apps",
+      "section": "ScreenTime",
+      "label": "Screen Time > Content & Privacy Restrictions > Allowed Apps & Features",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/CONTENT_PRIVACY/ALLOWED_APPS",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-content-privacy-content-restrictions-app-rating",
+      "section": "ScreenTime",
+      "label": "Settings.Screen Time > CONTENT PRIVACY > CONTENT RESTRICTIONS > APP RATING",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/CONTENT_PRIVACY/CONTENT_RESTRICTIONS/APP_RATING",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-downtime",
+      "section": "ScreenTime",
+      "label": "Screen Time > Downtime If App & Website Activity is enabled",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/DOWNTIME",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-eye-distance",
+      "section": "ScreenTime",
+      "label": "Screen Time > Screen Distance",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/EYE_DISTANCE",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "screen-time-screen-time-summary",
+      "section": "ScreenTime",
+      "label": "Screen Time > See All App & Website Activity If App & Website Activity is enabled",
+      "url": "settings-navigation://com.apple.Settings.ScreenTime/SCREEN_TIME_SUMMARY",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "search",
+      "section": "Search",
+      "label": "Search",
+      "url": "settings-navigation://com.apple.Settings.Search",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "side-button",
+      "section": "SideButton",
+      "label": "Settings.Side Button",
+      "url": "settings-navigation://com.apple.Settings.SideButton",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri",
+      "section": "Siri",
+      "label": "Siri",
+      "url": "settings-navigation://com.apple.Settings.Siri",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-empty",
+      "section": "Siri",
+      "label": "Settings.Siri >",
+      "url": "settings-navigation://com.apple.Settings.Siri/",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-activation-compact-id",
+      "section": "Siri",
+      "label": "Settings.Siri > ACTIVATION COMPACT ID",
+      "url": "settings-navigation://com.apple.Settings.Siri/ACTIVATION_COMPACT_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-assistant-apps-settings-id",
+      "section": "Siri",
+      "label": "Settings.Siri > ASSISTANT APPS SETTINGS ID",
+      "url": "settings-navigation://com.apple.Settings.Siri/ASSISTANT_APPS_SETTINGS_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-assistant-app-clips-settings-id",
+      "section": "Siri",
+      "label": "Settings.Siri > ASSISTANT APP CLIPS SETTINGS ID",
+      "url": "settings-navigation://com.apple.Settings.Siri/ASSISTANT_APP_CLIPS_SETTINGS_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-external-aimodel",
+      "section": "Siri",
+      "label": "Settings.Siri > External AIModel",
+      "url": "settings-navigation://com.apple.Settings.Siri/ExternalAIModel",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-external-aimodel-query-partner-empty",
+      "section": "Siri",
+      "label": "Settings.Siri > External AIModel > partner=",
+      "url": "settings-navigation://com.apple.Settings.Siri/ExternalAIModel?partner=",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-external-aimodel-query-view-change-selection-partner-empty",
+      "section": "Siri",
+      "label": "Settings.Siri > External AIModel > view=change Selection&partner=",
+      "url": "settings-navigation://com.apple.Settings.Siri/ExternalAIModel?view=changeSelection&partner=",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-external-aimodel-query-view-upgrade-plan",
+      "section": "Siri",
+      "label": "Settings.Siri > External AIModel > view=upgrade Plan",
+      "url": "settings-navigation://com.apple.Settings.Siri/ExternalAIModel?view=upgradePlan",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-history",
+      "section": "Siri",
+      "label": "Settings.Siri > HISTORY",
+      "url": "settings-navigation://com.apple.Settings.Siri/HISTORY",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-language-detail",
+      "section": "Siri",
+      "label": "Settings.Siri > LANGUAGE DETAIL",
+      "url": "settings-navigation://com.apple.Settings.Siri/LANGUAGE_DETAIL",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-language-id",
+      "section": "Siri",
+      "label": "Settings.Siri > LANGUAGE ID",
+      "url": "settings-navigation://com.apple.Settings.Siri/LANGUAGE_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-siri-in-call-id",
+      "section": "Siri",
+      "label": "Settings.Siri > SIRI IN CALL ID",
+      "url": "settings-navigation://com.apple.Settings.Siri/SIRI_IN_CALL_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-voice-feedback-id",
+      "section": "Siri",
+      "label": "Settings.Siri > VOICE FEEDBACK ID",
+      "url": "settings-navigation://com.apple.Settings.Siri/VOICE_FEEDBACK_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-voice-id",
+      "section": "Siri",
+      "label": "Settings.Siri > VOICE ID",
+      "url": "settings-navigation://com.apple.Settings.Siri/VOICE_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "siri-voice-profile-repair-cfu",
+      "section": "Siri",
+      "label": "Settings.Siri > voice Profile Repair CFU",
+      "url": "settings-navigation://com.apple.Settings.Siri/voiceProfileRepairCFU",
+      "target_kind": "action",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sounds",
+      "section": "Sounds",
+      "label": "Sounds & Haptics",
+      "url": "settings-navigation://com.apple.Settings.Sounds",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sounds-placeholder",
+      "section": "Sounds",
+      "label": "Settings.Sounds > %",
+      "url": "settings-navigation://com.apple.Settings.Sounds/%",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sounds-haptics",
+      "section": "Sounds",
+      "label": "Settings.Sounds > HAPTICS",
+      "url": "settings-navigation://com.apple.Settings.Sounds/HAPTICS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sounds-headphone-level-limit-setting",
+      "section": "Sounds",
+      "label": "Sounds & Haptics > Headphone Safety",
+      "url": "settings-navigation://com.apple.Settings.Sounds/HEADPHONE_LEVEL_LIMIT_SETTING",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sounds-headphone-level-limit-setting-placeholder",
+      "section": "Sounds",
+      "label": "Settings.Sounds > HEADPHONE LEVEL LIMIT SETTING > %",
+      "url": "settings-navigation://com.apple.Settings.Sounds/HEADPHONE_LEVEL_LIMIT_SETTING/%",
+      "target_kind": "dynamic",
+      "dispatch_policy": "blocked",
+      "availability": "template",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sounds-keyboard-feedback",
+      "section": "Sounds",
+      "label": "Sounds & Haptics > Keyboard Feedback",
+      "url": "settings-navigation://com.apple.Settings.Sounds/KEYBOARD_FEEDBACK",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stand-by",
+      "section": "StandBy",
+      "label": "StandBy",
+      "url": "settings-navigation://com.apple.Settings.StandBy",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "standby",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "stand-by-always-on-display-options",
+      "section": "StandBy",
+      "label": "StandBy > Display device specific",
+      "url": "settings-navigation://com.apple.Settings.StandBy/ALWAYS_ON_DISPLAY_OPTIONS",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "incompatible",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-fail",
+          "actor": "user",
+          "result": "settings-launched-prior-page-remained-visible",
+          "observed_page": "Apple Intelligence & Siri",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "profile-capability-mismatch",
+          "capability": "standby",
+          "required": true,
+          "observed": false,
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vpn",
+      "section": "VPN",
+      "label": "Settings.VPN",
+      "url": "settings-navigation://com.apple.Settings.VPN",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wallet",
+      "section": "Wallet",
+      "label": "Wallet & Apple Pay",
+      "url": "settings-navigation://com.apple.Settings.Wallet",
+      "target_kind": "page",
+      "dispatch_policy": "blocked",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wallpaper",
+      "section": "Wallpaper",
+      "label": "Wallpaper",
+      "url": "settings-navigation://com.apple.Settings.Wallpaper",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wi-fi",
+      "section": "WiFi",
+      "label": "Wi-Fi",
+      "url": "settings-navigation://com.apple.Settings.WiFi",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "proven",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        },
+        {
+          "kind": "user-visual-pass",
+          "actor": "user",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "project-owned-wda-screenshot",
+          "result": "expected-target-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "id": "wi-fi-wireless-app-data-usage-id",
+      "section": "WiFi",
+      "label": "Settings.Wi Fi > WIRELESS APP DATA USAGE ID",
+      "url": "settings-navigation://com.apple.Settings.WiFi/WIRELESS_APP_DATA_USAGE_ID",
+      "target_kind": "page",
+      "dispatch_policy": "normal",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "i-cloud",
+      "section": "iCloud",
+      "label": "iCloud",
+      "url": "settings-navigation://com.apple.Settings.iCloud",
+      "target_kind": "page",
+      "dispatch_policy": "explicit",
+      "availability": "candidate",
+      "evidence": [
+        {
+          "kind": "runtime-literal",
+          "environment": {
+            "platform": "iOS simulator",
+            "os_version": "26.5",
+            "os_build": "23F77",
+            "xcode_version": "26.6"
+          }
+        }
+      ]
+    }
+  ]
+}

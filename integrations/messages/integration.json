@@ -1,0 +1,99 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "messages",
+  "name": "Messages",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.MobileSMS"
+  ],
+  "aliases": [
+    "messages",
+    "apple messages"
+  ],
+  "capabilities": [
+    "launch"
+  ],
+  "selectors": {},
+  "actions": {
+    "activate": {
+      "description": "Bring Messages to the foreground without selecting a conversation or sending.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "scenarios": {
+    "activate-direct": {
+      "description": "Foreground Messages without selecting a conversation.",
+      "capabilities": [
+        "launch"
+      ],
+      "actions": [
+        "activate"
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    }
+  },
+  "safety": {
+    "classification": "bounded-ui-navigation",
+    "mutates_user_data": false,
+    "requires_confirmation": [
+      "A recipient-specific compose request must name the exact recipient; Send remains manual"
+    ],
+    "prohibited": [
+      "sending a message",
+      "prefilling message body text or attachments",
+      "inventing recipients or opening private conversation identifiers",
+      "reading conversations, recipients, contacts, notifications, or account state"
+    ],
+    "uncertain_outcome": "A compose sheet may already be open. Inspect with the user and never replay."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer"
+    ],
+    "device": [
+      "paired physical iPad",
+      "unlocked iPad for dispatch"
+    ],
+    "permissions": [
+      "Trust This Computer"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "26.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "No conversations, contacts, recipients, or account state are read"
+    ],
+    "data_sent": [
+      "An exact caller-supplied recipient only when prepare is explicitly requested"
+    ],
+    "retention": "No recipient, screenshot, conversation data, device identifier, or raw response is committed.",
+    "notes": "Compose-only; Send is always manual."
+  }
+}

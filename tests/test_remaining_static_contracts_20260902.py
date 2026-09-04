@@ -40,7 +40,7 @@ class RemainingStaticContractTests(unittest.TestCase):
                 {
                     "id": "sample-app",
                     "kind": "addon",
-                    "manifest": "../addons/sample-app/integration.json",
+                    "manifest": "sample-app/integration.json",
                     "category": "application",
                     "aliases": ["sample-app"],
                     "bundle_ids": ["com.example.sample"],

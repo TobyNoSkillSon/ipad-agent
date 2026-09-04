@@ -123,6 +123,30 @@ class FinalSetupRuntimeSecurityRegressions20260903Tests(unittest.TestCase):
             runtime.execute({"op": "x"})
         self.assertEqual(1, context.exits)
 
+    def test_doctor_reads_npm_metadata_without_executing_appium(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            appium = root / "node" / "node_modules" / ".bin" / "appium"
+            appium.parent.mkdir(parents=True)
+            appium_package = appium.parents[1] / "appium" / "package.json"
+            appium_package.parent.mkdir()
+            appium_package.write_text(json.dumps({"name": "appium", "version": doctor.APPIUM_VERSION}))
+            appium_home = root / "appium-home"
+            driver_package = appium_home / "node_modules" / "appium-xcuitest-driver" / "package.json"
+            driver_package.parent.mkdir(parents=True)
+            driver_package.write_text(json.dumps({
+                "name": "appium-xcuitest-driver",
+                "version": doctor.XCUITEST_VERSION,
+            }))
+            checks = []
+            with patch.object(doctor, "APPIUM", appium), \
+                 patch.object(doctor, "APPIUM_HOME", appium_home), \
+                 patch.object(doctor, "require_runtime_path", side_effect=lambda value: Path(value)), \
+                 patch.object(doctor, "_run", side_effect=AssertionError("package code executed")):
+                result = doctor._automation_checks(checks, True)
+        self.assertEqual((True, True), result)
+        self.assertEqual(["pass", "pass"], [item.status for item in checks])
+
     def test_daemon_shutdown_returns_failure_instead_of_swallowing_teardown(self):
         with tempfile.TemporaryDirectory() as temporary, \
              patch("ipad_agent.runtime.require_runtime_path", side_effect=lambda value: Path(value)):

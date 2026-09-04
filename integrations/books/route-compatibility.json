@@ -1,0 +1,80 @@
+{
+  "schema": "ipad-agent.books-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-books-12.5-ipados-26.6.1-23g83.json",
+  "commands": [
+    {
+      "command": "open",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "application-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "drop",
+      "availability": "candidate",
+      "production": "legacy-admitted",
+      "evidence": [
+        {
+          "kind": "apple-documentation",
+          "declaration": "epub-pdf-file-authority"
+        }
+      ]
+    },
+    {
+      "command": "show",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "transport-contract",
+          "declaration": "transfer-then-launch-cannot-prove-exact-file-open"
+        },
+        {
+          "kind": "user-visual-pass",
+          "method": "manual-recipient-airdrop",
+          "result": "epub-received-imported-and-opened-in-target-app",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "item",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "apple-documentation",
+          "source": "Apple Books links",
+          "declaration": "books-product-and-ibooks-assetid-routes"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-product-page-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ]
+}

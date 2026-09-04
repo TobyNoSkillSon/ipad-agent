@@ -1,9 +1,0 @@
-{
-  "$schema": "../../schemas/url-policy-v1.json",
-  "schema": "ipad-agent.url-policy/v1",
-  "version": 1,
-  "integration_id": "brave",
-  "actions": {
-    "open-url": ["http", "https"]
-  }
-}

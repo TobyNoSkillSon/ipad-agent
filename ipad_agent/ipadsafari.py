@@ -6,9 +6,9 @@ from typing import Any
 
 def ipadsafari(command: object, *args: object, **options: object) -> Any:
     """Open Safari or deliver one explicit website or YouTube URL."""
-    from .commands import browser
+    from integrations.safari.commands import safari
 
-    return browser("Safari", command, *args, **options)
+    return safari(command, *args, **options)
 
 
 __all__ = ["ipadsafari"]

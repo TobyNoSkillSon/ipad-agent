@@ -1,8 +1,14 @@
 # Integration maintenance
 
-This is a maintainer-only branch. It does not extend the corrected V1 operator surface in [`README.md`](../../README.md#command-surface). Generated Now content, tab control or cleanup, directions, and arbitrary app automation remain outside V1 unless the public scope is reviewed and changed separately.
+Maintainers change the public command surface only through a reviewed application package, shared-core boundary, tests, and operator documentation. Maps is the first v2 URL-policy package; seven route families are proven for its exact profile, while navigation and report-a-problem remain explicit candidates. Legacy generated/local-content display compatibility, browser tab control, and arbitrary app automation remain outside current semantic integration work.
 
-Existing app `WORKFLOWS.md` files are hand-maintained evidence. Keep them intact. Generated documentation must use another path.
+## Application package contract
+
+Each of the 15 applications named by `integrations/index.json`, 14 core plus optional Brave, owns `__init__.py`, `commands.py`, `integration.json`, `SKILL.md`, `WORKFLOWS.md`, and offline tests under `integrations/<app>/`. Mail is unsupported and has no indexed package. This document governs contribution workflow outside the application packages. Generated documentation uses another path and never overwrites an app's `WORKFLOWS.md`.
+
+`commands.py` is trusted repository code and owns application-specific argument normalization and command selection. Shared validation, configuration, registry loading, unlock gates, dispatch, transports, and result projection stay under `ipad_agent/`. Manifests and URL policies are inert policy authority: they may constrain an adapter or the lab, but they do not enlarge the public Python surface.
+
+Each application `SKILL.md` names one application, documents only its current public wrapper commands, and uses bare one-call examples. It remains colocated source material rather than an independently installed Pi skill. `package.json` declares only `skills/use-ipad`; that gateway resolves the requested app and reads its skill on demand. App-local tests prove wrapper forwarding, the explicit command surface, and skill alignment without contacting a device. Cross-application and shared-core contracts stay in `tests/`. Read [`lessons.md`](lessons.md) when transport, evidence, privacy, cleanup, or stale-state failures affect maintenance.
 
 ## Maintenance order
 
@@ -14,7 +20,30 @@ Use this order for integration work:
 4. gather bounded evidence with explicit authorization;
 5. publish only a redacted projection and run the release gate.
 
-A declared capability is permission to test within its ceiling, not proof that it works. A direct route is preferred to selectors. A response lost after a transient action is uncertain and must not be replayed.
+A declared capability defines a testing ceiling; it is not proof that the route works. Candidate helpers either return sealed plans or reject without dispatch. A direct route is preferred to selectors. Settings and current Maps handling are CoreDevice-only; no current semantic app integration starts WDA or Appium. Optional WDA infrastructure remains dormant for maintenance and possible future selector integrations. A response lost after a transient action is uncertain and must not be replayed.
+
+## Production URL policies
+
+The production registry reads only integrations named by `integrations/index.json`. A trusted app-local adapter asks it to load `url-policy.json` beside an active manifest. A disabled addon remains index metadata until configuration enables it; neither its manifest nor its policy is opened.
+
+Use `schemas/url-policy-v1.json` only for the existing Safari and Brave scheme policies. New endpoint-aware integrations use the reusable `schemas/url-policy-v2.json`. A v2 policy declares:
+
+- one exact indexed target bundle;
+- one canonical command for each launch or `open-url` action, plus explicit aliases;
+- positional and keyword argument binding from raw Python values;
+- canonical lowercase schemes and authorities: HTTP(S) needs a strict multi-label DNS host and absolute path; non-HTTP schemes may use a safe single-label authority and an empty path (for example `shortcuts://run-shortcut?...`);
+- exact-link actions with the manifest value `{url}` and explicit canonical build commands;
+- ordered query fields, types, enum values, and repeated fields;
+- endpoint dependencies and exclusion rules;
+- a UTF-8 byte limit no greater than 2,048.
+
+The parser rejects unknown fields at every policy level. It also rejects duplicate normalized commands, aliases, parameter names, query keys, missing action coverage, bundle drift, credentials, ports, fragments, malformed escapes, controls, and noncanonical completed URLs. Do not put caller-encoded placeholders in a v2 manifest. The policy builder encodes raw values once.
+
+A thin semantic wrapper may add Python conveniences such as underscore keyword aliases or a latitude/longitude tuple. It must pass those raw values to `IntegrationRegistry.resolve_url_route`. Only `ValidatedURLRoute` may cross `open_validated_route_when_unlocked`. Keep the full URL out of public result evidence; report the integration, action, URL shape, and policy digest.
+
+Production dispatch selects one manifest action. It never executes a scenario. A scenario can contain several actions for lab work and must not become a production shortcut.
+
+Maps statically covers every documented Unified URL family. For `iPad17,1` / `J817AP` / iPadOS `26.6.1` (`23G83`), its compatibility authority marks frame, search/show, place, Look Around, directions preview, guides, and validated links as proven. Navigation start and report-a-problem remain explicit candidates and production rejects them before dispatch; ordinary `ipadmaps("open")` remains available. Static validation, plan construction, fake execution, or CoreDevice dispatch is not user-visible rendering proof.
 
 ## Static work
 
@@ -31,7 +60,7 @@ python3 -m ipad_agent.lab scaffold example-app \
 Review every placeholder and add any index entry as a separate reviewed change. Validate before writing adapter code:
 
 ```bash
-python3 -m ipad_agent.lab validate addons/example-app/integration.json --json
+python3 -m ipad_agent.lab validate integrations/example-app/integration.json --json
 ```
 
 Build a scenario plan without contacting the iPad:
@@ -40,7 +69,7 @@ Build a scenario plan without contacting the iPad:
 from ipad_agent.lab import plan_scenario
 
 plan = plan_scenario(
-    "addons/example-app/integration.json",
+    "integrations/example-app/integration.json",
     "search",
     parameters={"query": "bounded test value"},
 )
@@ -54,7 +83,7 @@ Inspect declared direct routes or selectors from existing captured JSON without 
 ```python
 from ipad_agent.lab import discover_direct_routes, discover_selectors
 
-discover_direct_routes("addons/example-app/integration.json")
+discover_direct_routes("integrations/example-app/integration.json")
 discover_selectors(source_json)
 ```
 
@@ -68,7 +97,7 @@ Exercise planning, operation contracts, stopping rules, batching, and evidence s
 from ipad_agent.lab import run_fake_scenario
 
 run = run_fake_scenario(
-    "addons/example-app/integration.json",
+    "integrations/example-app/integration.json",
     "search",
     parameters={"query": "bounded test value"},
 )
@@ -86,7 +115,7 @@ from datetime import datetime, timedelta, timezone
 from ipad_agent.lab import PhysicalAuthorization, plan_scenario, run_physical_scenario
 
 plan = plan_scenario(
-    "addons/example-app/integration.json",
+    "integrations/example-app/integration.json",
     "search",
     parameters={"query": "bounded test value"},
 )
@@ -109,7 +138,7 @@ run = run_physical_scenario(
 assert run.ok and not run.uncertain
 ```
 
-Authorization binds the integration data, plan, parameters, safety ceiling, expiry, and run count. Direct CoreDevice work runs first. Selector work gets one bounded WDA session with teardown evidence. Preserve user files, tabs, and app state.
+Authorization binds a cryptographically random identifier, the integration data, plan, parameters, safety ceiling, expiry of at most 15 minutes, and run count. One canonical checkout-owned receipt store consumes the grant before dispatch, regardless of any separate evidence output root, making it single-use across objects, serialized copies, threads, and processes. Physical execution also requires the literal `physical=True`; a general approval, candidate flag, or old authorization cannot substitute for the exact short-lived grant. For v2 URL actions, planning invokes the production policy builder on raw scenario parameters and stores the serialized `ValidatedURLRoute` in the plan; physical execution reconstructs it and revalidates it against the active indexed policy and exact bundle immediately before dispatch. Safari and Brave retain the legacy v1 plan shape. Direct CoreDevice work runs first. An explicitly authorized maintenance selector scenario may use one bounded optional WDA session with teardown evidence; current semantic app integrations do not. Preserve user files, tabs, and app state.
 
 Physical selector discovery follows the same rule: inspect and review its plan first, create one bound authorization, and call `discover_physical_selectors(..., physical=True, authorization=authorization)`. A selector candidate is not compatibility proof.
 
@@ -139,16 +168,18 @@ evidence = sorted(Path(".runtime/lab/example-app").glob("*/evidence.json"))
 write_compatibility_summary(evidence, output="compatibility-v1.json")
 ```
 
-Physical evidence is complete only when every planned step succeeds with a certain result, the environment fields are present, and WDA teardown is proven when WDA ran. The committed projection may contain allowlisted IDs, statuses, metrics, OS/locale fields, physical flags, and SHA-256 evidence references. Keep raw responses, UI source, URLs, paths, identifiers, tokens, and authorization text private.
+Physical evidence is complete only when every planned step succeeds with a certain result, the environment fields are present, and WDA teardown is proven when optional WDA maintenance ran. CoreDevice raw discovery output, raw responses, UI source, URLs, paths, identifiers, tokens, and authorization text stay private. Screenshots are confined to owner-private `.runtime/artifacts/`, written atomically, and removed when the evidence procedure no longer needs them.
+
+App `route-compatibility.json` sidecars are release-validated metadata attestations for exact non-unique profiles. They may contain only the allowlisted route status, method, outcome, and proof scope. Because screenshots and raw physical evidence remain private, a sidecar is not independently reproducible proof. It cannot support a broader app version, OS build, file format, route variant, content-fidelity claim, Files ownership claim, or Photos `show` claim.
 
 Generate a projection from the reviewed integration data, never over an existing `WORKFLOWS.md`:
 
 ```bash
-python3 -m ipad_agent.lab docs addons/example-app/integration.json \
+python3 -m ipad_agent.lab docs integrations/example-app/integration.json \
   --output docs/integrations/example-app.md --json
-python3 -m ipad_agent.lab docs addons/example-app/integration.json \
+python3 -m ipad_agent.lab docs integrations/example-app/integration.json \
   --output docs/integrations/example-app.md --apply --json
-python3 -m ipad_agent.lab docs addons/example-app/integration.json \
+python3 -m ipad_agent.lab docs integrations/example-app/integration.json \
   --output docs/integrations/example-app.md --check --json
 ```
 
@@ -159,8 +190,9 @@ The final completion report must remain false until static validation, safe plan
 ```bash
 python3 -m ipad_agent.lab validate integrations/safari/integration.json --json
 python3 scripts/release_check.py
-python3 -m unittest discover -s tests -p 'test_integration_lab_*.py' -v
-python3 -m compileall -q ipad_agent/lab tests/test_integration_lab_*.py
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+python3 -m unittest discover -s integrations -t . -p 'test_*.py' -v
+python3 -m compileall -q ipad_agent integrations tests scripts
 ```
 
-Physical scenarios never run in unattended tests or CI. Complete the fresh-clone release gate in the README's [Release checks](../../README.md#release-checks) section before release.
+Physical scenarios never run in unattended tests or CI. Complete the fresh-clone release gate in the README's [Development](../../README.md#development) section before release.

@@ -1,0 +1,1 @@
+"""Offline application contract tests."""

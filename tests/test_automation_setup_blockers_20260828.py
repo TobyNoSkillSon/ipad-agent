@@ -112,7 +112,7 @@ class AutomationSetupBlockers20260828Tests(unittest.TestCase):
             receipt_path.write_text(json.dumps(receipt))
             run_values = [(0, "/owned/appium IPAD_AGENT_OWNER_NONCE=" + "a" * 32, "")]
             kill_values = [None, ProcessLookupError()]
-            with patch.object(wda, "APPIUM_OWNER_RECEIPT", receipt_path), patch.object(wda, "_SERVER", None), patch("ipad_agent.wda._process_start", return_value="start tuple"), patch("ipad_agent.wda._run_process", side_effect=run_values), patch("ipad_agent.wda._terminate_wda_xcodebuild"), patch("ipad_agent.wda.os.kill", side_effect=kill_values):
+            with patch.object(wda, "APPIUM_OWNER_RECEIPT", receipt_path), patch.object(wda, "private_read_text", side_effect=lambda value: Path(value).read_text()), patch.object(wda, "_SERVER", None), patch("ipad_agent.wda._process_start", return_value="start tuple"), patch("ipad_agent.wda._run_process", side_effect=run_values), patch("ipad_agent.wda._terminate_wda_xcodebuild"), patch("ipad_agent.wda.os.kill", side_effect=kill_values):
                 result = wda.stop_owned_appium_server(timeout=0.1)
             self.assertTrue(result["stopped"])
             self.assertFalse(receipt_path.exists())
@@ -120,9 +120,13 @@ class AutomationSetupBlockers20260828Tests(unittest.TestCase):
     def test_mutating_transport_failure_has_dispatched_uncertain_metadata(self):
         opener = Mock()
         opener.open.side_effect = TimeoutError("lost")
-        with patch("ipad_agent.wda.urllib.request.build_opener", return_value=opener):
+        with patch("ipad_agent.wda.urllib.request.build_opener", return_value=opener) as build:
             with self.assertRaises(wda.XCTestControlError) as caught:
                 wda._http_json("POST", "http://127.0.0.1/session", {}, 1)
+        handlers = build.call_args.args
+        proxy = next(item for item in handlers if isinstance(item, wda.urllib.request.ProxyHandler))
+        self.assertEqual({}, proxy.proxies)
+        self.assertTrue(any(isinstance(item, wda._RejectRedirects) for item in handlers))
         self.assertEqual({"dispatched": True, "uncertain": True}, caught.exception.transport)
         self.assertEqual("wda_transport_error", caught.exception.code)
 

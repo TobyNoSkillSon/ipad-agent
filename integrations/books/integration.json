@@ -14,37 +14,12 @@
     "ibooks"
   ],
   "capabilities": [
-    "launch",
-    "open-reading-now",
-    "open-library",
-    "open-book-store",
-    "open-search"
+    "launch"
   ],
-  "selectors": {
-    "reading-now": {
-      "using": "-ios predicate string",
-      "value": "type == 'XCUIElementTypeButton' AND label == 'Reading Now' AND visible == 1 AND accessible == 1",
-      "cache": false
-    },
-    "library": {
-      "using": "-ios predicate string",
-      "value": "type == 'XCUIElementTypeButton' AND label == 'Library' AND visible == 1 AND accessible == 1",
-      "cache": false
-    },
-    "book-store": {
-      "using": "-ios predicate string",
-      "value": "type == 'XCUIElementTypeButton' AND label == 'Book Store' AND visible == 1 AND accessible == 1",
-      "cache": false
-    },
-    "search": {
-      "using": "-ios predicate string",
-      "value": "type == 'XCUIElementTypeButton' AND label == 'Search' AND visible == 1 AND accessible == 1",
-      "cache": false
-    }
-  },
+  "selectors": {},
   "actions": {
     "activate": {
-      "description": "Bring Books to the foreground without opening a book or changing library state.",
+      "description": "Bring Books to the foreground without selecting or opening an item.",
       "capability": "launch",
       "steps": [
         {
@@ -53,58 +28,10 @@
       ],
       "safety": "navigate",
       "retry": "safe_repeat"
-    },
-    "open-reading-now": {
-      "description": "Select the unique visible Reading Now tab and stop before opening any item.",
-      "capability": "open-reading-now",
-      "steps": [
-        {
-          "operation": "tap",
-          "selector": "reading-now"
-        }
-      ],
-      "safety": "transient",
-      "retry": "inspect_then_decide"
-    },
-    "open-library": {
-      "description": "Select the unique visible Library tab and stop before opening or inspecting any item.",
-      "capability": "open-library",
-      "steps": [
-        {
-          "operation": "tap",
-          "selector": "library"
-        }
-      ],
-      "safety": "transient",
-      "retry": "inspect_then_decide"
-    },
-    "open-book-store": {
-      "description": "Select the unique visible Book Store tab and stop before selecting, sampling, obtaining, or buying an item.",
-      "capability": "open-book-store",
-      "steps": [
-        {
-          "operation": "tap",
-          "selector": "book-store"
-        }
-      ],
-      "safety": "transient",
-      "retry": "inspect_then_decide"
-    },
-    "open-search": {
-      "description": "Select the unique visible Search tab and stop before entering a query or selecting a result.",
-      "capability": "open-search",
-      "steps": [
-        {
-          "operation": "tap",
-          "selector": "search"
-        }
-      ],
-      "safety": "transient",
-      "retry": "inspect_then_decide"
     }
   },
   "scenarios": {
-    "foreground-only": {
+    "activate-direct": {
       "description": "Foreground Books without opening an item.",
       "capabilities": [
         "launch"
@@ -114,58 +41,6 @@
       ],
       "safety": "navigate",
       "retry": "safe_repeat"
-    },
-    "navigate-reading-now": {
-      "description": "Foreground Books and select only the Reading Now tab.",
-      "capabilities": [
-        "launch",
-        "open-reading-now"
-      ],
-      "actions": [
-        "activate",
-        "open-reading-now"
-      ],
-      "safety": "transient",
-      "retry": "inspect_then_decide"
-    },
-    "navigate-library": {
-      "description": "Foreground Books and select only the Library tab.",
-      "capabilities": [
-        "launch",
-        "open-library"
-      ],
-      "actions": [
-        "activate",
-        "open-library"
-      ],
-      "safety": "transient",
-      "retry": "inspect_then_decide"
-    },
-    "navigate-book-store": {
-      "description": "Foreground Books and select only the Book Store tab.",
-      "capabilities": [
-        "launch",
-        "open-book-store"
-      ],
-      "actions": [
-        "activate",
-        "open-book-store"
-      ],
-      "safety": "transient",
-      "retry": "inspect_then_decide"
-    },
-    "navigate-search": {
-      "description": "Foreground Books and select only the Search tab.",
-      "capabilities": [
-        "launch",
-        "open-search"
-      ],
-      "actions": [
-        "activate",
-        "open-search"
-      ],
-      "safety": "transient",
-      "retry": "inspect_then_decide"
     }
   },
   "safety": {
@@ -173,13 +48,12 @@
     "mutates_user_data": false,
     "requires_confirmation": [],
     "prohibited": [
-      "opening or inspecting a book, audiobook, sample, PDF, collection item, or search result",
-      "entering a search query or enumerating library, store, recommendation, or result content",
-      "obtaining, buying, downloading, deleting, hiding, moving, or sharing an item",
-      "changing account, sync, notification, playback, or reading settings",
-      "payments and protected confirmations"
+      "obtaining, buying, sampling, downloading, deleting, hiding, moving, or sharing an item",
+      "automatic AirDrop recipient selection",
+      "claiming receipt, import, or exact opening from callback or launch acceptance",
+      "account, payment, or protected confirmation actions"
     ],
-    "uncertain_outcome": "A tab tap may already have changed the visible destination. Inspect only the exact destination tab selector before deciding; never select content or replay blindly."
+    "uncertain_outcome": "The product route or file transfer may already have been delivered. Inspect; do not replay."
   },
   "retry": {
     "default": "inspect_then_decide",
@@ -191,22 +65,19 @@
   "requirements": {
     "host": [
       "macOS with Xcode CoreDevice support",
-      "Python 3.11 or newer",
-      "Appium/XCUITest only for declared navigation controls"
+      "Python 3.11 or newer"
     ],
     "device": [
       "paired physical iPad",
-      "unlocked iPad for UI navigation",
-      "Developer Mode for UI navigation"
+      "unlocked iPad for dispatch"
     ],
     "permissions": [
-      "Trust This Computer",
-      "locally signed WebDriverAgent only for UI navigation"
+      "Trust This Computer"
     ]
   },
   "compatibility": {
     "platform": "iPadOS",
-    "minimum_os": "17.0",
+    "minimum_os": "26.0",
     "maximum_os": null,
     "locales": [
       "en"
@@ -216,10 +87,12 @@
   },
   "privacy": {
     "data_access": [
-      "visible Books destination-tab control state only"
+      "No library contents are read"
     ],
-    "data_sent": [],
-    "retention": "The integration stores no library, store, recommendation, search, reading, or account data.",
-    "notes": "The manifest exposes foregrounding and exact top-level destination tabs only. It does not expose content rows, search entry, item opening, downloads, or purchases."
+    "data_sent": [
+      "One explicit Apple Books item identifier or user-selected EPUB/PDF path when requested"
+    ],
+    "retention": "No item URL, identifier, filename, or content is committed as compatibility evidence.",
+    "notes": "Product-page navigation does not authorize obtain, sample, purchase, or download."
   }
 }

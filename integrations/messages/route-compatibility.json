@@ -1,0 +1,67 @@
+{
+  "schema": "ipad-agent.messages-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-messages-system-ipados-26.6.1-23g83.json",
+  "commands": [
+    {
+      "command": "open",
+      "availability": "candidate",
+      "production": "candidate-gated",
+      "evidence": [
+        {
+          "kind": "installed-app-inventory",
+          "declaration": "exact-bundle"
+        }
+      ]
+    },
+    {
+      "command": "compose",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "apple-documentation",
+          "source": "https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/SMSLinks/SMSLinks.html",
+          "declaration": "sms-empty-compose"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "blank-compose-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "prepare",
+      "availability": "candidate",
+      "production": "candidate-gated",
+      "evidence": [
+        {
+          "kind": "apple-documentation",
+          "source": "https://developer.apple.com/library/archive/featuredarticles/iPhoneURLScheme_Reference/SMSLinks/SMSLinks.html",
+          "declaration": "sms-caller-supplied-number-no-body"
+        }
+      ]
+    }
+  ],
+  "excluded": [
+    {
+      "route": "message-body",
+      "reason": "Apple sms grammar forbids message text and other fields"
+    },
+    {
+      "route": "thread-or-conversation",
+      "reason": "No public stable identifier route"
+    },
+    {
+      "route": "send",
+      "reason": "Protected human action; never automated"
+    }
+  ]
+}

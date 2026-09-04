@@ -4,7 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Mapping
 
-from ipad_agent.operations import OperationError, OperationResult, OperationSpec, SafetyClass
+from ipad_agent.core.operations import OperationError, OperationResult, OperationSpec, SafetyClass
 
 from .evidence import evidence_document, record_evidence, utc_now
 from .model import PhysicalAuthorization, PlannedStep, ScenarioPlan

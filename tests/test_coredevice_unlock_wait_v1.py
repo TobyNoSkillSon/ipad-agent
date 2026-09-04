@@ -3,10 +3,13 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, call, patch, sentinel
 
+from ipad_agent.transports import coredevice
 from ipad_agent.coredevice import (
     IPadControlError,
     LaunchResult,
     _device_locked,
+    _resolve_installed_app,
+    _single_connected_ipad,
     dispatch_when_unlocked,
     open_ipad_when_unlocked,
     wait_for_ipad_unlocked,
@@ -27,6 +30,47 @@ class _Clock:
 
 
 class CoreDeviceUnlockWaitTests(unittest.TestCase):
+    def setUp(self):
+        identifiers = (
+            "configured-device", "device-1", "exact-device", "private-device",
+            "resolved-device", "selected-device",
+        )
+        self._candidate_patch = patch(
+            "ipad_agent.coredevice._paired_physical_ipads",
+            return_value=[(value, {value}) for value in identifiers],
+        )
+        self._candidate_patch.start()
+        self.addCleanup(self._stop_candidate_patch)
+
+    def _stop_candidate_patch(self):
+        if self._candidate_patch is not None:
+            self._candidate_patch.stop()
+            self._candidate_patch = None
+
+    def test_device_discovery_admits_only_paired_physical_ipads(self):
+        self._stop_candidate_patch()
+        devices = [
+            {"identifier": "sim", "hardwareProperties": {"deviceType": "iPad", "reality": "simulator", "udid": "sim-udid"}, "connectionProperties": {"pairingState": "paired"}},
+            {"identifier": "phone", "hardwareProperties": {"deviceType": "iPhone", "reality": "physical", "udid": "phone-udid"}, "connectionProperties": {"pairingState": "paired"}},
+            {"identifier": "unpaired", "hardwareProperties": {"deviceType": "iPad", "reality": "physical", "udid": "unpaired-udid"}, "connectionProperties": {"pairingState": "unpaired"}},
+            {"identifier": "ipad", "hardwareProperties": {"deviceType": "iPad", "reality": "physical", "udid": "ipad-udid"}, "connectionProperties": {"pairingState": "paired"}},
+        ]
+
+        def run(command, **_kwargs):
+            output = Path(command[command.index("--json-output") + 1])
+            output.write_text(__import__("json").dumps({"result": {"devices": devices}}))
+            return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+        with patch.object(coredevice.subprocess, "run", side_effect=run):
+            self.assertEqual([("ipad", {"ipad", "ipad-udid"})], coredevice._paired_physical_ipads(1.0))
+            self.assertEqual(
+                "ipad",
+                coredevice._resolve_device(None, SimpleNamespace(device="ipad-udid"), 1.0),
+            )
+        with patch.object(coredevice, "_paired_physical_ipads", return_value=[]):
+            with self.assertRaisesRegex(IPadControlError, "paired physical"):
+                coredevice._resolve_device("sim", SimpleNamespace(device=None), 1.0)
+
     def test_public_wait_resolves_configured_device_without_dispatch(self):
         clock = _Clock()
         config = SimpleNamespace(device=" configured-device ")
@@ -119,6 +163,33 @@ class CoreDeviceUnlockWaitTests(unittest.TestCase):
                     text=True,
                     timeout=caller_timeout,
                 )
+
+    def test_discovery_failures_never_expose_raw_process_output(self):
+        self._stop_candidate_patch()
+        resolvers = (
+            ("app", lambda: _resolve_installed_app("Notes", "private-device", 3.0)),
+            ("device", lambda: _single_connected_ipad(3.0)),
+        )
+        for label, resolver in resolvers:
+            for stream in ("stdout", "stderr"):
+                secret = f"private-{label}-{stream}-diagnostic /private/path"
+                completed = SimpleNamespace(
+                    returncode=1,
+                    stdout=secret if stream == "stdout" else "",
+                    stderr=secret if stream == "stderr" else "",
+                )
+                with self.subTest(resolver=label, stream=stream), patch(
+                    "ipad_agent.coredevice.subprocess.run", return_value=completed
+                ):
+                    with self.assertRaises(IPadControlError) as raised:
+                        resolver()
+
+                rendered = str(raised.exception)
+                self.assertIn(f"CoreDevice {label} discovery failed", rendered)
+                self.assertNotIn(secret, rendered)
+                self.assertNotIn("/private/path", rendered)
+                self.assertFalse(raised.exception.response_lost)
+                self.assertFalse(raised.exception.dispatched)
 
     def test_preflight_dispatches_once_when_already_unlocked(self):
         dispatch = Mock(return_value="sent")

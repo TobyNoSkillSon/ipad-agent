@@ -1,0 +1,71 @@
+{
+  "schema": "ipad-agent.pages-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-pages-15.3-ipados-26.6.1-23g83.json",
+  "commands": [
+    {
+      "command": "open",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "installed-app-inventory",
+          "declaration": "exact-bundle-and-version"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "application-visible-with-onboarding-gate",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "drop",
+      "availability": "candidate",
+      "production": "legacy-admitted",
+      "evidence": [
+        {
+          "kind": "apple-documentation",
+          "declaration": "declared-file-formats"
+        }
+      ]
+    },
+    {
+      "command": "show",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "transport-contract",
+          "declaration": "transfer-then-launch-cannot-prove-exact-file-open"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "method": "manual-recipient-airdrop-then-read-only-screenshot",
+          "result": "docx-received-imported-and-opened-in-target-app",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    }
+  ],
+  "excluded_routes": [
+    {
+      "kind": "collaboration-link",
+      "reason": "No stable public host/path/token grammar or task-owned generated sample; opaque identifiers are never synthesized"
+    },
+    {
+      "kind": "guessed-scheme",
+      "reason": "No public Pages URL scheme is admitted"
+    }
+  ]
+}

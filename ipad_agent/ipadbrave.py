@@ -6,9 +6,9 @@ from typing import Any
 
 def ipadbrave(command: object, *args: object, **options: object) -> Any:
     """Open Brave or deliver one explicit website or YouTube URL."""
-    from .commands import browser
+    from integrations.brave.commands import brave
 
-    return browser("Brave", command, *args, **options)
+    return brave(command, *args, **options)
 
 
 __all__ = ["ipadbrave"]

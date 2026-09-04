@@ -1,0 +1,230 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "maps",
+  "name": "Maps",
+  "kind": "core",
+  "bundle_ids": [
+    "com.apple.Maps"
+  ],
+  "aliases": [
+    "maps",
+    "apple maps"
+  ],
+  "capabilities": [
+    "launch",
+    "direct-frame",
+    "direct-search",
+    "direct-place",
+    "direct-look-around",
+    "direct-directions",
+    "explicit-navigation",
+    "direct-guides",
+    "report-problem-sheet",
+    "exact-maps-link"
+  ],
+  "selectors": {},
+  "actions": {
+    "activate": {
+      "description": "Bring Maps to the foreground without claiming a rendered page.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-frame": {
+      "description": "Declare one policy-validated Unified Maps frame URL.",
+      "capability": "direct-frame",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://maps.apple.com/frame"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-search": {
+      "description": "Declare one policy-validated Unified Maps search URL.",
+      "capability": "direct-search",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://maps.apple.com/search?query={query}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-place": {
+      "description": "Declare one policy-validated Unified Maps place URL.",
+      "capability": "direct-place",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://maps.apple.com/place"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-look-around": {
+      "description": "Declare one policy-validated Unified Maps Look Around URL.",
+      "capability": "direct-look-around",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://maps.apple.com/look-around"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-directions": {
+      "description": "Declare one policy-validated Unified Maps directions-preview URL.",
+      "capability": "direct-directions",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://maps.apple.com/directions?destination={destination}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "start-navigation": {
+      "description": "Declare one explicit policy-validated Unified Maps navigation URL.",
+      "capability": "explicit-navigation",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://maps.apple.com/directions?destination={destination}&start={start}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-guides": {
+      "description": "Declare the policy-validated Unified Maps guides URL.",
+      "capability": "direct-guides",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://maps.apple.com/guides"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-report-problem": {
+      "description": "Declare one policy-validated Unified Maps report-sheet URL without submission.",
+      "capability": "report-problem-sheet",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://maps.apple.com/report-a-problem"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-link": {
+      "description": "Declare one exact Maps link after policy validation and canonicalization.",
+      "capability": "exact-maps-link",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "{url}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "navigate-candidate": {
+      "description": "Review one exact navigation-start candidate before sealed physical execution.",
+      "capabilities": [
+        "explicit-navigation"
+      ],
+      "actions": [
+        "start-navigation"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "report-problem-candidate": {
+      "description": "Review one exact report-sheet candidate without submitting it.",
+      "capabilities": [
+        "report-problem-sheet"
+      ],
+      "actions": [
+        "open-report-problem"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "navigate-and-transient-map-query",
+    "mutates_user_data": true,
+    "requires_confirmation": [
+      "the exact candidate route, parameters, and transient effect were reviewed"
+    ],
+    "prohibited": [
+      "dispatching candidate or incompatible route commands through production maps calls",
+      "starting guidance except through an explicitly authorized navigate candidate test",
+      "submitting the report-a-problem form",
+      "sharing locations or routes, changing permissions, editing guides or saved places, payments, authentication, or protected confirmations",
+      "retries after dispatch or treating CoreDevice acceptance as route compatibility evidence"
+    ],
+    "uncertain_outcome": "A URL may already have reached Maps and affected Recents when the response is lost. Treat the result as uncertain, inspect visible state with the user, and do not replay it."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "macOS with Xcode CoreDevice support",
+      "Python 3.11 or newer"
+    ],
+    "device": [
+      "paired physical iPad",
+      "unlocked iPad"
+    ],
+    "permissions": [
+      "Trust This Computer",
+      "Maps location permission only when a request uses current location"
+    ]
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "26.6.1",
+    "maximum_os": "26.6.1",
+    "locales": [
+      "not-applicable"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "explicit map, place, route, guide, report-sheet, or link values supplied by the caller",
+      "current location when Maps already has permission and a request implies it"
+    ],
+    "data_sent": [
+      "strictly validated Apple Maps URL values handled by Apple Maps"
+    ],
+    "retention": "The integration stores no route values. Maps may retain searches and destinations in Recents under the user’s Maps settings.",
+    "notes": "The executable URL policy targets com.apple.Maps exactly and caps canonical URLs at 2,048 UTF-8 bytes. For product iPad17,1, hardware J817AP, OS build 23G83, frame, search/show, place, Look Around, directions preview, guides, and validated links are proven; navigation start and report-a-problem remain explicit candidates. Route compatibility comes from the separate exact-profile authority, not source documentation or dispatch acceptance. Open remains ordinary app activation."
+  }
+}

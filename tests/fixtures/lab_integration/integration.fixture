@@ -1,0 +1,178 @@
+{
+  "$schema": "../../schemas/integration-v1.json",
+  "schema": "ipad-agent.integration/v1",
+  "version": 1,
+  "id": "lab-fixture",
+  "name": "Lab Fixture",
+  "kind": "core",
+  "bundle_ids": [
+    "org.example.LabFixture"
+  ],
+  "aliases": [
+    "lab fixture"
+  ],
+  "capabilities": [
+    "launch",
+    "direct-search",
+    "direct-directions",
+    "ui-search"
+  ],
+  "selectors": {
+    "search": {
+      "using": "accessibility id",
+      "value": "fixture-search-field",
+      "cache": false
+    },
+    "submit": {
+      "using": "accessibility id",
+      "value": "fixture-search-submit",
+      "cache": false
+    }
+  },
+  "actions": {
+    "activate": {
+      "description": "Activate the inert fixture target for generic planner coverage.",
+      "capability": "launch",
+      "steps": [
+        {
+          "operation": "activate"
+        }
+      ],
+      "safety": "navigate",
+      "retry": "safe_repeat"
+    },
+    "open-search": {
+      "description": "Build one policy-bound fixture search route.",
+      "capability": "direct-search",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://links.example.org/search?query={query}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "open-directions": {
+      "description": "Build one policy-bound fixture directions route.",
+      "capability": "direct-directions",
+      "steps": [
+        {
+          "operation": "open-url",
+          "value": "https://links.example.org/directions?destination={destination}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "enter-query": {
+      "description": "Exercise one bounded clear-and-type operation in the fake lab.",
+      "capability": "ui-search",
+      "steps": [
+        {
+          "operation": "clear-type",
+          "selector": "search",
+          "value": "{query}"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "submit-query": {
+      "description": "Exercise one bounded selector tap in the fake lab.",
+      "capability": "ui-search",
+      "steps": [
+        {
+          "operation": "tap",
+          "selector": "submit"
+        }
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "scenarios": {
+    "search-direct": {
+      "description": "Plan one generic policy-bound search route.",
+      "capabilities": [
+        "direct-search"
+      ],
+      "actions": [
+        "open-search"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "directions-direct": {
+      "description": "Plan one generic policy-bound directions route.",
+      "capabilities": [
+        "direct-directions"
+      ],
+      "actions": [
+        "open-directions"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    },
+    "ui-fallback": {
+      "description": "Exercise activate, clear-type, and tap planning without using a production integration.",
+      "capabilities": [
+        "launch",
+        "ui-search"
+      ],
+      "actions": [
+        "activate",
+        "enter-query",
+        "submit-query"
+      ],
+      "safety": "transient",
+      "retry": "inspect_then_decide"
+    }
+  },
+  "safety": {
+    "classification": "bounded-ui-navigation",
+    "mutates_user_data": true,
+    "requires_confirmation": [],
+    "prohibited": [
+      "using this test-only fixture as production integration authority",
+      "contacting a physical device from automated tests"
+    ],
+    "uncertain_outcome": "A transient fixture operation is uncertain after dispatch and must not be replayed automatically."
+  },
+  "retry": {
+    "default": "inspect_then_decide",
+    "max_attempts": 1,
+    "idempotent_actions": [
+      "activate"
+    ]
+  },
+  "requirements": {
+    "host": [
+      "offline Python test runtime"
+    ],
+    "device": [
+      "none for fake tests"
+    ],
+    "permissions": []
+  },
+  "compatibility": {
+    "platform": "iPadOS",
+    "minimum_os": "17.0",
+    "maximum_os": null,
+    "locales": [
+      "en"
+    ],
+    "verification": "unverified",
+    "app_versions": []
+  },
+  "privacy": {
+    "data_access": [
+      "test parameters only"
+    ],
+    "data_sent": [
+      "none during offline fake execution"
+    ],
+    "retention": "Temporary test evidence only.",
+    "notes": "This fixture is self-contained under tests and is not indexed by production."
+  }
+}

@@ -1,5 +1,6 @@
 import hashlib
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -81,6 +82,121 @@ class WDAXctestrunFilenameCompatibilityRegression20260830Tests(unittest.TestCase
             self.assertEqual([products / "test-device-udid_26.5.xctestrun"], aliases)
             self.assertFalse(aliases[0].is_symlink())
             self.assertEqual(content, aliases[0].read_bytes())
+            self.assertEqual(0o700, (root / "Build").stat().st_mode & 0o777)
+            self.assertEqual(0o700, products.stat().st_mode & 0o777)
+
+    def test_alias_repairs_owner_owned_xcode_directory_modes_only(self):
+        selection = self._selection()
+        content = b"canonical receipt-owned bytes"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / selection.fingerprint
+            build = root / "Build"
+            products = build / "Products"
+            products.mkdir(parents=True)
+            root.chmod(0o700)
+            build.chmod(0o755)
+            products.chmod(0o755)
+            source = products / "WebDriverAgentRunner_iphoneos26.5-arm64.xctestrun"
+            source.write_bytes(content)
+            source_mode = source.stat().st_mode & 0o777
+            artifact = self._artifact(source, hashlib.sha256(content).hexdigest())
+            receipt_before = json.dumps(artifact, sort_keys=True)
+            patches = self._patch_filesystem(root)
+            with patches[0], patches[1], patches[2]:
+                wda._materialize_xctestrun_alias(selection, artifact, "26.5")
+
+            self.assertEqual(0o700, build.stat().st_mode & 0o777)
+            self.assertEqual(0o700, products.stat().st_mode & 0o777)
+            self.assertEqual(0o700, root.stat().st_mode & 0o777)
+            self.assertEqual(source_mode, source.stat().st_mode & 0o777)
+            self.assertEqual(content, source.read_bytes())
+            self.assertEqual(receipt_before, json.dumps(artifact, sort_keys=True))
+
+    def test_alias_rejects_symlinked_products_without_chmodding_target(self):
+        selection = self._selection()
+        content = b"canonical"
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            root = base / selection.fingerprint
+            build = root / "Build"
+            outside_products = base / "outside-products"
+            build.mkdir(parents=True)
+            outside_products.mkdir()
+            build.chmod(0o755)
+            outside_products.chmod(0o755)
+            (build / "Products").symlink_to(outside_products, target_is_directory=True)
+            source = build / "Products" / "WebDriverAgentRunner_iphoneos26.5-arm64.xctestrun"
+            source.write_bytes(content)
+            artifact = self._artifact(source, hashlib.sha256(content).hexdigest())
+            patches = self._patch_filesystem(root)
+            with patches[0], patches[1], patches[2]:
+                with self.assertRaisesRegex(
+                    wda.XCTestControlError, "Build/Products ownership is unsafe"
+                ) as raised:
+                    wda._materialize_xctestrun_alias(selection, artifact, "26.5")
+
+            self.assertEqual("wda_setup_required", raised.exception.code)
+            self.assertEqual(0o755, build.stat().st_mode & 0o777)
+            self.assertEqual(0o755, outside_products.stat().st_mode & 0o777)
+            self.assertFalse(
+                (outside_products / "test-device-udid_26.5.xctestrun").exists()
+            )
+
+    def test_alias_rejects_non_owned_products_before_mode_repair(self):
+        selection = self._selection()
+        content = b"canonical"
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / selection.fingerprint
+            build = root / "Build"
+            products = build / "Products"
+            products.mkdir(parents=True)
+            build.chmod(0o755)
+            products.chmod(0o755)
+            source = products / "WebDriverAgentRunner_iphoneos26.5-arm64.xctestrun"
+            source.write_bytes(content)
+            artifact = self._artifact(source, hashlib.sha256(content).hexdigest())
+            patches = self._patch_filesystem(root)
+            with patches[0], patches[1], patches[2], \
+                 patch("ipad_agent.wda.os.geteuid", return_value=os.geteuid() + 1):
+                with self.assertRaisesRegex(
+                    wda.XCTestControlError, "not owned by the current user"
+                ) as raised:
+                    wda._materialize_xctestrun_alias(selection, artifact, "26.5")
+
+            self.assertEqual("wda_setup_required", raised.exception.code)
+            self.assertEqual(0o755, build.stat().st_mode & 0o777)
+            self.assertEqual(0o755, products.stat().st_mode & 0o777)
+            self.assertFalse((products / "test-device-udid_26.5.xctestrun").exists())
+
+    def test_alias_rejects_products_outside_fingerprint_without_chmod(self):
+        selection = self._selection()
+        content = b"canonical"
+        with tempfile.TemporaryDirectory() as temporary:
+            base = Path(temporary)
+            root = base / selection.fingerprint
+            (root / "Build" / "Products").mkdir(parents=True)
+            outside_products = base / "outside" / "Products"
+            outside_products.mkdir(parents=True)
+            outside_products.chmod(0o755)
+            source = outside_products / "WebDriverAgentRunner_iphoneos26.5-arm64.xctestrun"
+            source.write_bytes(content)
+            artifact = self._artifact(source, hashlib.sha256(content).hexdigest())
+            patches = self._patch_filesystem(root)
+            with patches[0], patches[1], patches[2], \
+                 patch(
+                     "ipad_agent.wda._xctestrun_products",
+                     return_value=(outside_products, source, content),
+                 ):
+                with self.assertRaisesRegex(
+                    wda.XCTestControlError, "escapes the fingerprinted artifact"
+                ) as raised:
+                    wda._materialize_xctestrun_alias(selection, artifact, "26.5")
+
+            self.assertEqual("wda_setup_required", raised.exception.code)
+            self.assertEqual(0o755, outside_products.stat().st_mode & 0o777)
+            self.assertFalse(
+                (outside_products / "test-device-udid_26.5.xctestrun").exists()
+            )
 
     def test_owned_products_config_is_kept_and_runtime_version_is_sdk_capped(self):
         selection = self._selection()
@@ -144,9 +260,10 @@ class WDAXctestrunFilenameCompatibilityRegression20260830Tests(unittest.TestCase
             with patch.object(wda, "DERIVED_DATA_ROOT", derived), \
                  patch("ipad_agent.wda.validate_artifact", return_value=artifact) as validate, \
                  patch("ipad_agent.wda._discover_iphoneos_sdk_version", return_value="26.5"), \
+                 patch("ipad_agent.wda._discover_ipad", return_value={"udid": selection.device_udid}), \
                  patch("ipad_agent.wda.ensure_appium_server"), \
                  patch("ipad_agent.wda._http_json", side_effect=http_json), \
-                 patch("ipad_agent.wda._owned_appium_identity", return_value=(1234, "nonce", "start", False)), \
+                 patch("ipad_agent.wda._prove_appium_endpoint", return_value=(1234, "nonce", "start", False)), \
                  patch("ipad_agent.wda._capture_owned_wda_descendants", return_value=[]), \
                  patch("ipad_agent.wda._terminate_wda_xcodebuild", return_value={
                      "complete": True, "captured_pids": [], "remaining_pids": [],

@@ -81,7 +81,8 @@ class RuntimeProvenanceBlockers20260829Tests(unittest.TestCase):
             root.mkdir()
             receipt = root / wda.ARTIFACT_FILE
             with patch.object(wda, "DERIVED_DATA_ROOT", Path(temporary)), \
-                 patch("ipad_agent.wda.require_runtime_path", side_effect=lambda value: Path(value)):
+                 patch("ipad_agent.wda.require_runtime_path", side_effect=lambda value: Path(value)), \
+                 patch("ipad_agent.wda.private_read_text", side_effect=lambda value: Path(value).read_text()):
                 for missing in ("source_project", "signature", "product", "runtime"):
                     with self.subTest(missing=missing):
                         payload = dict(complete)

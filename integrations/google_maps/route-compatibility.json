@@ -1,0 +1,156 @@
+{
+  "schema": "ipad-agent.google-maps-route-compatibility/v1",
+  "version": 1,
+  "profile": "device-profiles/ipad17-1-j817ap-google-maps-26.33.1-ipados-26.6.1-23g83.json",
+  "routes": [
+    {
+      "command": "open",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "installed-app-inventory",
+          "declaration": "exact-bundle-and-version"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "application-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "search",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "google-documentation",
+          "source": "https://developers.google.com/maps/documentation/urls/get-started",
+          "declaration": "google-maps-search-url-grammar"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-search-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "directions",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "google-documentation",
+          "source": "https://developers.google.com/maps/documentation/urls/get-started",
+          "declaration": "google-maps-directions-url-grammar"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-route-preview-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "map",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "google-documentation",
+          "source": "https://developers.google.com/maps/documentation/urls/get-started",
+          "declaration": "google-maps-map-url-grammar"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-map-view-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "street-view",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "google-documentation",
+          "source": "https://developers.google.com/maps/documentation/urls/get-started",
+          "declaration": "google-maps-street-view-url-grammar"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-street-view-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "link",
+      "availability": "proven",
+      "production": "admitted",
+      "evidence": [
+        {
+          "kind": "google-documentation",
+          "source": "https://developers.google.com/maps/documentation/urls/get-started",
+          "declaration": "google-maps-link-url-grammar"
+        },
+        {
+          "kind": "observer-screenshot-pass",
+          "actor": "agent",
+          "method": "authorized-coredevice-observer-screenshot",
+          "result": "expected-linked-route-visible",
+          "proof_scope": {
+            "product_type": "iPad17,1",
+            "hardware_model": "J817AP",
+            "os_build": "23G83"
+          }
+        }
+      ]
+    },
+    {
+      "command": "navigate",
+      "availability": "candidate",
+      "production": "candidate-gated",
+      "evidence": [
+        {
+          "kind": "google-documentation",
+          "source": "https://developers.google.com/maps/documentation/urls/get-started",
+          "declaration": "google-maps-navigate-url-grammar"
+        }
+      ]
+    }
+  ]
+}

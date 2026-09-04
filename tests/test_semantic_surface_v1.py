@@ -23,7 +23,8 @@ from ipad_agent import (
     ipadsafari,
     ipadsettings,
 )
-from ipad_agent import commands, coredevice
+from ipad_agent import coredevice
+from ipad_agent.core import commands
 
 
 SUCCESS = {"ok": True, "route": "test"}
@@ -42,6 +43,12 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
             "ipadbrave",
             "ipadsafari",
             "ipadmaps",
+            "ipadgooglemaps",
+            "ipadpages",
+            "ipadnumbers",
+            "ipadkeynote",
+            "ipadphotos",
+            "ipadmessages",
             "Config",
             "IPadResult",
         }
@@ -61,6 +68,12 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
             ipadbrave,
             ipadsafari,
             ipadmaps,
+            ipad_agent.ipadgooglemaps,
+            ipad_agent.ipadpages,
+            ipad_agent.ipadnumbers,
+            ipad_agent.ipadkeynote,
+            ipad_agent.ipadphotos,
+            ipad_agent.ipadmessages,
         )
         self.assertTrue(all(inspect.isfunction(function) for function in functions))
         for function in functions:
@@ -124,7 +137,7 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
 
     def test_semantic_runtime_bridge_imports_api_not_root_legacy_names(self) -> None:
         source = inspect.getsource(commands._runtime_ip)
-        self.assertIn("from .api import ipad", source)
+        self.assertIn("from ipad_agent.core.results import ipad", source)
         self.assertNotIn("from . import", source)
 
     def test_direct_launch_adapter_targets_unlock_gated_coredevice_helper(self) -> None:
@@ -143,6 +156,8 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
 
         self.assertTrue(result["ok"])
         self.assertEqual(result["route"], "coredevice")
+        self.assertNotIn("device_id", result)
+        self.assertNotIn("url", result)
         helper.assert_called_once_with("Example")
         legacy.assert_not_called()
 
@@ -152,6 +167,16 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
             result = commands._direct_open("Safari", "https://example.com")
         self.assertTrue(result["ok"])
         helper.assert_called_once_with("Safari", url="https://example.com")
+
+        with mock.patch.object(
+            coredevice,
+            "open_ipad_when_unlocked",
+            side_effect=RuntimeError("private URL and device identifier"),
+        ):
+            rejected = commands._direct_open("Safari", "https://private.example/path")
+        self.assertFalse(rejected["ok"])
+        self.assertEqual("CoreDevice rejected the launch before acceptance", rejected["error"])
+        self.assertNotIn("private", str(rejected))
 
         for status, expected in (("locked", "locked"), ("unknown", "lock state")):
             with self.subTest(status=status), mock.patch.object(
@@ -278,75 +303,121 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
             direct.assert_not_called()
 
     def test_missing_airdrop_backend_fails_without_launch(self) -> None:
-        missing = ModuleNotFoundError("no airdrop backend", name="ipad_agent.airdrop")
+        missing = ModuleNotFoundError(
+            "no airdrop backend", name="ipad_agent.transports.airdrop"
+        )
         with mock.patch.object(commands.importlib, "import_module", side_effect=missing) as importer, mock.patch.object(
             commands, "_direct_open"
         ) as direct:
             result = ipadpreview("drop", "/tmp/anything.pdf")
         self.assertFalse(result["ok"])
         self.assertIn("unsupported", result["error"])
-        importer.assert_called_once_with("ipad_agent.airdrop")
+        importer.assert_called_once_with("ipad_agent.transports.airdrop")
         direct.assert_not_called()
 
-    def test_settings_allowlist_uses_hidden_wda_and_guarantees_teardown(self) -> None:
-        calls: list[tuple[object, ...]] = []
+    def test_settings_proven_shortcuts_and_show_dispatch_one_exact_catalogue_url(self) -> None:
+        shortcuts = {
+            "general": "settings-navigation://com.apple.Settings.General",
+            "about": "settings-navigation://com.apple.Settings.General/About",
+            "wifi": "settings-navigation://com.apple.Settings.WiFi",
+            "bluetooth": "settings-navigation://com.apple.Settings.Bluetooth",
+            "battery": "settings-navigation://com.apple.Settings.Battery",
+            "accessibility": "settings-navigation://com.apple.Settings.Accessibility",
+        }
+        proven = {
+            "accessibility": "settings-navigation://com.apple.Settings.Accessibility",
+            "accessibility-motion-title": "settings-navigation://com.apple.Settings.Accessibility/MOTION_TITLE",
+            "apps-com-apple-mobilesafari": "settings-navigation://com.apple.Settings.Apps/com.apple.mobilesafari",
+            "apps-com-apple-mobilesafari-row-private-browsing-uses-normal-browsing-search-engine-selection": (
+                "settings-navigation://com.apple.Settings.Apps/com.apple.mobilesafari"
+                "#PRIVATE_BROWSING_USES_NORMAL_BROWSING_SEARCH_ENGINE_SELECTION"
+            ),
+            "battery": "settings-navigation://com.apple.Settings.Battery",
+            "bluetooth": "settings-navigation://com.apple.Settings.Bluetooth",
+            "general": "settings-navigation://com.apple.Settings.General",
+            "general-about": "settings-navigation://com.apple.Settings.General/About",
+            "general-international": "settings-navigation://com.apple.Settings.General/INTERNATIONAL",
+            "general-keyboard": "settings-navigation://com.apple.Settings.General/Keyboard",
+            "wi-fi": "settings-navigation://com.apple.Settings.WiFi",
+        }
+        from integrations.settings import commands as settings_commands
 
-        def legacy(*args: object):
-            calls.append(args)
-            if args[0] == "b":
-                return {"ok": False, "error": "control not ready", "uncertain": False}
-            return SUCCESS
+        self.assertEqual(
+            {
+                "general": "general",
+                "about": "general-about",
+                "wifi": "wi-fi",
+                "bluetooth": "bluetooth",
+                "battery": "battery",
+                "accessibility": "accessibility",
+            },
+            settings_commands._SHORTCUTS,
+        )
+        self.assertEqual(set(proven), settings_commands._PROVEN_ROUTE_IDS)
 
-        with mock.patch.object(commands, "_direct_open", return_value=SUCCESS) as direct, mock.patch.object(
-            commands, "_runtime_ip", side_effect=legacy
-        ), mock.patch.object(
-            coredevice, "wait_for_ipad_unlocked", return_value="unlocked"
-        ) as preflight:
-            result = ipadsettings("about")
+        cases = [
+            *((command, (), url) for command, url in shortcuts.items()),
+            *(("show", (route_id,), url) for route_id, url in proven.items()),
+        ]
+        sentinel = object()
+        for operation, args, url in cases:
+            with self.subTest(operation=operation, args=args), mock.patch.object(
+                commands, "_direct_open", return_value=sentinel
+            ) as direct, mock.patch.object(commands, "_runtime_ip") as legacy, mock.patch.object(
+                coredevice, "wait_for_ipad_unlocked"
+            ) as preflight, mock.patch.object(commands, "_bounded_wda_lifecycle") as batch:
+                self.assertIs(ipadsettings(operation, *args), sentinel)
+            direct.assert_called_once_with("Settings", url)
+            legacy.assert_not_called()
+            preflight.assert_not_called()
+            batch.assert_not_called()
 
-        self.assertFalse(result["ok"])
-        direct.assert_called_once_with("Settings")
-        preflight.assert_called_once_with()
-        self.assertEqual(calls[-1], ("x",))
-        self.assertEqual(sum(call == ("x",) for call in calls), 1)
-        hidden_batch = calls[0][1]
-        self.assertEqual(hidden_batch[0], ["t", "settings.general"])
-        self.assertEqual(hidden_batch[-1], ["t", "accessibility id=About"])
-
+    def test_settings_unproven_classes_and_old_shortcuts_fail_before_dispatch(self) -> None:
+        rejected = (
+            ("show", ("display",), "candidate"),
+            ("show", ("action-button",), "incompatible"),
+            ("show", ("apps-placeholder",), "template"),
+            ("show", ("general-reset",), "blocked candidate"),
+            ("show", ("missing-id",), "unknown"),
+            ("show", ("settings-navigation://com.apple.Settings.General",), "raw URL"),
+            ("toggle wifi", (), "unsupported command"),
+            ("general", ("unexpected",), "parameterized shortcut"),
+            ("open", ("unexpected",), "parameterized open"),
+            *((command, (), "unproven old shortcut") for command in (
+                "display",
+                "notifications",
+                "sounds",
+                "focus",
+                "search",
+                "wallpaper",
+                "camera",
+                "apps",
+            )),
+        )
         with mock.patch.object(commands, "_direct_open") as direct, mock.patch.object(
             commands, "_runtime_ip"
-        ) as legacy:
-            for unsafe in ("toggle wifi", "join", "update", "reset", "privacy", "account"):
-                self.assertFalse(ipadsettings(unsafe)["ok"])
-            direct.assert_not_called()
-            legacy.assert_not_called()
+        ) as legacy, mock.patch.object(coredevice, "wait_for_ipad_unlocked") as preflight, mock.patch.object(
+            commands, "_bounded_wda_lifecycle"
+        ) as batch:
+            for operation, args, reason in rejected:
+                with self.subTest(operation=operation, args=args, reason=reason):
+                    self.assertFalse(ipadsettings(operation, *args)["ok"])
+        direct.assert_not_called()
+        legacy.assert_not_called()
+        preflight.assert_not_called()
+        batch.assert_not_called()
 
-    def test_settings_rechecks_unlock_immediately_before_wda(self) -> None:
-        with mock.patch.object(
-            commands, "_direct_open", return_value=SUCCESS
-        ) as direct, mock.patch.object(
-            coredevice, "wait_for_ipad_unlocked", return_value="locked"
-        ) as preflight, mock.patch.object(commands, "_runtime_ip", return_value=SUCCESS) as legacy:
-            result = ipadsettings("general")
-
-        self.assertFalse(result["ok"])
-        self.assertTrue(result["locked"])
+    def test_settings_app_open_and_clock_open_are_coredevice_only(self) -> None:
+        with mock.patch.object(commands, "_direct_open", return_value=SUCCESS) as direct, mock.patch.object(
+            commands, "_runtime_ip"
+        ) as legacy, mock.patch.object(coredevice, "wait_for_ipad_unlocked") as preflight, mock.patch.object(
+            commands, "_bounded_wda_lifecycle"
+        ) as batch:
+            self.assertTrue(ipadsettings("open")["ok"])
         direct.assert_called_once_with("Settings")
-        preflight.assert_called_once_with()
-        self.assertEqual(legacy.call_args_list, [mock.call("x")])
-
-    def test_settings_safe_destinations_and_clock_open_only(self) -> None:
-        for destination in ("general", "about", "wifi", "bluetooth", "battery", "accessibility"):
-            calls: list[tuple[object, ...]] = []
-            with self.subTest(destination=destination), mock.patch.object(
-                commands, "_direct_open", return_value=SUCCESS
-            ), mock.patch.object(
-                commands, "_runtime_ip", side_effect=lambda *args: calls.append(args) or SUCCESS
-            ), mock.patch.object(
-                coredevice, "wait_for_ipad_unlocked", return_value="unlocked"
-            ):
-                self.assertTrue(ipadsettings(destination)["ok"])
-            self.assertEqual(calls[-1], ("x",))
+        legacy.assert_not_called()
+        preflight.assert_not_called()
+        batch.assert_not_called()
 
         with mock.patch.object(commands, "_direct_open", return_value=SUCCESS) as direct, mock.patch.object(
             commands, "_runtime_ip"
@@ -364,7 +435,7 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
         ), mock.patch.object(commands, "_runtime_ip") as legacy:
             self.assertTrue(ipadappstore("open")["ok"])
             self.assertTrue(ipadappstore("show", 123456789)["ok"])
-            url = "https://apps.apple.com/gb/app/example/id987654321?mt=8"
+            url = "https://apps.apple.com/gb/app/example/id987654321"
             self.assertTrue(ipadappstore("show", url)["ok"])
             for command in ("get", "install", "today", "games", "apps", "arcade", "search"):
                 self.assertFalse(ipadappstore(command)["ok"])
@@ -385,6 +456,8 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
         calls: list[tuple[object, ...]] = []
         with mock.patch.object(
             commands, "_direct_open", side_effect=lambda *args: calls.append(args) or SUCCESS
+        ), mock.patch.object(
+            commands, "_browser_policy_url", side_effect=lambda _target, url: url
         ), mock.patch.object(commands, "_runtime_ip") as legacy:
             self.assertTrue(ipadc("open", "Safari")["ok"])
             self.assertTrue(ipadc("open", "Brave")["ok"])
@@ -402,20 +475,57 @@ class SemanticSurfaceV1Tests(unittest.TestCase):
         self.assertEqual(calls[2], ("Safari", "https://example.com/a"))
         legacy.assert_not_called()
 
-    def test_maps_surface_is_show_only(self) -> None:
-        calls: list[tuple[object, ...]] = []
-        with mock.patch.object(
-            commands, "_direct_open", side_effect=lambda *args: calls.append(args) or SUCCESS
-        ), mock.patch.object(commands, "_runtime_ip") as legacy:
-            self.assertTrue(ipadc("open", "Maps")["ok"])
-            self.assertFalse(ipadmaps("open")["ok"])
-            self.assertTrue(ipadmaps("show", "Warsaw & Praga")["ok"])
-            self.assertFalse(ipadmaps("search", "Warsaw")["ok"])
-            self.assertFalse(ipadmaps("directions", "Gdańsk")["ok"])
+    def test_maps_surface_dispatches_proven_routes_and_denies_candidates_early(self) -> None:
+        from integrations.apple_maps import commands as maps_commands
 
-        self.assertEqual(calls[0], ("Maps",))
-        query = parse_qs(urlparse(str(calls[1][1])).query)
-        self.assertEqual(query, {"q": ["Warsaw & Praga"]})
+        expected_commands = (
+            "open", "frame", "search", "show", "place", "look-around",
+            "directions", "navigate", "guides", "report-a-problem", "link",
+        )
+        proven = {
+            "frame": ((), {"center": (52.2, 21.0)}),
+            "search": (("Warsaw",), {}),
+            "show": (("Warsaw & Praga",), {}),
+            "place": ((), {"address": "Paris"}),
+            "look-around": ((), {"address": "Paris"}),
+            "directions": (("Gdańsk",), {"origin": "Warsaw"}),
+            "guides": ((), {}),
+            "link": (("https://maps.apple.com/guides",), {}),
+        }
+        candidates = {
+            "navigate": (("Gdańsk",), {"start": 0}),
+            "report-a-problem": ((), {"address": "Paris"}),
+        }
+        self.assertEqual(expected_commands, maps_commands.COMMANDS)
+        self.assertEqual(11, len(maps_commands.COMMANDS))
+
+        with mock.patch.object(
+            commands, "_direct_open", return_value=SUCCESS
+        ) as direct, mock.patch.object(
+            maps_commands, "_validated_route_dispatch", return_value=SUCCESS
+        ) as dispatch, mock.patch(
+            "ipad_agent.core.config.load_config"
+        ) as config, mock.patch(
+            "ipad_agent.core.registry.load_registry"
+        ) as registry, mock.patch.object(commands, "_runtime_ip") as legacy:
+            self.assertTrue(ipadmaps("open")["ok"])
+            for command, (args, options) in proven.items():
+                with self.subTest(command=command):
+                    self.assertTrue(ipadmaps(command, *args, **options)["ok"])
+            for command, (args, options) in candidates.items():
+                with self.subTest(command=command):
+                    result = ipadmaps(command, *args, **options)
+                    self.assertFalse(result["ok"])
+                    self.assertIn("candidate", result["error"])
+                    self.assertEqual("not_sent", result["_operation"]["phase"])
+
+        direct.assert_called_once_with("com.apple.Maps")
+        self.assertEqual(
+            ["frame", "search", "search", "place", "look-around", "directions", "guides", "link"],
+            [call.args[0] for call in dispatch.call_args_list],
+        )
+        config.assert_not_called()
+        registry.assert_not_called()
         legacy.assert_not_called()
 
     def test_compact_opcodes_and_invalid_destinations_fail_before_dispatch(self) -> None:

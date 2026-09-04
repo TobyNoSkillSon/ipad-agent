@@ -2,16 +2,21 @@
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import tempfile
+import threading
 import time
 from pathlib import Path
 from typing import Any, Callable, Mapping, Protocol
 
-from ipad_agent.coredevice import open_ipad
-from ipad_agent.operations import BatchResult, OperationError, OperationPhase, OperationResult, SafetyClass
-from ipad_agent.wda import XCTestConfig, short_session
+from ipad_agent.transports.coredevice import (
+    IPadControlError, open_ipad_when_unlocked, open_validated_route_when_unlocked,
+)
+from ipad_agent.core.operations import BatchResult, OperationError, OperationPhase, OperationResult, SafetyClass
+from ipad_agent.transports.wda import XCTestConfig, short_session
 
+from ._authorization_state import consume_authorization_receipt
 from .evidence import evidence_document, record_evidence, utc_now
 from .model import (
     BenchmarkControlPlan, LabRun, PhysicalAuthorization, PlannedStep, ScenarioPlan,
@@ -21,6 +26,9 @@ from .planning import (
     MAX_PHYSICAL_SAFETY, _validated_url, assert_step_invariant, plan_scenario,
     verify_plan_safety,
 )
+
+
+AUTHORIZATION_RECEIPT_ROOT = Path(__file__).resolve().parents[2]
 
 
 class StepExecutor(Protocol):
@@ -128,6 +136,7 @@ class PhysicalExecutor:
         config: XCTestConfig | None = None, timeout: float = 30.0,
         run_count: int = 1, benchmark_parameters: Mapping[str, Any] | None = None,
         benchmark_control_plan: BenchmarkControlPlan | None = None,
+        _execution_claim: str = "scenario:0",
     ) -> None:
         if physical is not True:
             raise PermissionError("PhysicalExecutor requires physical=True")
@@ -146,17 +155,35 @@ class PhysicalExecutor:
         self._authorization_run_count = run_count
         self._benchmark_parameters = benchmark_parameters
         self._benchmark_control_plan = benchmark_control_plan
-        authorized_steps = list(plan.steps)
-        if benchmark_control_plan is not None:
-            authorized_steps.extend(
-                step
-                for phase in (
-                    benchmark_control_plan.baseline,
-                    benchmark_control_plan.reset,
-                    benchmark_control_plan.cleanup,
-                )
-                for step in phase
-            )
+        self._execution_claim = _execution_claim
+        self._authorization_claimed = False
+        self._benchmark_cleanup_executor = False
+        self._step_execution_counts: dict[str, int] = {}
+        if benchmark_control_plan is None:
+            if _execution_claim != "scenario:0":
+                raise ValueError("non-benchmark execution must use its canonical claim")
+            authorized_steps = list(plan.steps)
+        else:
+            match = re.fullmatch(r"(run|baseline|reset|cleanup):([0-9]{1,2})", _execution_claim)
+            if match is None:
+                raise ValueError("benchmark execution claim is invalid")
+            role, raw_index = match.groups()
+            index = int(raw_index)
+            if role == "run":
+                valid = index < run_count
+                authorized_steps = list(plan.steps)
+            elif role == "baseline":
+                valid = index == 0
+                authorized_steps = list(benchmark_control_plan.baseline)
+            elif role == "reset":
+                valid = 1 <= index < run_count
+                authorized_steps = list(benchmark_control_plan.reset)
+            else:
+                valid = index == 0
+                authorized_steps = list(benchmark_control_plan.cleanup)
+                self._benchmark_cleanup_executor = True
+            if not valid:
+                raise ValueError("benchmark execution claim is outside the authorized schedule")
         self._authorized_steps = {
             step.operation.operation_id: canonical_digest(step.to_dict()) for step in authorized_steps
         }
@@ -171,6 +198,68 @@ class PhysicalExecutor:
             },
         }
 
+    def _claim_authorization(self) -> None:
+        if self._authorization_claimed:
+            return
+        benchmark = self._benchmark_control_plan is not None
+        state = self.authorization._execution_state
+        owner = threading.get_ident()
+        if benchmark and state["status"] == "active":
+            if state["owner_thread"] != owner:
+                raise PermissionError("physical authorization is already active in another thread")
+            self._authorization_claimed = True
+            return
+        if benchmark and state["status"] != "new":
+            raise PermissionError("physical authorization has already been consumed")
+        receipt = {
+            "version": 1,
+            "authorization_id": self.authorization.authorization_id,
+            "authorization_sha256": canonical_digest(self.authorization.to_dict()),
+            "integration_id": self.authorization.integration_id,
+            "manifest_digest": self.authorization.manifest_digest,
+            "plan_digest": self.authorization.plan_digest,
+            "scenario_id": self.authorization.scenario_id,
+            "safety_ceiling": self.authorization.safety_ceiling.value,
+            "run_count": self.authorization.run_count,
+            "benchmark_parameters": self.authorization.benchmark_parameters,
+            "benchmark_control_plan": self.authorization.benchmark_control_plan,
+        }
+        consume_authorization_receipt(
+            AUTHORIZATION_RECEIPT_ROOT, self.authorization.authorization_id, receipt,
+        )
+        if benchmark:
+            state.update({"status": "active", "owner_thread": owner})
+        self._authorization_claimed = True
+
+    def _claim_step_authorization(self, step: PlannedStep, attempt: int) -> None:
+        claim_id = canonical_digest({
+            "authorization_id": self.authorization.authorization_id,
+            "execution_claim": self._execution_claim,
+            "operation_id": step.operation.operation_id,
+            "attempt": attempt,
+        })
+        consume_authorization_receipt(
+            AUTHORIZATION_RECEIPT_ROOT,
+            claim_id,
+            {
+                "version": 1,
+                "kind": "physical-step",
+                "authorization_id": self.authorization.authorization_id,
+                "authorization_sha256": canonical_digest(self.authorization.to_dict()),
+                "execution_claim": self._execution_claim,
+                "operation_id": step.operation.operation_id,
+                "step_sha256": canonical_digest(step.to_dict()),
+                "attempt": attempt,
+            },
+        )
+
+    def _complete_benchmark_authorization(self) -> None:
+        if not self._benchmark_cleanup_executor:
+            return
+        state = self.authorization._execution_state
+        if state.get("owner_thread") == threading.get_ident():
+            state.update({"status": "complete", "owner_thread": None})
+
     def __enter__(self) -> "PhysicalExecutor":
         return self
 
@@ -179,6 +268,7 @@ class PhysicalExecutor:
         if self._session_context is None:
             if wda.get("started") is not True:
                 wda.update({"started": False, "owned": False, "teardown_attempted": False, "teardown_complete": True})
+            self._complete_benchmark_authorization()
             return None
         wda["teardown_attempted"] = True
         try:
@@ -193,6 +283,7 @@ class PhysicalExecutor:
         finally:
             self._session_context = None
             self._session = None
+            self._complete_benchmark_authorization()
         return None
 
     def _merge_coredevice_environment(self, device_id: str) -> None:
@@ -236,7 +327,27 @@ class PhysicalExecutor:
             raise PermissionError("step exceeds the PhysicalAuthorization safety ceiling")
         instruction = step.instruction
         operation = instruction["operation"]
-        if operation == "open-url":
+        route = None
+        active_config = None
+        active_registry = None
+        if operation == "open-url" and "validated_route" in instruction:
+            from ipad_agent.core.config import load_config
+            from ipad_agent.core.registry import load_registry
+            from ipad_agent.core.urlroutes import ValidatedURLRoute, revalidate_validated_route
+
+            route = ValidatedURLRoute.from_dict(instruction["validated_route"])
+            active_config = load_config()
+            active_registry = load_registry(enabled_addons=active_config.enabled_addons)
+            integration = active_registry.resolve(route.integration_id)
+            if not (
+                route.bundle_id == bundle_id == self.plan.bundle_id == integration.bundle_id
+                and integration.url_policy is not None
+            ):
+                raise PermissionError("validated lab route does not match the active indexed bundle")
+            revalidate_validated_route(integration.url_policy, route)
+        elif operation == "open-url":
+            if self.plan.integration_id not in {"safari", "brave"}:
+                raise PermissionError("v1 physical URL dispatch is legacy-browser-only")
             _validated_url(
                 instruction.get("value"), instruction.get("allowed_schemes"),
                 action_id=step.action_id,
@@ -248,12 +359,51 @@ class PhysicalExecutor:
             benchmark_parameters=self._benchmark_parameters,
             benchmark_control_plan=self._benchmark_control_plan,
         )
+        # This O_EXCL receipt is the final local gate. It is durable across
+        # objects, threads, and processes and is created before any transport,
+        # CoreDevice query, or WDA session can start.
+        self._claim_authorization()
+        operation_id = step.operation.operation_id
+        prior_executions = self._step_execution_counts.get(operation_id, 0)
+        if prior_executions >= self.plan.max_attempts:
+            raise PermissionError("step has exhausted the authorized invocation attempt count")
+        # A durable per-step claim prevents a copied or forked executor from
+        # replaying an unconsumed remainder of a multi-step authorization.
+        self._claim_step_authorization(step, prior_executions)
+        self._step_execution_counts[operation_id] = prior_executions + 1
         dispatched = False
         started = time.perf_counter()
         try:
             if operation in {"activate", "open-url"}:
+                if route is not None:
+                    unlock = open_validated_route_when_unlocked(
+                        route, timeout=self.timeout, config=active_config, registry=active_registry,
+                    )
+                else:
+                    unlock = open_ipad_when_unlocked(
+                        bundle_id, url=instruction.get("value"), timeout=self.timeout,
+                        config=active_config, registry=active_registry,
+                    )
+                if unlock.status == "locked":
+                    return OperationResult.not_sent(
+                        step.operation,
+                        OperationError(
+                            "device_locked", "The iPad must be unlocked before CoreDevice dispatch",
+                            {"locked": True, "bundle_id": bundle_id, "dispatched": False},
+                        ),
+                    )
+                if unlock.status == "unknown":
+                    return OperationResult.not_sent(
+                        step.operation,
+                        OperationError(
+                            "lock_state_unknown", "The iPad lock state is unavailable",
+                            {"bundle_id": bundle_id, "dispatched": False},
+                        ),
+                    )
+                launch = unlock.value
+                if unlock.status != "dispatched" or launch is None:
+                    raise RuntimeError("CoreDevice unlock-gated dispatch returned an invalid result")
                 dispatched = True
-                launch = open_ipad(bundle_id, url=instruction.get("value"), timeout=self.timeout)
                 self._merge_coredevice_environment(launch.device_id)
                 response = {
                     "bundle_id": launch.bundle_id, "elapsed_seconds": launch.elapsed_seconds,
@@ -263,7 +413,7 @@ class PhysicalExecutor:
                     return OperationResult.failed(
                         step.operation,
                         OperationError(
-                            "device_locked", "CoreDevice reported the iPad locked",
+                            "device_locked_after_dispatch", "CoreDevice reported the iPad locked after dispatch",
                             {"locked": True, "bundle_id": launch.bundle_id, "dispatched": True},
                         ),
                     )
@@ -329,8 +479,11 @@ class PhysicalExecutor:
             return OperationResult.succeeded(step.operation, response)
         except Exception as error:
             detail = OperationError(type(error).__name__, " ".join(str(error).split()) or type(error).__name__)
-            lost = bool(getattr(error, "response_lost", False))
-            if dispatched and step.operation.safety_class is SafetyClass.TRANSIENT:
+            lost = bool(getattr(error, "response_lost", False) or getattr(error, "uncertain", False))
+            if (
+                dispatched and step.operation.safety_class is SafetyClass.TRANSIENT
+                and not isinstance(error, IPadControlError)
+            ):
                 lost = True
             return OperationResult.response_lost(step.operation, detail) if lost else OperationResult.failed(step.operation, detail)
 
@@ -437,7 +590,7 @@ def run_physical_scenario(
     verify_plan_safety(plan, requested_ceiling=requested)
     authorization.verify(plan, requested_ceiling=requested)
     runner = PhysicalExecutor(
-        physical=True, authorization=authorization, plan=plan, timeout=timeout
+        physical=True, authorization=authorization, plan=plan, timeout=timeout,
     )
     return _run(
         plan, runner, mode="physical", record=record, repository_root=repository_root,

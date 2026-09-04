@@ -29,7 +29,7 @@ jobs:
         run: python3 scripts/release_check.py
 
       - name: Verify repository-root import
-        run: python3 -c 'from ipad_agent import ipadc, ipadpreview, ipadbooks, ipadfiles, ipadsettings, ipadclock, ipadappstore, ipadbrave, ipadsafari, ipadmaps'
+        run: python3 -c 'from ipad_agent import ipadc, ipadpreview, ipadbooks, ipadfiles, ipadsettings, ipadclock, ipadappstore, ipadbrave, ipadsafari, ipadmaps, ipadgooglemaps, ipadpages, ipadnumbers, ipadkeynote, ipadphotos, ipadmessages'
 
       - name: Verify doctor JSON shape
         shell: bash
@@ -42,8 +42,11 @@ jobs:
             --doctor-json "$RUNNER_TEMP/doctor.json" \
             --doctor-exit "$doctor_exit"
 
-      - name: Run offline unit tests
+      - name: Run shared and cross-application tests
         run: python3 -m unittest discover -s tests -p 'test_*.py' -v
 
+      - name: Run app-local contract tests
+        run: python3 -m unittest discover -s integrations -t . -p 'test_*.py' -v
+
       - name: Compile Python sources
-        run: python3 -m compileall -q ipad_agent tests scripts
+        run: python3 -m compileall -q ipad_agent integrations tests scripts

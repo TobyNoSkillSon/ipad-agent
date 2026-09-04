@@ -1,0 +1,26 @@
+{
+  "schema": "ipad-agent.maps-device-profile/v1",
+  "version": 1,
+  "profile_id": "ipad-pro-11-inch-m5-wifi-ipados-26.6.1-23g83",
+  "scope_type": "model-build",
+  "marketing_model": "iPad Pro 11-inch (M5, Wi-Fi)",
+  "product_type": "iPad17,1",
+  "hardware_model": "J817AP",
+  "os_version": "26.6.1",
+  "os_build": "23G83",
+  "capabilities": {
+    "form_factor": "ipad",
+    "wifi": true,
+    "cellular": false
+  },
+  "sources": [
+    {
+      "kind": "devicectl",
+      "note": "Product type, hardware model, iPadOS version, and build observed with devicectl; no unique device identifier retained."
+    },
+    {
+      "kind": "apple-technical-specification",
+      "note": "Marketing model and hardware capabilities derived from Apple’s technical specification for iPad Pro 11-inch (M5, Wi-Fi)."
+    }
+  ]
+}

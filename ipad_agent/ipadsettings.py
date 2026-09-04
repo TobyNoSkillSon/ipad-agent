@@ -6,7 +6,7 @@ from typing import Any
 
 def ipadsettings(command: object, *args: object, **options: object) -> Any:
     """Open Settings or one allowlisted safe destination."""
-    from .commands import settings
+    from integrations.settings.commands import settings
 
     return settings(command, *args, **options)
 

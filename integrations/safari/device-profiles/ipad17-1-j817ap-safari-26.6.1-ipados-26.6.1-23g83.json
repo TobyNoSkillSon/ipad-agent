@@ -1,0 +1,22 @@
+{
+  "schema": "ipad-agent.safari-device-profile/v1",
+  "version": 1,
+  "profile_id": "ipad17-1-j817ap-safari-26.6.1-ipados-26.6.1-23g83",
+  "scope_type": "model-build",
+  "app_name": "Safari",
+  "app_version": "26.6.1",
+  "product_type": "iPad17,1",
+  "hardware_model": "J817AP",
+  "os_version": "26.6.1",
+  "os_build": "23G83",
+  "sources": [
+    {
+      "kind": "devicectl",
+      "note": "Product type, hardware model, iPadOS version, and build were observed through CoreDevice; no unique device identifier is retained."
+    },
+    {
+      "kind": "installed-application-metadata",
+      "note": "The installed Safari application version was observed as 26.6.1 on this model/build profile."
+    }
+  ]
+}

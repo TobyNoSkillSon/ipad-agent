@@ -1,14 +1,23 @@
+import base64
 import json
 import os
 from pathlib import Path
+import secrets
 import socket
+import stat
+import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from ipad_agent.api import _result_for_request
 from ipad_agent.config import Config, config_from_snapshot, config_snapshot
 from ipad_agent.operations import OperationResult
-from ipad_agent.paths import private_write_text, runtime_path
+from ipad_agent.paths import (
+    AF_UNIX_PATH_BUDGET,
+    private_runtime_socket_path,
+    private_write_text,
+    runtime_path,
+)
 from ipad_agent.registry import load_registry
 from ipad_agent.runtime import (
     Daemon,
@@ -16,7 +25,9 @@ from ipad_agent.runtime import (
     SOCKET_OWNER,
     SOCKET_OWNER_SCHEMA,
     _client_send,
+    _client_socket_path,
     _operation_for_request,
+    _owned_socket_metadata,
     _socket_metadata_path,
     dispatch_client,
     registry_from_snapshot,
@@ -124,7 +135,7 @@ class RuntimeDaemonRecoveredBlockers20260829Tests(unittest.TestCase):
         send.assert_not_called()
 
     def test_unowned_listener_is_never_connected_or_sent_a_command(self):
-        path = runtime_path("tests", "unowned-listener.sock")
+        path = private_runtime_socket_path()
         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         os.chmod(path.parent, 0o700)
         with patch("ipad_agent.runtime._client_socket_path", return_value=path):
@@ -151,7 +162,7 @@ class RuntimeDaemonRecoveredBlockers20260829Tests(unittest.TestCase):
                 _socket_metadata_path(path).unlink(missing_ok=True)
 
     def test_stale_replacement_requires_matching_owned_socket_receipt(self):
-        path = runtime_path("tests", "stale-owned.sock")
+        path = private_runtime_socket_path()
         path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
         os.chmod(path.parent, 0o700)
         old = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -195,6 +206,85 @@ class RuntimeDaemonRecoveredBlockers20260829Tests(unittest.TestCase):
             payload = self._authenticated_exchange(daemon, request)
         self.assertIsNone(payload)
         execute.assert_not_called()
+
+    def test_screenshot_rejects_escape_and_symlink_before_contacting_wda(self):
+        runtime = Daemon(runtime_path("tests", "screenshot.sock"), idle_ttl=10).runtime
+        with tempfile.TemporaryDirectory() as temporary:
+            runtime_root = Path(temporary) / ".runtime"
+            artifact_root = runtime_root / "artifacts"
+            artifact_root.mkdir(parents=True, mode=0o700)
+            os.chmod(runtime_root, 0o700)
+            os.chmod(artifact_root, 0o700)
+            outside_artifacts = runtime_root / "config" / "not-an-artifact.png"
+            with patch("ipad_agent.core.paths.RUNTIME_ROOT", runtime_root), \
+                 patch("ipad_agent.core.paths.ARTIFACT_DIR", artifact_root):
+                for output in (".", "../escape.png", "nested/../escape.png", str(outside_artifacts)):
+                    with self.subTest(output=output), patch.object(runtime, "ensure_session") as session:
+                        with self.assertRaises(ValueError):
+                            runtime.screenshot(output)
+                        session.assert_not_called()
+
+                outside = Path(temporary) / "outside.png"
+                outside.write_bytes(b"untouched")
+                link = artifact_root / "linked.png"
+                link.symlink_to(outside)
+                with patch.object(runtime, "ensure_session") as session:
+                    with self.assertRaisesRegex(ValueError, "symlinks are not allowed"):
+                        runtime.screenshot("linked.png")
+                    session.assert_not_called()
+                self.assertEqual(b"untouched", outside.read_bytes())
+
+    def test_screenshot_atomically_writes_private_artifact_without_truncating_on_failure(self):
+        runtime = Daemon(runtime_path("tests", "atomic-screenshot.sock"), idle_ttl=10).runtime
+        with tempfile.TemporaryDirectory() as temporary:
+            runtime_root = Path(temporary) / ".runtime"
+            artifact_root = runtime_root / "artifacts"
+            artifact_root.mkdir(parents=True, mode=0o700)
+            os.chmod(runtime_root, 0o700)
+            os.chmod(artifact_root, 0o700)
+            target = artifact_root / "capture.png"
+            target.write_bytes(b"previous")
+            os.chmod(target, 0o600)
+            session = Mock()
+            session._request.return_value = base64.b64encode(b"new-pixels").decode("ascii")
+            with patch("ipad_agent.core.paths.RUNTIME_ROOT", runtime_root), \
+                 patch("ipad_agent.core.paths.ARTIFACT_DIR", artifact_root), \
+                 patch.object(runtime, "ensure_session", return_value=session), \
+                 patch("ipad_agent.core.paths.os.replace", side_effect=OSError("replace failed")):
+                with self.assertRaisesRegex(OSError, "replace failed"):
+                    runtime.screenshot("capture.png")
+            self.assertEqual(b"previous", target.read_bytes())
+
+            with patch("ipad_agent.core.paths.RUNTIME_ROOT", runtime_root), \
+                 patch("ipad_agent.core.paths.ARTIFACT_DIR", artifact_root), \
+                 patch.object(runtime, "ensure_session", return_value=session):
+                self.assertEqual(str(target), runtime.screenshot("capture.png"))
+            self.assertEqual(b"new-pixels", target.read_bytes())
+            self.assertEqual(0o600, stat.S_IMODE(target.stat().st_mode))
+
+    def test_deep_checkout_uses_private_bounded_socket_and_removes_it_cleanly(self):
+        deep_root = Path("/checkout") / ("very-deep-" * 40) / secrets.token_hex(8)
+        short_path = private_runtime_socket_path(deep_root)
+        self.assertLessEqual(len(os.fsencode(short_path)), AF_UNIX_PATH_BUDGET)
+        self.assertNotIn(str(deep_root), str(short_path))
+
+        with patch("ipad_agent.runtime.REPOSITORY_ROOT", deep_root):
+            self.assertEqual(short_path, _client_socket_path())
+            daemon = Daemon(short_path, idle_ttl=10, nonce="9" * 64)
+            listener = daemon._bind()
+            ownership = _owned_socket_metadata(short_path)
+            self.assertIsNotNone(ownership)
+            self.assertEqual(str(short_path), ownership["socket"])
+            self.assertEqual(short_path.lstat().st_ino, ownership["inode"])
+            listener.close()
+            # Let the normal serve-finally branch prove endpoint and receipt
+            # teardown without rebinding the already-created socket.
+            daemon._bind = lambda: listener
+            daemon.stop = True
+            daemon.serve()
+            self.assertFalse(short_path.exists())
+            self.assertFalse(_socket_metadata_path(short_path).exists())
+            self.assertFalse(short_path.parent.exists())
 
 
 if __name__ == "__main__":

@@ -1,0 +1,43 @@
+{
+  "schema": "ipad-agent.preview-file-authority/v1",
+  "version": 1,
+  "application": "Preview",
+  "transport": "airdrop-single-local-file",
+  "extensions": [
+    ".pdf",
+    ".jpg",
+    ".jpeg",
+    ".jpe",
+    ".png",
+    ".tif",
+    ".tiff",
+    ".heic",
+    ".heif",
+    ".exr",
+    ".bmp",
+    ".dib",
+    ".ico",
+    ".tga",
+    ".psd",
+    ".icns",
+    ".jp2",
+    ".j2k",
+    ".j2c",
+    ".jpf",
+    ".jpx",
+    ".jpm"
+  ],
+  "evidence": [
+    {
+      "kind": "apple-documentation",
+      "source": "Apple Preview User Guide for iPad",
+      "declaration": "Preview opens and edits PDFs and images; source authority does not prove AirDrop handoff."
+    },
+    {
+      "kind": "simulator-bundle-declaration",
+      "runtime": "iOS 26.5 (23F77)",
+      "bundle": "com.apple.Preview",
+      "declaration": "PDF and declared image document types; build-specific testing authority only."
+    }
+  ]
+}

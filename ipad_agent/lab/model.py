@@ -4,12 +4,13 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import secrets
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
-from ipad_agent.operations import BatchResult, OperationSpec, SafetyClass
+from ipad_agent.core.operations import BatchResult, OperationSpec, SafetyClass
 
 
 def canonical_digest(value: Any) -> str:
@@ -153,6 +154,11 @@ class PhysicalAuthorization:
     run_count: int = 1
     benchmark_parameters: Mapping[str, Any] | None = None
     benchmark_control_plan: Mapping[str, Any] | None = None
+    authorization_id: str = field(default_factory=lambda: secrets.token_hex(32))
+    _execution_state: dict[str, Any] = field(
+        default_factory=lambda: {"status": "new", "owner_thread": None},
+        init=False, repr=False, compare=False,
+    )
 
     def __post_init__(self) -> None:
         for name in ("actor", "request", "integration_id", "scenario_id", "authorized_at"):
@@ -160,6 +166,8 @@ class PhysicalAuthorization:
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"authorization.{name} must be a non-empty string")
             object.__setattr__(self, name, value.strip())
+        if not isinstance(self.authorization_id, str) or not re.fullmatch(r"[a-f0-9]{64}", self.authorization_id):
+            raise ValueError("authorization.authorization_id must be a 256-bit lowercase hexadecimal identifier")
         if not re.fullmatch(r"[a-f0-9]{64}", self.manifest_digest):
             raise ValueError("authorization.manifest_digest must be a SHA-256 digest")
         if not re.fullmatch(r"[a-f0-9]{64}", self.plan_digest):
@@ -187,6 +195,8 @@ class PhysicalAuthorization:
         expiry = self._parse_time(expiry_text, "expires_at")
         if expiry <= timestamp:
             raise ValueError("authorization.expires_at must be after authorized_at")
+        if expiry > timestamp + timedelta(minutes=15):
+            raise ValueError("authorization.expires_at must be no more than 15 minutes after authorized_at")
         object.__setattr__(self, "expires_at", expiry_text)
         if isinstance(self.run_count, bool) or not isinstance(self.run_count, int) or self.run_count < 1:
             raise ValueError("authorization.run_count must be a positive integer")
@@ -322,6 +332,7 @@ class PhysicalAuthorization:
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "authorization_id": self.authorization_id,
             "actor": self.actor,
             "request": self.request,
             "integration_id": self.integration_id,

@@ -6,7 +6,7 @@ from typing import Any
 
 def ipadclock(command: object, *args: object, **options: object) -> Any:
     """Open Clock."""
-    from .commands import clock
+    from integrations.clock.commands import clock
 
     return clock(command, *args, **options)
 
